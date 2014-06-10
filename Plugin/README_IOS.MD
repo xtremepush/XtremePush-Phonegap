@@ -1,4 +1,4 @@
-<span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> iOS integration guide  
+<span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> Phonegap iOS integration guide  
 ==================
 
 [About](#about)
@@ -7,20 +7,24 @@
 
 1.  [Download Library](#download)
 2.  [Add Xtreme Push to your Project](#add_xtreme)
-3.  [Connect your App to the XtremePush Platform] (#connect_xtreme)
-4.  [Sending your first Push](#first_push)
-5.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
-6.  [Custom Push Notification Sounds](#custom_sounds)
-7.  [Switching Off Location](#location_off)
+3.  [Download phonegap plugin](#download_plugin)
+4.  [Add phonegap plugin](#add_plugin)
+5.  [Connect your App to the XtremePush Platform] (#connect_xtreme)
+6.  [Sending your first Push](#first_push)
+7.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
+8.  [Custom Push Notification Sounds](#custom_sounds)
+9.  [Switching Off Location](#location_off)
+
+[Phonegap Example App](#example_app)
 
 [Appendix A: iOS Push Notification Certificates](#certs)
 
-[Appendix B: Method Summary for XtremePush iOS Library](#method_summary)
+[Appendix B: Method Summary for XtremePush Phonegap Plugin](#method_summary)
 	
 
 
 ##	 About <a name="about"></a>
-This document should provide all the info you need to integrate your iOS app with the XtremePush plaform and send your first push via the platform.
+This document should provide all the info you need to integrate your iOS app with the XtremePush platform and send your first push via the platform.
 
 ## Integrating <a name="integrating"></a>
 
@@ -35,7 +39,7 @@ This document should provide all the info you need to integrate your iOS app wit
 
 ### 2. Add Xtreme Push to your Project  <a name="add_xtreme"></a>
 
-1. In Finder drag the Xtreme Push Folder XtremePush_iOS-master/ into your  project's folder
+1. In Finder drag the XtremePush Folder XtremePush_iOS-master/ into your  project's folder
 
 2. Open your project in Xcode
 
@@ -43,7 +47,7 @@ This document should provide all the info you need to integrate your iOS app wit
 
 4. libXPush.a should now appear in the Linked Frameworks and Libraries section of your projects general target settings
 
-5. Next add the following dependencies in Linked Frameworks and Libraries:
+5. Next ensure the following dependencies are added in Linked Frameworks and Libraries:
 	* CoreLocation
 	* SystemConfiguration
 	* MobileCoreServices
@@ -53,10 +57,26 @@ This document should provide all the info you need to integrate your iOS app wit
 
 6. libXPush.a and dependencies now appear in Linked Frameworks and Libraries in your projects general target settings. If unsure of these steps click below for a youtube walkthrough.
 
-7. Add AppDelegate+notification.h, AppDelegate+notification.m, XTremePushPlugin.h, XTremePushPlugin.m  to your project.
-8. Copy folder xtremepush to www/plugins folder.
-9. To the file cordova_plugins.js add: 
-  
+[![Video of dependencies being added](http://img.youtube.com/vi/teZ-uG5S-jE/0.jpg)](http://youtu.be/teZ-uG5S-jE)
+
+### 4. Download phonegap plugin <a name="download_plugin"></a>
+
+1. Download the latest plugin version [here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip). 
+
+2. Extract the archive, it contains the folder XtremePush_phonegap/ with the two folders relevant to the iOS phonegap integration:
+    * iOS/: Contains the required  .h and .m files of the plugin. 
+    * JS/: Contains the .js file of the plugin that goes in the www folder.
+
+   Note: folders with the names of other OSs can be ignored, there is also an example iOS app in
+ 
+### 4. Add phonegap plugin <a name="add_plugin"></a>
+1. Add AppDelegate+notification.h, AppDelegate+notification.m, XTremePushPlugin.h, XTremePushPlugin.m  to the plugins/ folder of your project in Xcode (found in the iOS/ folder).
+
+2. The folder xtremepush contains "xtremepush.js" the javascript file that allows you to use xtremepush methods in your phonegap project. Copy folder xtremepush to the folder www/plugins (found in the js folder).
+
+3. To the file cordova_plugins.js add: 
+
+ ```javascript  
   module.exports = [
         {
                       "file": "plugins/xtremepush/xtremepush.js",
@@ -66,18 +86,21 @@ This document should provide all the info you need to integrate your iOS app wit
                                   ]
         }
     ]
+ ```
+  
+  These steps are highlighted in the image below:
+   ![Adding phonegap plugin ios](http://cl.ly/image/2q0O3e3p1X3g/add_phonegap_plugin_ios.png)
 
-10.  In config.xml add path to your plugin file:
-    <feature name="XTremePush">
+4.  Finally in config.xml add the path to your plugin file:
+
+```xml
+  <feature name="XTremePush">
       <param name="ios-package" value="XTremePushPlugin" />
-    </feature>
+  </feature>
+```
+  
 
-
-
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/teZ-uG5S-jE/0.jpg)](http://youtu.be/teZ-uG5S-jE)
-
-
-### 3. Connect your App to the XtremePush Platform <a name="connect_xtreme"></a>
+### 5. Connect your App to the XtremePush Platform <a name="connect_xtreme"></a>
 
 1. Add your App on the platfrom by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
    
@@ -92,7 +115,7 @@ This document should provide all the info you need to integrate your iOS app wit
    
    ![Where your App Key goes in your project](http://cl.ly/image/0U1r3V2h3P1p/added_key.png)
 
-4. In your Info.plist file add "XtremePushSandoxMode" in key field and set it to YES if you want to use APNS in "Sandbox" gateway to quickly test with a DEBUG build of an app.
+4. In your Info.plist file add "XtremePushSandboxMode" in key field and set it to YES if you want to use APNS in "Sandbox" gateway to quickly test with a DEBUG build of an app.
 
    ![Sandbox mode turned on below the App Key](http://cl.ly/image/1V2q251r0n1P/sandboxmode_yes.png)
 
@@ -103,31 +126,61 @@ This document should provide all the info you need to integrate your iOS app wit
    
    ![Adding iOS push notification certs](http://cl.ly/image/3s0U0n3P1x3p/adding_certs.png)
 
-6. In your Application Delegate, import XPush:
+6. To register for push notification call the following in your index.js or equivalent javascript code after the deviceReady event:
+
+```javascript
+XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sound:true, callbackFunction:"onPushReceived"});
+```
+
+where callbackFunction is a javascript function which will be called when push notification will be received. Here is an example of how this might look in your index.js:
+
+![Registering for push in javascript](http://cl.ly/image/2a2m2V0q033M/register_phonegap_ios.png)
+
+
+7. In your Application Delegate, import XPush:
 
 ```objc
 #import "XPush.h"
 ```
 
-  And inside `applicationDidFinishLaunching:withOptions:` add these two method calls to set up XtremePush:
+  And inside `applicationDidFinishLaunching:withOptions:` add the method call `[XPush applicationDidFinishLaunchingWithOptions:launchOptions]` :
 
 ```objc
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+ //This is main kick off after the app inits, the views and Settings are setup here. (preferred - iOS4 and up)
+ 
+ - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    // Override point for customization after application launch.
-
-[XPush applicationDidFinishLaunchingWithOptions:launchOptions];
+    //Let XPush Know app has finished launching
+    [XPush applicationDidFinishLaunchingWithOptions:launchOptions];
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    
 ```
 
-   finally add the the three iOS remote notifications handling methods in Application delegate, and place the corresponding XtremePush method call in each of these as shown. **You are now ready to send your first push.**
+ finally add the iOS remote notifications handling methods in Application delegate, and place the corresponding XtremePush method call in each of these as shown. **You are now ready to send your first push.**
+   
+```objc
+-(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+    BOOL showAlert = YES;// if yes shows shows stock alert for this push on app open.
+    [XPush applicationDidReceiveRemoteNotification:userInfo showAlert:showAlert];
+}
 
-To register for push notification call in your JS code after deviceReady event:
+- (void) application:(UIApplication *)application
+   didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
 
-XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sound:true, callbackFunction:"onPushReceived"});
+- (void) application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+    [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
+    
+}
+```
 
-where callbackFunction is a javascript function which will be called when push notification will be received.
 
-### 4. Sending your first Push <a name="first_push"></a>
+### 6. Sending your first Push <a name="first_push"></a>
 
 1. To send a basic push go to your app home and select create campaign. The first step is to name your camapaign and add some content for the push. In this section you can also link to app pages, urls, or a custom html page for a richer push but for now we will just add text for a simple push.
 
@@ -137,11 +190,11 @@ where callbackFunction is a javascript function which will be called when push n
    
    ![ Selecting a segment ](http://cl.ly/image/0Q260e123V44/add_segment.png)
 
-3. Click next and you will be taken to location, for your first push you will not be tieing it to a location so click next and you are taken to schedule. In schedule the default selection is Send Now and to test your first push you will want to keep it that way.
+3. Click next and you will be taken to location, for your first push you will not be tying it to a location so click next and you are taken to schedule. In schedule the default selection is Send Now and to test your first push you will want to keep it that way.
 
    ![Schedule your push](http://cl.ly/image/0r2913470O2g/add_schedule.png) 
 
-4. Click next and you wil be taken to platform. Select iOS as your platform and add a badge count number if you want. If you are using a debug build with a development provision set environment to sandbox. If you are using a distribution build with a production provision set environment to production.  
+4. Click next and you will be taken to platform. Select iOS as your platform and add a badge count number if you want. If you are using a debug build with a development provision set environment to sandbox. If you are using a distribution build with a production provision set environment to production.  
 
    ![Configure your platform](http://cl.ly/image/1L0l0Z403H1k/push_add_platform.png)
 
@@ -150,7 +203,7 @@ where callbackFunction is a javascript function which will be called when push n
    ![ Your First Push ](http://cl.ly/image/0d2H0t1v3I0A/first_push.png)
 
 
-### 5. Tagging your app to enable deeper audience analysis and segmentation <a name="tagging"></a>
+### 7. Tagging your app to enable deeper audience analysis and segmentation <a name="tagging"></a>
 
 XtremePush has two methods for tagging activity in your app one for tagging page impressions and one for tagging any other activity.
 
@@ -168,9 +221,9 @@ To tag any other events send a tag to server using the following method:
 XTremePush.hitTag(successCallback, failCallback, "your_tag_name");
 ```
 
-### 6. Custom Push Notification Sounds<a name="custom_sounds"></a>
+### 8. Custom Push Notification Sounds<a name="custom_sounds"></a>
 
-To use custom push sounds you must add the sound files you wish to play to your project as a nonlocalized resource of the application bundle as shown below. For more on bundle structure see Apple's [Bundle Programming Guide](https://developer.apple.com/library/mac/documentation/corefoundation/conceptual/cfbundles/BundleTypes/BundleTypes.html)
+To use custom push sounds you must add the sound files you wish to play to your project as a non-localized resource of the application bundle as shown below. For more on bundle structure see Apple's [Bundle Programming Guide](https://developer.apple.com/library/mac/documentation/corefoundation/conceptual/cfbundles/BundleTypes/BundleTypes.html)
 
 ![Custom Sounds Xcode](http://cl.ly/image/3s2u2f360w2d/custo_sound_xcode%20.png)
 
@@ -178,7 +231,7 @@ You can then use these sounds in your app home when creating a campaign. You sim
 
 ![Using a Custom Sound xtremepush.com](http://cl.ly/image/2T3A1U3S3m1g/add_custom_sound.png)
 
-### 7. Switching Off Location<a name="location_off"></a>
+### 9. Switching Off Location<a name="location_off"></a>
 
 
 In the default configuration described above location is switched on to allow you to geofence regions related to your app in your app home on xtremepush.com. This allows you to analyse your audience and trigger pushes when they enter your locations. If you do not want these features location can be switched off using the following code in the application delegate.
@@ -191,7 +244,7 @@ In the default configuration described above location is switched on to allow yo
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    // Override point for customisation after application launch.
     
     // You must call the method to turn off location before `applicationDidFinishLaunchingWithOptions`
     [XPush setLocationEnabled:NO];
@@ -206,8 +259,23 @@ In the default configuration described above location is switched on to allow yo
 
 and register application from your javascript side after deviceReady event:
 
+```objc
 XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sound:true, callbackFunction:"onPushReceived"});
+```
 
+## Phonegap Example App <a name="example_app"></a>
+
+1. When you download the latest plugin version ([here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip)) it comes with example apps. 
+
+2. Extract the archive, it contains the folder *XtremePush_phonegap/* and the iOS example app can be found in *Example_Apps/ios/*
+
+3. To experiment  with this sample app open it in Xcode. It is a simple app with all the XtremePush library methods mapped to a series of buttons:
+
+![Phonegap example app](http://cl.ly/image/133e063D0z41/cordova_test_app.png)
+
+4. You can see how the plugin has been configured in the test app in key locations such as: the plugin folders, app delegate, cordova_plugins.js, config.cml, index.js and index.html (see image below).
+
+![Test app in Xcode](http://cl.ly/image/3V3c2t2t0F2J/test_app_xcode%20_phonegap_ios.png)
 
 
 ### Appendix A: iOS Push Notification Certificates<a name="certs"></a>
@@ -252,34 +320,34 @@ Log in to your XtremePush dashboard on xtremepush.com go to your app home and na
 
 
 
-## Appendix B: Method Summary for XtremePush Phonegap Library <a name="method_summary"></a>
+## Appendix B: Method Summary for XtremePush Phonegap Plugin <a name="method_summary"></a>
 
 
 ### XtremePush Information Methods
 
 
-XTremePush.version(successCallback, failCallback);
+**`XTremePush.version(successCallback, failCallback);`**
 
-Returns the version of the XtremePush library. Used to determine the version of the XtremePush library you are using for example if you want to quickly output the the version to the debug area in xcode you would use:
-
---------------------------
-
-
-XTremePush.deviceInfo(successCallback, failCallback);
-
-Returns the XtremePush device identifier.  If you want to quickly output the the decice id to the debug area in Xcode you would use:
+Returns the version of the XtremePush library. Used to determine the version of the XtremePush library you are using.
 
 --------------------------
 
 
-XTremePush.shouldWipeBadgeNumber(successCallback, failCallback);
+**`XTremePush.deviceInfo(successCallback, failCallback);`**
+
+Returns the XtremePush device identifier.  
+
+--------------------------
+
+
+**`XTremePush.shouldWipeBadgeNumber(successCallback, failCallback);`**
 
 Returns `YES` if badge number is wiped on app loading and `NO` otherwise.
 
 --------------------------
 
 
-XTremePush.isSandboxModeOn(successCallback, failCallback);
+**`XTremePush.isSandboxModeOn(successCallback, failCallback);`**
 
 Returns `YES` if library using sandbox environment for push notifications and `NO` otherwise
 
@@ -290,21 +358,21 @@ Returns `YES` if library using sandbox environment for push notifications and `N
 
 
 
- XTremePush.setLocationEnabled(successCallback, failCallback, true);
+ **`XTremePush.setLocationEnabled(successCallback, failCallback, true);`**
 
-Set `false` if location features of XtremePush are to be switched off. Must be called in didFinishLaunchingWithOptions method of your app delegate before you register the XtremePush library. Set `true` or do not call if you want to use location features. Call as follows to turn off Location features:
+Set `false` if location features of XtremePush are to be switched off. Must be called in didFinishLaunchingWithOptions method of your app delegate before you register the XtremePush library. Set `true` or do not call if you want to use location features. 
 
 --------------------------
 
   
-XTremePush.setShouldWipeBadgeNumber(successCallback, failCallback, true);
+**`XTremePush.setShouldWipeBadgeNumber(successCallback, failCallback, true);`**
 
 Set `true` if application badge number is to be wiped on app loading, otherwise set `false` or do not call. Must be called in didFinishLaunchingWithOptions method of your app delegate before you register the XtremePush library. 
 
 --------------------------
 
 
-XTremePush.unregister(successCallback, failCallback);
+**`XTremePush.unregister(successCallback, failCallback);`**
 
 Called in your application if you want to unregister for remote notifications from the XtremePush platform.
 
@@ -312,14 +380,14 @@ Called in your application if you want to unregister for remote notifications fr
 ### XtremePush Tagging methods
 
 
-XTremePush.hitImpression(successCallback, failCallback, 'hitImpression');
+**`XTremePush.hitImpression(successCallback, failCallback, 'hitImpression');`**
 
 Called where pages load to send impression to XtremePush server to track page impressions.
 
 --------------------------
 
 
-XTremePush.hitTag(successCallback, failCallback, 'hitTag');
+**`XTremePush.hitTag(successCallback, failCallback, 'hitTag');`**
 
 Called where events occur to send tag to XtremePush server to track events.
 
