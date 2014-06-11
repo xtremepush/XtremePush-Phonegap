@@ -1,4 +1,4 @@
-<span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> Phone Android integration guide  
+<span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> Phonegap Android integration guide  
 ==================
 
 [About](#about)
