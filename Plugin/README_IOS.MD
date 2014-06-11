@@ -59,20 +59,20 @@ This document should provide all the info you need to integrate your iOS app wit
 
 [![Video of dependencies being added](http://img.youtube.com/vi/teZ-uG5S-jE/0.jpg)](http://youtu.be/teZ-uG5S-jE)
 
-### 4. Download phonegap plugin <a name="download_plugin"></a>
+### 3. Download phonegap plugin <a name="download_plugin"></a>
 
 1. Download the latest plugin version [here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip). 
 
-2. Extract the archive, it contains the folder XtremePush_phonegap/ with the two folders relevant to the iOS phonegap integration:
-    * iOS/: Contains the required  .h and .m files of the plugin. 
-    * JS/: Contains the .js file of the plugin that goes in the www folder.
+2. Extract the archive, it contains the folder *XtremePush_phonegap/Plugin* with the following two folders relevant to the iOS phonegap integration:
+    * *iOS/*: Contains the required  .h and .m files of the plugin. 
+    * *JS/*: Contains the .js file of the plugin that goes in the www folder.
 
-   Note: folders with the names of other OSs can be ignored, there is also an example iOS app in
+   Note: folders with the names of other OSes can be ignored, there is also an example iOS app in *Example_Apps/android*
  
 ### 4. Add phonegap plugin <a name="add_plugin"></a>
 1. Add AppDelegate+notification.h, AppDelegate+notification.m, XTremePushPlugin.h, XTremePushPlugin.m  to the plugins/ folder of your project in Xcode (found in the iOS/ folder).
 
-2. The folder xtremepush contains "xtremepush.js" the javascript file that allows you to use xtremepush methods in your phonegap project. Copy folder xtremepush to the folder www/plugins (found in the js folder).
+2. In the *JS/* folder of the plugin you downloaded you will find the folder *xtremepush/* containing "xtremepush.js" the javascript file that allows you to use xtremepush methods in your phonegap project. Copy the folder *xtremepush/* to the *www/plugins/* folder of your project.
 
 3. To the file cordova_plugins.js add: 
 
@@ -102,7 +102,7 @@ This document should provide all the info you need to integrate your iOS app wit
 
 ### 5. Connect your App to the XtremePush Platform <a name="connect_xtreme"></a>
 
-1. Add your App on the platfrom by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
+1. Add your App on the platform by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
    
    ![Adding your app on the platform click integrate push features](http://cl.ly/image/050s3O0F2N2N/integrate_app.png)
 
@@ -132,7 +132,7 @@ This document should provide all the info you need to integrate your iOS app wit
 XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sound:true, callbackFunction:"onPushReceived"});
 ```
 
-where callbackFunction is a javascript function which will be called when push notification will be received. Here is an example of how this might look in your index.js:
+where callbackFunction is a javascript function which will be called when push notification is received. Here is an example of how this might look in your index.js:
 
 ![Registering for push in javascript](http://cl.ly/image/2a2m2V0q033M/register_phonegap_ios.png)
 
@@ -273,7 +273,7 @@ XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sou
 
 ![Phonegap example app](http://cl.ly/image/133e063D0z41/cordova_test_app.png)
 
-4. You can see how the plugin has been configured in the test app in key locations such as: the plugin folders, app delegate, cordova_plugins.js, config.cml, index.js and index.html (see image below).
+4. You can see how the plugin has been configured in the test app in key locations such as: the plugin folders, app delegate, cordova_plugins.js, config.xml, index.js and index.html (see image below).
 
 ![Test app in Xcode](http://cl.ly/image/3V3c2t2t0F2J/test_app_xcode%20_phonegap_ios.png)
 

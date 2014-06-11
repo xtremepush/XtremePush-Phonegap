@@ -1,4 +1,4 @@
-<span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> Android integration guide  
+<span style="color: #0086cf;">Xtreme</span><span style="color: #787878;">Push</span> Phone Android integration guide  
 ==================
 
 [About](#about)
@@ -6,11 +6,14 @@
 [Integrating](#integrating)
 
 1.  [Download Library](#download)
-2.  [Add Xtreme Push to your Project](#add_xtreme)
-3.  [Connect your App to the XtremePush Platform](#connect_xtreme)
-4.  [Sending your first Push](#first_push)
-5.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
-6.  [Adjusting Location settings](#location_off)  
+2.  [Add XtremePush to your Project](#add_xtreme)  
+3.  [Download phonegap plugin](#download_plugin)
+4.  [Add phonegap plugin](#add_plugin)
+5.  [Connect your App to the XtremePush Platform](#connect_xtreme)
+6.  [Sending your first Push](#first_push)
+7.  [Tagging your app to enable deeper audience analysis and segmentation](#tagging)
+
+[Phonegap Example App](#example_app)
 
 [Appendix A: Getting an API Key for Google Cloud Messaging](#keys)
 
@@ -21,7 +24,7 @@
 
 
 ## About
-This document should provide all the info you need to integrate your Android app with the XtremePush plaform and send your first push via the platform.
+This document should provide all the info you need to integrate your Android app with the XtremePush platform and send your first push via the platform.
 
 ## Integrating
 
@@ -34,7 +37,7 @@ This document should provide all the info you need to integrate your Android app
 
   ![Android library files](http://cl.ly/image/221m1w3y3V11/android_folder_files.png)
 
-### 2. Add Xtreme Push to your Project<a name="add_xtreme"></a> 
+### 2. Add XtremePush to your Project<a name="add_xtreme"></a> 
 1. Import XtremePush_Android-master/ into your IDE. Add it as a library to your project as per your IDE for example on eclipse adding the lbrary looks like this:
 
    ![Adding library on eclipse](http://cl.ly/image/0Z3G3R2y1M2S/eclipse_add_library.png)
@@ -62,7 +65,7 @@ This document should provide all the info you need to integrate your Android app
  android:name="YOUR_PACAKAGE.permission.C2D_MESSAGE"
  android:protectionLevel="signature" />
 
-<uses-permission android:name="com.example.xtremepushtestapp.permission.C2D_MESSAGE" />
+<uses-permission android:name="YOUR_PACAKAGE.permission.C2D_MESSAGE" />
 
 <!-- This app has permission to register and receive data message. -->
 <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
@@ -95,11 +98,27 @@ This document should provide all the info you need to integrate your Android app
    
 **Note: in <category android:name="YOUR_PACKAGE" make sure you replace YOUR_PACKAGE with the application's package name**
 
-4. Add XTremePushPlugin.java to your project.
-5. Copy folder xtremepush to www/plugins folder.
-6. To the file cordova_plugins.js add: 
-	
-	module.exports = [
+### 3. Download phonegap plugin <a name="download_plugin"></a>
+
+1. Download the latest plugin version [here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip). 
+
+2. Extract the archive, it contains the folder *XtremePush_phonegap/Plugin* with the following two folders relevant to the android phonegap integration:
+    * *Android/*: Contains the required  .java file of the plugin - *XTremePushPlugin.java*. 
+    * *JS/*: Contains the .js file of the plugin that goes in the www folder.
+
+   Note: folders with the names of other OSes can be ignored, there is also an example Android app in the folder Example_Apps/android
+ 
+### 4. Add phonegap plugin <a name="add_plugin"></a>
+1. Add *XTremePushPlugin.java* to your project in *src/YOUR_PACKAGE*
+
+2. Look for your projects www folder in assets/www and your config file in *res/xml/config.xml*. If these are not visible, to show *assets/www* or *res/xml/config.xml*, go to: Project -> Properties -> Resource -> Resource Filters And delete the exclusion filter.
+
+3. In the *JS/* folder of the plugin you downloaded you will find the folder *xtremepush/* containing "xtremepush.js" the javascript file that allows you to use xtremepush methods in your phonegap project. Copy the folder *xtremepush/* to the folder assets/www/plugins.
+
+3. To the file cordova_plugins.js add: 
+
+ ```javascript  
+  module.exports = [
         {
                       "file": "plugins/xtremepush/xtremepush.js",
                       "id": "XTremePush",
@@ -108,15 +127,22 @@ This document should provide all the info you need to integrate your Android app
                                   ]
         }
     ]
+ ```
+  
+  These steps are highlighted in the image below:
+   ![Adding phonegap plugin ios](http://cl.ly/image/2q0O3e3p1X3g/add_phonegap_plugin_ios.png)
 
-7.  In res/xml/config.xml add path to your plugin file:
+4. Finally In *res/xml/config.xml* add the path to your plugin file: 
+
+```xml
 	<feature name="XTremePush">
-        <param name="android-package" value="xtreme.plugins.push.XTremePushPlugin" />
+        <param name="android-package" value="YOUR_PACKAGE.XTremePushPlugin" />
     </feature>
+```
 
-### 3. Connect your App to the XtremePush Platform <a name="connect_xtreme"></a> 
+### 5. Connect your App to the XtremePush Platform <a name="connect_xtreme"></a> 
 
-1. Add your App on the platfrom by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
+1. Add your App on the platform by clicking "Integrate Push Features" on your XtremePush Dashboard at xtremepush.com
    
    ![Adding your app on the platform click integrate push features](http://cl.ly/image/050s3O0F2N2N/integrate_app.png)
 
@@ -132,24 +158,66 @@ and copy your API Key for Google Cloud Messaging into *Android Application Key* 
 
 4. Next you will use your app key from the *Settings > General Settings* section of your app home on xtremepush.com and your project number from the google developer console to connect your app to the platform. If you don't know where to get the project number please refer to our documentation on *Getting an API Key for Google Cloud Messaging* [here](#keys) 
 
-5. Return to your project in your IDE. In XTremePushPlugin, please fill properties with Xtreme Application Id and Google project Id:
+5. Return to your project in your IDE. In XTremePushPlugin.java, you must edit two properties `AppId` and `GoogleProjectID`. These should be set with your  XtremePush App Key and your Google project number:
 
-private static String AppId = "Your Xtreme Applciation Id";
-private static String GoogleProjectID = "Your google project Id";
+```java
+private static String AppId = "Your XtremePush App Key";
+private static String GoogleProjectID = "Your google project number";
+```
 
-6. To register for push notification use in your JS code after deviceReady event:
+6. To register for push notifications call the following in your index.js or equivalent javascript code after the deviceReady event:
 
-XTremePush.register(successCallback, failCallback, {callbackFunction:"onPushReceived", locationDistance:30, locationTimeout:50})
+```javascript
+XTremePush.register(successCallback, failCallback, {callbackFunction:"onPushReceived"})
+```
 
-callbackFunction property sets javascript method which will be called when push notification will be received.
+where callbackFunction is a javascript function which will be called when a push notification is received. 
 
-locaionDistance and locationTimeout are optional parameters in case you want to use push notifications with location enabled features. Please refere to [Adjusting Location settings](#location_off)  for more information.
+<!--- 
+THESE ARE THE WRONG WAY ROUND
+`locationDistance` and `locationTimeout` are optional parameters used to adjust the location  features. Please refer to [Adjusting Location settings](#location_off)  for more information. --->
+
+7. Return to your  Main Activity and import the XtremePush library:
+
+```java
+import ie.imobile.extremepush.*;
+``` 
+
+Next you must add a line above the onCreate in your main activity like this:
+
+```java
+public class XPushPhonegapTestApp extends CordovaActivity 
+{
+
+	private PushConnector pushConnector;
+    
+	@Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+```
+
+    
+Finally further down in the main activity add the following two methods: 
+
+```java
+       @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            pushConnector.onActivityResult(requestCode, resultCode, data);
+        }
+
+        @Override
+        protected void onNewIntent(Intent intent) {
+            super.onNewIntent(intent);
+            pushConnector.onNewIntent(intent);
+        }
+```
 
 **You are now ready to send your first push.**
 
-### 4. Sending your first Push <a name="first_push"></a> 
+### 6. Sending your first Push <a name="first_push"></a> 
 
-1. To send a basic push go to your app home and select create campaign. The first step is to name your camapaign and add some content for the push. In this section you can also link to app pages, urls, or a custom html page for a richer push but for now we will just add text for a simple push.
+1. To send a basic push go to your app home and select create campaign. The first step is to name your campaign and add some content for the push. In this section you can also link to app pages, urls, or a custom html page for a richer push but for now we will just add text for a simple push.
 
    ![ Adding Content ](http://cl.ly/image/2S1f1R1K1J47/create_campaign_content.png)
 
@@ -157,11 +225,11 @@ locaionDistance and locationTimeout are optional parameters in case you want to 
    
    ![ Selecting a segment ](http://cl.ly/image/0Q260e123V44/add_segment.png)
 
-3. Click next and you will be taken to location, for your first push you will not be tieing it to a location so click next and you are taken to schedule. In schedule the default selection is Send Now and to test your first push you will want to keep it that way.
+3. Click next and you will be taken to location, for your first push you will not be tying it to a location so click next and you are taken to schedule. In schedule the default selection is Send Now and to test your first push you will want to keep it that way.
 
    ![Schedule your push](http://cl.ly/image/0r2913470O2g/add_schedule.png) 
 
-4. Click next and you wil be taken to platform. Select Android as your platform. 
+4. Click next and you will be taken to platform. Select Android as your platform. 
 
    ![Configure your platform](http://cl.ly/image/2q2P2U141M1o/push_add_android.png)
 
@@ -169,7 +237,7 @@ locaionDistance and locationTimeout are optional parameters in case you want to 
 
    ![ Your First Push ](http://cl.ly/image/3i1g2L3L321B/first_push_android.png)
 
-### 5. Tagging your app to enable deeper audience analysis and segmentation <a name="tagging"></a> 
+### 7. Tagging your app to enable deeper audience analysis and segmentation <a name="tagging"></a> 
 
 XtremePush has two methods for tagging activity in your app one for tagging page impressions and one for tagging any other activity.
 
@@ -180,9 +248,9 @@ XTremePush.hitImpression(successCallback, failCallback, "your_impression_name");
 ```
 
 To tag any other events call the `pushConnector.hitTag(String tag)` method where that event occurs:
-    
+```javascript    
         XTremePush.hitTag(successCallback, failCallback, "your_tag_name");
-        
+  ```      
 
 <!--- ### 6. Custom Push Notification Sounds <a name="custom_sounds"></a> -->
 
@@ -192,9 +260,9 @@ In the default configuration described above location is switched on to allow yo
 
 -->
 
-
+<!---
 ### 6. Adjusting Location settings <a name="location_off"></a>
-If you want to keep the location features but want to manage the trade off between the sensitivity of location detection and the impact on battery life then you have the option to  set the frequency of location updates. This can be done by setting an additional two values when initialisng XtremePush in the onCreate method of your main activity. These are *locationCheckTimeout* and *locationDistance* :
+If you want to keep the location features but want to manage the trade off between the sensitivity of location detection and the impact on battery life then you have the option to  set the frequency of location updates. This can be done by setting an additional two values when initialising XtremePush in the onCreate method of your main activity. These are *locationCheckTimeout* and *locationDistance* :
 		
 `init(FragmentManager fm, String appKey, String projectNumber, int locationCheckTimeout, float locationDistance)`.
 	
@@ -209,20 +277,33 @@ Set *locationCheckTimeout* to your desired location update frequency in minutes 
 		pushConnector = PushConnector.init(getSupportFragmentManager(), "XPUSH_APP_KEY", "GOOGLE_PROJECT_NUMBER", 30, 50 );
 ```
 
-<!--- ### 8. Adding a push notification inbox <a name="inbox"></a> 
+ ### 8. Adding a push notification inbox <a name="inbox"></a> 
 
 ##How to start Inbox activity		
 
 
-if you want to start Inbox activity, you should use the following code snippet(activity must be registred in manifest file)
+if you want to start Inbox activity, you should use the following code snippet(activity must be registered in manifest file)
  
  		startActivity(this, XPushLogActivity.class);
  --->
 
+## Phonegap Example App <a name="example_app"></a>
+
+1. When you download the latest plugin version ([here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip)) it comes with example apps. 
+
+2. Extract the archive, it contains the folder *XtremePush_phonegap/* and the Android example app can be found in *Example_Apps/android/*
+
+3. To experiment  with this sample app open it in your IDE. It is a simple app with all the XtremePush library methods mapped to a series of buttons:
+
+![Phonegap example app](http://cl.ly/image/133e063D0z41/cordova_test_app.png)
+
+4. You can see how the plugin has been configured in the test app in key locations such as: the *src/* folder, *assets/www/* folder or *res/xml/config.xml*.
+
+
 
 ## Appendix A: Getting an API Key for Google Cloud Messaging <a name="keys"></a> 
-To integrate XtremePush with an Android app you need to upload your GCM API key to your app dashboard on xtremepush.com. This is because to send push notifications to Android devices, you need to set up a Google API Project, enable the GCM service and otain an API key for it.
-In this section we will summarise the main steps involved. You can also find Google's own guide to setting up a Google API Project and otaining an API key for the GCM service [here](http://developer.android.com/google/gcm/gs.html).
+To integrate XtremePush with an Android app you need to upload your GCM API key to your app dashboard on xtremepush.com. This is because to send push notifications to Android devices, you need to set up a Google API Project, enable the GCM service and obtain an API key for it.
+In this section we will summarise the main steps involved. You can also find Google's own guide to setting up a Google API Project and obtaining an API key for the GCM service [here](http://developer.android.com/google/gcm/gs.html).
 
 The first step is to:
 - Go to: https://console.developers.google.com/
@@ -231,7 +312,7 @@ The first step is to:
 
 ![Google Developer Console API Project](http://cl.ly/image/1a3x3L0M0U2A/google_dev_console.png)
 
-Next click on your project and you will be taken to your project home. Your project Number is diplayed on top of this page you will need that later to integrate your app with XtremePush but first you must select *APIs & auth* to enable GCM.
+Next click on your project and you will be taken to your project home. Your **project number** is displayed on top of this page you will need that later to integrate your app with XtremePush but first you must select *APIs & auth* to enable GCM.
 
 ![Google Developer Console Project Home](http://cl.ly/image/1M1b3M2O1324/google_dev_console_home.png)
 
@@ -243,7 +324,7 @@ In the sidebar on the left, select *APIs & auth > Credentials*. On the right und
 
 ![Generate API Key](http://cl.ly/image/1Q2G372k0w2w/google_dev_new_key.png)
 
-Copy the new API Key you are given under *Public API Access > Key for server applications* in.  Log in to your XtremePush dashboard on xtremepush.com. Go to your app home and navigate to *Settings > Application Keys* and select Android App. Paste the key into *Android Application Key* and click *save*.
+Copy the new *API Key* you are given under *Public API Access > Key for server applications* in.  Log in to your XtremePush dashboard on xtremepush.com. Go to your app home and navigate to *Settings > Application Keys* and select Android App. Paste the key into *Android Application Key* and click *save*.
 
 ![Adding the API key](http://cl.ly/image/1U1N022r1B32/adding_API_key.png)
 
