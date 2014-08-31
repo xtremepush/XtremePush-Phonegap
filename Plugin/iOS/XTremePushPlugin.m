@@ -1,6 +1,6 @@
 //
 //  XTremePushPlugin.m
-//  PhoneGap Plugin for using XTremePush Plugins.
+//  push
 //
 //  Created by Dima Maleev on 6/7/14.
 //
@@ -10,7 +10,7 @@
 
 @implementation XTremePushPlugin
 
-@synthesize callbackId;
+@synthesize asyncCallbackId;
 @synthesize callback;
 @synthesize notificationMessage;
 @synthesize showAlerts;
@@ -19,7 +19,7 @@
 
 - (void) register:(CDVInvokedUrlCommand *)command
 {
-    self.callbackId = command.callbackId;
+    self.asyncCallbackId = command.callbackId;
     NSMutableDictionary* options = [command.arguments objectAtIndex:0];
     
     UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeNone;
@@ -68,37 +68,37 @@
 {
     NSLog(@"Unregister from remote notifications called");
 
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     [XPush unregisterForRemoteNotifications];
-    [self successWithMessage:@""];
+    [self successWithMessage:@"" withCallbackId:callbackId];
 }
 
 - (void) isSandboxModeOn:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"isSandboxModedeOn called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     BOOL isSandboxModeOn = [XPush isSandboxModeOn];
     
     NSString *result = (isSandboxModeOn) ? @"true" : @"false";
     
-    [self successWithMessage:result];
+    [self successWithMessage:result withCallbackId:callbackId];
 }
 
 - (void) version:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"version called");
     
-    self.callbackId = command.callbackId;
+    NSString * callbackId = command.callbackId;
     
-    [self successWithMessage:[XPush version]];
+    [self successWithMessage:[XPush version] withCallbackId:callbackId];
 }
 
 - (void) deviceInfo:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"deviceInfo called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     
     NSDictionary *deviceInfo = [XPush deviceInfo];
     
@@ -106,75 +106,75 @@
     
     [self parseDictionary:deviceInfo intoJSON:jsonStr];
     
-    [self successWithMessage:jsonStr];
+    [self successWithMessage:jsonStr withCallbackId:callbackId];
 }
 
 - (void) shouldWipeBadgeNumber:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"shouldWipeBadgeNumber called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     
     BOOL shouldWipeBadgeNumber = [XPush shouldWipeBadgeNumber];
     
     NSString *result = (shouldWipeBadgeNumber) ? @"true" : @"false";
 
-    [self successWithMessage:result];
+    [self successWithMessage:result withCallbackId:callbackId];
 }
 
 - (void) setShouldWipeBadgeNumber:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"setShouldWipeBadgeNumber called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     BOOL value = [[command.arguments objectAtIndex:0] boolValue];
     [XPush setShouldWipeBadgeNumber:value];
-    [self successWithMessage:@""];
+    [self successWithMessage:@"" withCallbackId:callbackId];
 }
 
 - (void) setLocationEnabled:(CDVInvokedUrlCommand*)command
 {
     NSLog(@"setLocationEnabled called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     BOOL value = [[command.arguments objectAtIndex:0] boolValue];
     [XPush setLocationEnabled:value];
-    [self successWithMessage:@""];
+    [self successWithMessage:@"" withCallbackId:callbackId];
 }
 
 - (void) setAsksForLocationPermissions:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"setAsksForLocationPermissions called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     BOOL value = [[command.arguments objectAtIndex:0] boolValue];
     [XPush setAsksForLocationPermissions:value];
     
-    [self successWithMessage:@""];
+    [self successWithMessage:@"" withCallbackId:callbackId];
 }
 
 - (void) hitTag:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"hitTag called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     
     NSString *tag = [command.arguments objectAtIndex:0];
     [XPush hitTag:tag];
     
-    [self successWithMessage:@""];
+    [self successWithMessage:@"" withCallbackId:callbackId];
 }
 
 - (void) hitImpression:(CDVInvokedUrlCommand *)command
 {
     NSLog(@"hitImpression called");
     
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     
     NSString *impression = [command.arguments objectAtIndex:0];
     [XPush hitImpression:impression];
     
-    [self successWithMessage:@""];
+    [self successWithMessage:@"" withCallbackId:callbackId];
 }
 
 - (void) showPushListController:(CDVInvokedUrlCommand *)command
@@ -185,14 +185,14 @@
 
 -(void) getPushNotificationsOffset:(CDVInvokedUrlCommand *)command
 {
-    self.callbackId = command.callbackId;
+    NSString *callbackId = command.callbackId;
     
     NSUInteger offset = [[command.arguments objectAtIndex:0] intValue];
     NSUInteger limit = [[command.arguments objectAtIndex:1] intValue];
     
     [XPush getPushNotificationsOffset:offset limit:limit completion:^(NSArray *pushList, NSError *error) {
         if (error){
-            [self failWithMessage:@"" withError:error];
+            [self failWithMessage:@"" withError:error withCallbackId:callbackId];
             return;
         }
         
@@ -208,7 +208,7 @@
         
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         
-        [self successWithMessage:jsonString];
+        [self successWithMessage:jsonString withCallbackId:callbackId];
     }];
 }
 
@@ -216,7 +216,7 @@
 {
     [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
     
-    [self failWithMessage:@"" withError:error];
+    [self failWithMessage:@"" withError:error withCallbackId:asyncCallbackId];
 }
 
 - (void) didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
@@ -227,7 +227,7 @@
                         stringByReplacingOccurrencesOfString:@">" withString:@""]
                        stringByReplacingOccurrencesOfString: @" " withString: @""];
     
-    [self successWithMessage:[NSString stringWithFormat:@"%@", token]];
+    [self successWithMessage:[NSString stringWithFormat:@"%@", token] withCallbackId:self.asyncCallbackId];
 }
 
 - (void) notificationReceived
@@ -296,38 +296,55 @@
 {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     
-    [dict setValue:
-     [NSDateFormatter localizedStringFromDate:model.createDate
-                                    dateStyle:NSDateFormatterShortStyle
-                                    timeStyle:NSDateFormatterFullStyle]
-            forKey:@"createdDate"];
+    if (model.createDate != nil){
+        [dict setValue:
+         [NSDateFormatter localizedStringFromDate:model.createDate
+                                dateStyle:NSDateFormatterShortStyle
+                                timeStyle:NSDateFormatterFullStyle]
+                                forKey:@"createdDate"];
+    }
     
-    [dict setValue:model.pushId forKey:@"pushId"];
-    [dict setValue:model.locationId forKey:@"locationId"];
-    [dict setValue:model.alert forKey:@"alert"];
-    [dict setValue:[NSNumber numberWithInt:model.badge] forKey:@"badge"];
-    [dict setValue:model.messageId forKey:@"createdDate"];
-    [dict setValue:model.url forKey:@"url"];
+    if (model.pushId != nil){
+        [dict setValue:model.pushId forKey:@"pushId"];
+    }
+    
+    if (model.locationId != nil){
+        [dict setValue:model.locationId forKey:@"locationId"];
+    }
+    
+    if (model.alert != nil){
+        [dict setValue:model.alert forKey:@"alert"];
+    }
+    
+    if (model.messageId != nil){
+        [dict setValue:model.messageId forKey:@"messageId"];
+    }
+    
+    if (model.url != nil){
+        [dict setValue:model.url forKey:@"url"];
+    }
+    
     [dict setValue:[NSNumber numberWithBool:model.shouldOpenInApp] forKey:@"shouldOpenInApp"];
     [dict setValue:[NSNumber numberWithBool:model.isRead] forKey:@"isRead"];
+    [dict setValue:[NSNumber numberWithInt:model.badge] forKey:@"badge"];
     
     return dict;
 }
 
 
-- (void) successWithMessage:(NSString *)message
+- (void) successWithMessage:(NSString *)message withCallbackId:(NSString *)callback
 {
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
     
-    [self.commandDelegate sendPluginResult:commandResult callbackId:self.callbackId];
+    [self.commandDelegate sendPluginResult:commandResult callbackId:callback];
 }
 
-- (void) failWithMessage:(NSString *)message withError:(NSError *)error
+- (void) failWithMessage:(NSString *)message withError:(NSError *)error withCallbackId:(NSString *)callback
 {
     NSString        *errorMessage = (error) ? [NSString stringWithFormat:@"%@ - %@", message, [error localizedDescription]] : message;
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
     
-    [self.commandDelegate sendPluginResult:commandResult callbackId:self.callbackId];
+    [self.commandDelegate sendPluginResult:commandResult callbackId:callback];
 }
 
 @end

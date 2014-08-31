@@ -13,14 +13,14 @@
 {
     NSDictionary *notificationMessage;
     NSString *callback;
-    NSString *callbackId;
+    NSString *asyncCallbackId;
     BOOL showAlerts;
     BOOL isInline;
 }
 
 @property (nonatomic, strong) NSDictionary *notificationMessage;
 @property (nonatomic, copy) NSString *callback;
-@property (nonatomic, copy) NSString *callbackId;
+@property (nonatomic, copy) NSString *asyncCallbackId;
 @property BOOL showAlerts;
 @property BOOL isInline;
 
