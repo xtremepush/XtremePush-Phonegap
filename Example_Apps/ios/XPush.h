@@ -29,12 +29,13 @@ extern NSString *const XPushDeviceRegistrationNotification;
 + (BOOL)shouldWipeBadgeNumber;
 /**
  *	Register current application and this lib to receive notifications. You should call it instead of [UIApplication registerForRemoteNotificationTypes:].
+ * Uses UIRemoteNotificationType or UIUserNotificationType for ios8
  * @see  -registerForRemoteNotificationTypes:
  * @see UIApplication
  *
  * @see UIRemoteNotificationType
  */
-+ (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types; 
++ (void)registerForRemoteNotificationTypes:(NSInteger)types;
 /**
  * @see -unregisterForRemoteNotifications in UIApplication class.
  */
@@ -44,13 +45,13 @@ extern NSString *const XPushDeviceRegistrationNotification;
  *
  *	@param	launchOptions	launch options from [UIApplication applicationDidFinishLaunchingWithOptions:].
  */
-+ (void)applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions; 
++ (void)applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
 /**
  *	You should call it when application calls [UIApplication application: didRegisterForRemoteNotificationsWithDeviceToken:] method. If device was created in the server then lib updates location and send tags which was cached, otherwise lib calls "deviceCreate" api method and saves token.
  *
  *	@param	deviceToken	device token from -application: didRegisterForRemoteNotificationsWithDeviceToken:.
  */
-+ (void)applicationDidRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken; 
++ (void)applicationDidRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 /**
  *	You should call it when your app receives notification and calls -applicationDidReceiveRemoteNotification: method. Lib shows alert with notification text and calls "hitAction" api.
  *
@@ -58,7 +59,11 @@ extern NSString *const XPushDeviceRegistrationNotification;
  *	@param	showAlert Show alert with push text if needed, otherwise NO.
  */
 + (void)applicationDidReceiveRemoteNotification:(NSDictionary *)userInfo showAlert:(BOOL)showAlert;
-//default showAlert is YES.
+/**
+ *	You should call it when your app receives notification and calls -applicationDidReceiveRemoteNotification: method. Lib shows alert with notification text and calls "hitAction" api.
+ *
+ *	@param	userInfo	user info from -applicationDidReceiveRemoteNotification: method.
+ */
 + (void)applicationDidReceiveRemoteNotification:(NSDictionary *)userInfo;
 
 /**
@@ -76,6 +81,10 @@ extern NSString *const XPushDeviceRegistrationNotification;
  * XPushDeviceID - key for device id.
  */
 + (NSDictionary *)deviceInfo;
+/**
+ *	Calls "eventHit" api method.
+ */
++ (void)hitEvent:(NSString *)event;
 /**
  *	Calls "tagHit" api method.
  */
@@ -116,7 +125,7 @@ extern NSString *const XPushDeviceRegistrationNotification;
 @property (nonatomic, readonly) BOOL        shouldOpenInApp;
 @property (nonatomic, assign)   BOOL        isRead;
 
-- (id)initWithDictionary:(NSDictionary *)dictionary;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
 @end
 
