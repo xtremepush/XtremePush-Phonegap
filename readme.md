@@ -255,9 +255,6 @@ Please follow [instructions](https://xtremepush.com/docs/libs/android_start/)
     ]
  ```
   
-  These steps are highlighted in the image below:
-   ![Adding phonegap plugin ios](http://cl.ly/image/2q0O3e3p1X3g/add_phonegap_plugin_ios.png)
-
 4. Finally In *res/xml/config.xml* add the path to your plugin file: 
 
 ```xml
