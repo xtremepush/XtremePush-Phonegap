@@ -52,15 +52,18 @@ Please follow [instructions](https://github.com/xtremepush/XtremePush_iOS)
 1. Download the latest plugin version [here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip). 
 
 2. Extract the archive, it contains the folder *XtremePush_phonegap/Plugin* with the following two folders relevant to the iOS phonegap integration:
-    * *iOS/*: Contains the required  .h and .m files of the plugin. 
-    * *JS/*: Contains the .js file of the plugin that goes in the www folder.
+    * *src/ios/*: Contains the required  .h and .m files of the plugin. 
+    * *www/*: Contains the .js file of the plugin that goes in the www folder.
 
    Note: folders with the names of other OSes can be ignored, there is also an example iOS app in *Example_Apps/android*
  
 ### 3. Add phonegap plugin <a name="ios_add_plugin"></a>
-1. Add AppDelegate+notification.h, AppDelegate+notification.m, XTremePushPlugin.h, XTremePushPlugin.m  to the plugins/ folder of your project in Xcode (found in the iOS/ folder).
 
-2. In the *JS/* folder of the plugin you downloaded you will find the folder *xtremepush/* containing "xtremepush.js" the javascript file that allows you to use xtremepush methods in your phonegap project. Copy the folder *xtremepush/* to the *www/plugins/* folder of your project.
+Manually Installation:
+
+1. Add AppDelegate+notification.h, AppDelegate+notification.m, XTremePushPlugin.h, XTremePushPlugin.m  to the plugins/ folder of your project in Xcode (found in the src/ios/ folder).
+
+2. In the *www/* folder of the plugin you downloaded you will find the folder *xtremepush/* containing "xtremepush.js" the javascript file that allows you to use xtremepush methods in your phonegap project. Copy the folder *xtremepush/* to the *www/plugins/* folder of your project.
 
 3. To the file cordova_plugins.js add: 
 
@@ -91,6 +94,16 @@ Please follow [instructions](https://github.com/xtremepush/XtremePush_iOS)
 ### 4. Connect your App to the XtremePush Platform <a name="ios_connect_xtreme"></a>
 
 Please follow documentation [here](https://xtremepush.com/docs/libs/ios_start/).
+
+Automatic adding of the Plugin
+
+In the folder with your PhoneGap aplication please use command:
+
+cordova plugins add %extracted_folder%/Plugin
+
+Build your application using command:
+
+cordova build ios
 
 ### 5. Tagging your app to enable deeper audience analysis and segmentation <a name="ios_tagging"></a>
 
@@ -229,12 +242,15 @@ Please follow [instructions](https://xtremepush.com/docs/libs/android_start/)
 1. Download the latest plugin version [here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip). 
 
 2. Extract the archive, it contains the folder *XtremePush_phonegap/Plugin* with the following two folders relevant to the android phonegap integration:
-    * *Android/*: Contains the required  .java file of the plugin - *XTremePushPlugin.java*. 
-    * *JS/*: Contains the .js file of the plugin that goes in the www folder.
+    * *src/android/*: Contains the required  .java file of the plugin - *XTremePushPlugin.java*. 
+    * *www/*: Contains the .js file of the plugin that goes in the www folder.
 
    Note: folders with the names of other OSes can be ignored, there is also an example Android app in the folder Example_Apps/android
  
 ### 3. Add phonegap plugin <a name="android_add_plugin"></a>
+
+Manuall Installation:
+
 1. Add *XTremePushPlugin.java* to your project in *src/YOUR_PACKAGE*
 
 2. Look for your projects www folder in assets/www and your config file in *res/xml/config.xml*. If these are not visible, to show *assets/www* or *res/xml/config.xml*, go to: Project -> Properties -> Resource -> Resource Filters And delete the exclusion filter.
@@ -262,6 +278,17 @@ Please follow [instructions](https://xtremepush.com/docs/libs/android_start/)
         <param name="android-package" value="YOUR_PACKAGE.XTremePushPlugin" />
     </feature>
 ```
+
+Automatic adding of the Plugin
+
+In the folder with your PhoneGap aplication please use command:
+
+cordova plugins add %extracted_folder%/Plugin
+
+Build your application using command:
+
+cordova build android
+
 
 ### 4. Connect your App to the XtremePush Platform <a name="android_connect_xtreme"></a> 
 
