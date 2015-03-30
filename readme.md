@@ -5,8 +5,8 @@ With the XtremePush module for PhoneGap you can add XtremePush to both iOS and A
 XtremePush supports push notifications for iOS devices via Apples's Push Notification Service (APNs for short). 
 And push notifications for Android devices via Google’s GCM (Google Cloud Messaging for Android) service. This page contains PhoneGap specific instructions but It is also  recommended you read the native documentation for these platforms. This includes the quick start guides: 
 
-* [Getting started with iOS](ios_start.md) 
-* [Getting Started with Android](android_start.md)
+* [Getting started with iOS](https://xtremepush.com/docs/libs/ios_start/) 
+* [Getting Started with Android](https://xtremepush.com/docs/libs/android_start/)
 
 These docs deal with important topics like:
 
