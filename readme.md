@@ -31,7 +31,7 @@ Advanced features include: tagging of events, custom push notification handling 
 First, download the current XtremePush PhoneGap SDK [here](https://github.com/xtremepush/XtremePush_Phonegap/archive/master.zip). Inside of the ZIP you will find the following directories:
 
 * *Example_Apps/* : This folder contains a sample app for each OS supported. The apps are in a folder named after the OS they are related to, for example the iOS example app is in the *ios/* folder. 
-* *Plugin/*: This folder contains the javascript part of the plugin in a folder called *JS/*  and the OS specific portion of the plugin in a folder named after that OS i.e. *iOS/* or *Android/*.
+* *www/*: This folder contains the javascript part of the plugin. OS specific portion of the plugin in a folder named after that OS i.e. *src/iOS/* or *src/Android/*.
 
 Full integration guides are given for iOS and Android below.
 
@@ -39,7 +39,7 @@ Full integration guides are given for iOS and Android below.
 1. Navigate to you iOS PhoneGap project in platforms/ios directory.
 2. Download the [XtremePush iOS library here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip) and add it to your iOS project following [these instructions](https://xtremepush.com/docs/libs/ios_start/)
 3. Navigate to your application directory, and type command:
-    cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap/tree/master/Plugin
+    cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap
 
 ### Tagging your app to enable deeper audience analysis and segmentation <a name="ios_tagging"></a>
 
@@ -75,7 +75,7 @@ XTremePush.hitTag(successCallback, failCallback, "your_tag_name");
 ### Integrate Xtremepush to your PhoneGap Android Project
 1. Add XtremePush Android Library to your Project. Please follow [instructions](https://xtremepush.com/docs/libs/android_start/).
 2. Navigate to your application directory, and type command:
-    cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap/tree/master/Plugin
+    cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap
 
 ### PhoneGap Example Android App
 1. When you have downloaded the latest plugin version ([here](https://github.com/xtremepush/XtremePush_Phonegap/archive/master.zip) it comes with example apps. 
