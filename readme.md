@@ -31,7 +31,8 @@ Advanced features include: tagging of events, custom push notification handling 
 First, download the current XtremePush PhoneGap SDK [here](https://github.com/xtremepush/XtremePush_Phonegap/archive/master.zip). Inside of the ZIP you will find the following directories:
 
 * *Example_Apps/* : This folder contains a sample app for each OS supported. The apps are in a folder named after the OS they are related to, for example the iOS example app is in the *ios/* folder. 
-* *Plugin/*: This folder contains the javascript part of the plugin in a folder called *JS/*  and the OS specific portion of the plugin in a folder named after that OS i.e. *iOS/* or *Android/*.
+* *www/*: This folder contains the javascript part of the plugin in a folder called.
+* *src/* contains the OS specific portion of the plugin in a folder named after that OS i.e. *iOS/* or *Android/*.
 
 Full integration guides are given for iOS and Android below.
 
