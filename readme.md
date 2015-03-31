@@ -39,7 +39,7 @@ Full integration guides are given for iOS and Android below.
 1. Navigate to you iOS PhoneGap project in platforms/ios directory.
 2. Download the [XtremePush iOS library here](https://github.com/xtremepush/XtremePush_iOS/archive/master.zip) and add it to your iOS project following [these instructions](https://xtremepush.com/docs/libs/ios_start/)
 3. Navigate to your application directory, and type command:
-    cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap/tree/master/Plugin
+    cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap.git
 
 ### Tagging your app to enable deeper audience analysis and segmentation <a name="ios_tagging"></a>
 
