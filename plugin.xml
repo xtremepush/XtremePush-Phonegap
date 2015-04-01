@@ -26,7 +26,7 @@
 
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="XTremePush" >
-				<param name="android-package" value="com.xtreme.plugins.XtremePush"/>
+				<param name="android-package" value="com.xtreme.plugins.XTremePushPlugin"/>
 			</feature>
 		</config-file>
 
@@ -50,12 +50,18 @@
 			</receiver>
 			<service android:name="ie.imobile.extremepush.GCMIntentService" />
 			<receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
+			
 			<activity
-            android:name="ie.imobile.extremepush.ui.WebViewActivity"
-            android:exported="false" />
-	        <activity
-	            android:name="ie.imobile.extremepush.ui.XPushLogActivity"
-	            android:exported="false" />
+				  android:name="ie.imobile.extremepush.ui.DisplayPushActivity"
+				  android:label="Push received"
+				  android:theme="@android:style/Theme.Dialog"
+				  android:exported="false" />
+
+	       <activity
+				  android:name="ie.imobile.extremepush.ui.WebViewActivity"
+				  android:exported="false" />
+
+
 		</config-file>
 
 		<source-file src="src/android/XTremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
@@ -66,7 +72,7 @@
 
 		<config-file target="config.xml" parent="/*">
 			<feature name="XTremePush">
-				<param name="ios-package" value="XTremePush"/>
+				<param name="ios-package" value="XTremePushPlugin"/>
 			</feature>
 		</config-file>
 

@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import com.squareup.otto.Subscribe;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
-import ie.imobile.extremepush.ui.XPushLogActivity;
+import ie.imobile.extremepush.ui.DisplayPushActivity;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -126,9 +126,12 @@ public class XTremePushPlugin extends CordovaPlugin {
             Integer locationTimeout = jo.getInt("locationTimeout");
             Integer locationDistance = jo.getInt("locationDistance");
 
-            pushConnector = PushConnector.init(getApplicationFragmentManager(), this.AppId, this.GoogleProjectID, locationTimeout, locationDistance);
+            pushConnector = new PushConnector.Builder(this.AppId, this.GoogleProjectID)
+                .setLocationUpdateTimeout(locationTimeout).setLocationCheckDistance(locationDistance).
+                            create(getApplicationContext());
         } else {
-            pushConnector = PushConnector.init(getApplicationFragmentManager(), this.AppId, this.GoogleProjectID);
+            pushConnector = new PushConnector.Builder(this.AppId, this.GoogleProjectID)
+                .create(getApplicationContext());
         }
 
         callback_function = (String) jo.getString("callbackFunction");
@@ -171,7 +174,7 @@ public class XTremePushPlugin extends CordovaPlugin {
             callbackContext.error("Please call register function first");
         }
 
-        HashMap<String, String> deviceInfo = pushConnector.getDeviceInfo();
+        HashMap<String, String> deviceInfo = pushConnector.getDeviceInfo(getApplicationContext());
 
         JSONObject devInfo = new JSONObject(deviceInfo);
 
@@ -200,7 +203,7 @@ public class XTremePushPlugin extends CordovaPlugin {
 
         String tag =  data.getString(0);
 
-        pushConnector.hitTag(tag);
+        pushConnector.hitTag(getApplicationContext(), tag);
 
         callbackContext.success();
     }
@@ -217,7 +220,7 @@ public class XTremePushPlugin extends CordovaPlugin {
 
         String impression =  data.getString(0);
 
-        pushConnector.hitImpression(impression);
+        pushConnector.hitImpression(getApplicationContext(), impression);
 
         callbackContext.success();
     }
@@ -227,7 +230,7 @@ public class XTremePushPlugin extends CordovaPlugin {
         if (!isRegistered){
             callbackContext.error("Please call register function first");
         }
-        Intent intent = new Intent(this.getApplicationContext(), XPushLogActivity.class);
+        Intent intent = new Intent(this.getApplicationContext(), DisplayPushActivity.class);
         this.cordova.getActivity().startActivity(intent);
         callbackContext.success();
     }
@@ -244,7 +247,7 @@ public class XTremePushPlugin extends CordovaPlugin {
         PushConnector.registerInEventBus(this);
         _callbackContext = callbackContext;
 
-        pushConnector.getPushlist(offset,limit);
+        pushConnector.getPushlist(getApplicationContext(), offset, limit);
     }
 
     /*
