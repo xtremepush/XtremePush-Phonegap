@@ -48,7 +48,7 @@
 					<category android:name="$PACKAGE_NAME" />
 				</intent-filter>
 			</receiver>
-			<service android:name="ie.imobile.extremepush.GCMIntentService" />
+			<service android:name="ie.imobile.extremepush.receivers.GCMReceiver" />
 			<receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
 			
 			<activity
@@ -60,7 +60,11 @@
 	       <activity
 				  android:name="ie.imobile.extremepush.ui.WebViewActivity"
 				  android:exported="false" />
-
+			<activity
+                android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
+                android:label="Locations are not available"
+                android:theme="@android:style/Theme.Dialog"
+                android:exported="false" />
 
 		</config-file>
 

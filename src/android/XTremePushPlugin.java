@@ -1,5 +1,6 @@
-package xtreme.plugins.push;
+package com.xtreme.plugins;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.squareup.otto.Subscribe;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
 import ie.imobile.extremepush.ui.DisplayPushActivity;
+import ie.imobile.extremepush.util.LibVersion;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -42,8 +44,8 @@ public class XTremePushPlugin extends CordovaPlugin {
     public static final String SHOWPUSHLISTCONTROLLER = "showPushListController";
     public static final String GETPUSHNOTIFICATIONOFFSET = "getPushNotificationsOffset";
 
-    private static String AppId = "Your Xtreme Applciation Id";
-    private static String GoogleProjectID = "Your google project Id";
+    private static String AppId = "Your application ID";
+    private static String GoogleProjectID = "Your Google Project ID";
 
     private static CordovaWebView _webView;
     private static String callback_function;
@@ -59,7 +61,14 @@ public class XTremePushPlugin extends CordovaPlugin {
      * Returns application context
      */
     private Context getApplicationContext(){
-        return this.cordova.getActivity().getApplicationContext();
+        return this.getApplicationActivity().getApplicationContext();
+    }
+
+    /*
+    * Returns application context
+    */
+    private Activity getApplicationActivity(){
+        return this.cordova.getActivity();
     }
 
     /*
@@ -128,10 +137,10 @@ public class XTremePushPlugin extends CordovaPlugin {
 
             pushConnector = new PushConnector.Builder(this.AppId, this.GoogleProjectID)
                 .setLocationUpdateTimeout(locationTimeout).setLocationCheckDistance(locationDistance).
-                            create(getApplicationContext());
+                            create(getApplicationActivity());
         } else {
             pushConnector = new PushConnector.Builder(this.AppId, this.GoogleProjectID)
-                .create(getApplicationContext());
+                .create(getApplicationActivity());
         }
 
         callback_function = (String) jo.getString("callbackFunction");
@@ -155,7 +164,7 @@ public class XTremePushPlugin extends CordovaPlugin {
 
     private void getVersion(CallbackContext callbackContext)
     {
-        callbackContext.error("Not implemented in Android version");
+        callbackContext.success(LibVersion.VER);
     }
 
     private void setShouldWipeBadgeNumber(CallbackContext callbackContext)
