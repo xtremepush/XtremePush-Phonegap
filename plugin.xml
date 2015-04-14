@@ -114,7 +114,7 @@
                 android:label="Locations are not available"
                 android:theme="@android:style/Theme.Dialog"
                 android:exported="false" />
-
+                
 		</config-file>
 
 		<source-file src="src/android/XTremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
