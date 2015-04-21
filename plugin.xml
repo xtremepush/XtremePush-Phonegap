@@ -118,6 +118,8 @@
 		</config-file>
 
 		<source-file src="src/android/XTremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
+		<dependency id="android.support.v4" />
+		<dependency id="com.google.play.services" />
 	</platform>
 
     <!-- ios -->
