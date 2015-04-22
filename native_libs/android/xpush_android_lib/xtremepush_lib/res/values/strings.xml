@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
+
+    <string name="error_config">Please set the %1$s constant and recompile the app.</string>
+    <string name="gcm_registered">From GCM: device successfully registered!</string>
+    <string name="gcm_unregistered">From GCM: device successfully unregistered!</string>
+    <string name="gcm_message">From GCM: you got message!</string>
+    <string name="gcm_error">From GCM: error (%1$s).</string>
+    <string name="gcm_recoverable_error">From GCM: recoverable error (%1$s).</string>
+    <string name="gcm_deleted">From GCM: server deleted %1$d pending messages!</string>
+    <string name="server_registering">Trying (attempt %1$d/%2$d) to register device on Demo Server.</string>
+    <string name="server_registered">From Demo Server: successfully added device!</string>
+    <string name="server_unregistered">From Demo Server: successfully removed device!</string>
+    <string name="server_unregister_error">Could not unregister device on Demo Server (%1$s).</string>
+    <string name="options_register">Register</string>
+    <string name="options_unregister">Unregister</string>
+    <string name="options_clear">Clear</string>
+    <string name="options_exit">Exit</string>
+    <string name="gcm_unregistred">Unregistred from GCM server</string>
+    <string name="console_initialized">> initialized\n</string>
+
+    <!-- No location providers dialog -->
+    <string name="location_providers_dialog_message">Location providers are not available. Enable GPS or network providers.</string>
+    <string name="location_providers_dialog_positive">Go to settings</string>
+    <string name="push_dialog_view">View</string>
+    <string name="push_dialog_close">Close</string>
+    <string name="push_dialog_title">Message</string>
+    <string name="webview_close">Close</string>
+    <string name="webview_share_link">Share link</string>
+    <string name="webview_open_in_browser">Open in browser</string>
+
+    <string name="location_providers_dialog_negative">Cancel</string>
+    <string name="prompt_location_dialog_message">Don\'t ask again</string>
+    <string name="server_register_response_error">Got error response on device register</string>
+
+</resources>

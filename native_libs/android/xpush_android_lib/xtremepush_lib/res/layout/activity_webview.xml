@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/webview_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#99daff" >
+
+        <ImageButton
+            android:id="@+id/webview_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:background="@null"
+            android:contentDescription="@string/webview_close"
+            android:padding="10dp"
+            android:src="@drawable/ic_menu_close_clear_cancel" />
+
+        <ImageButton
+            android:id="@+id/webview_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@null"
+            android:contentDescription="@string/webview_share_link"
+            android:padding="10dp"
+            android:src="@drawable/ic_menu_share" />
+
+        <ImageButton
+            android:id="@+id/webview_view_in_browser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/webview_share"
+            android:background="@null"
+            android:contentDescription="@string/webview_open_in_browser"
+            android:padding="10dp"
+            android:src="@drawable/ic_menu_view" />
+    </RelativeLayout>
+
+    <WebView
+        android:id="@+id/webview_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/webview_top_bar" />
+
+</RelativeLayout>
