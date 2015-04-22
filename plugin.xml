@@ -130,18 +130,28 @@
 
     <!-- ios -->
 	<platform name="ios">
-
 		<config-file target="config.xml" parent="/*">
 			<feature name="XTremePush">
 				<param name="ios-package" value="XTremePushPlugin"/>
 			</feature>
 		</config-file>
+		<framework src="Security.framework" />
+		<framework src="CFNetwork.framework" />
+		<framework src="MobileCoreServices.framework" />
+		<framework src="CoreTelephony.framework" />
+		<framework src="SystemConfiguration.framework" />
+		<framework src="CoreLocation.framework" />
+		<framework src="CoreBluetooth.framework" />
+		<framework src="libz.dylib" />
 
+		<source-file src="native_libs/ios/libXPush.a" framework="true"/>
 		<source-file src="src/ios/AppDelegate+notification.m" />
 		<source-file src="src/ios/XTremePushPlugin.m" />
 
 		<header-file src="src/ios/AppDelegate+notification.h" />
 		<header-file src="src/ios/XTremePushPlugin.h" />
+		<header-file src="native_libs/ios/XPush.h" />
+		
 
 	</platform>
 </plugin>
