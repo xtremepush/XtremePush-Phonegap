@@ -43,6 +43,8 @@ public class XTremePushPlugin extends CordovaPlugin {
     public static final String HITIMPRESSION = "hitImpression";
     public static final String SHOWPUSHLISTCONTROLLER = "showPushListController";
     public static final String GETPUSHNOTIFICATIONOFFSET = "getPushNotificationsOffset";
+    public static final String HITEVENT = "hitEvent";
+    public static final String SHOWDIADLOG = "setShowDialog";
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -111,7 +113,10 @@ public class XTremePushPlugin extends CordovaPlugin {
             showPushListController(callbackContext);
         } else if (GETPUSHNOTIFICATIONOFFSET.equals(action)) {
             getPushNotificationOffset(data,callbackContext);
-
+        } else if (HITEVENT.equals(action)) {
+            hitEvent(data, callbackContext);
+        } else if(SHOWDIADLOG.equals(action)){
+            setShowDialog(data, callbackContext);
         }
 
         if ( cachedExtras != null) {
@@ -131,17 +136,37 @@ public class XTremePushPlugin extends CordovaPlugin {
             return;
         }
 
-        if (!jo.isNull("locationTimeout") && !jo.isNull("locationDistance")){
-            Integer locationTimeout = jo.getInt("locationTimeout");
-            Integer locationDistance = jo.getInt("locationDistance");
+        PushConnector.Builder b = new PushConnector.Builder(this.AppId, this.GoogleProjectID);
 
-            pushConnector = new PushConnector.Builder(this.AppId, this.GoogleProjectID)
-                .setLocationUpdateTimeout(locationTimeout).setLocationCheckDistance(locationDistance).
-                            create(getApplicationActivity());
-        } else {
-            pushConnector = new PushConnector.Builder(this.AppId, this.GoogleProjectID)
-                .create(getApplicationActivity());
+        if (!jo.isNull("locationTimeout")){
+            Integer locationTimeout = jo.getInt("locationTimeout");
+            b.setLocationUpdateTimeout(locationTimeout);
         }
+
+        if (!jo.isNull("locationDistance")){
+            Integer locationDistance = jo.getInt("locationDistance");
+            b.setLocationUpdateTimeout(locationDistance);
+        }
+
+        if (!jo.isNull("enableLocations")){
+            b.setEnableLocations(true);
+        }
+
+        if (!jo.isNull("turnOnDebugLogs")){
+            b.turnOnDebugLogs(true);
+        }
+
+        if (!jo.isNull("setServerURL")){
+            String serverUrl = jo.getString("setServerURL");
+            b.setServerUrl(serverUrl);
+        }
+
+        if (!jo.isNull("beaconLocationBackground")){
+            Integer beaconBackground = jo.getInt("beaconLocationBackground");
+            b.setBeaconLocationBackgroundTimeout(beaconBackground);
+        }
+
+        pushConnector = b.create(getApplicationActivity());
 
         callback_function = (String) jo.getString("callbackFunction");
         initNotificationMessageReceivers();
@@ -195,9 +220,21 @@ public class XTremePushPlugin extends CordovaPlugin {
         callbackContext.error("Not implemented in Android version");
     }
 
+    private void setShowDialog(JSONArray data, CallbackContext callbackContext) throws JSONException
+    {
+        if (data.getBoolean(0) == false){
+            pushConnector.setShowAlertDialog(false);
+        } else {
+            pushConnector.setShowAlertDialog(true);
+        }
+
+        callbackContext.success();
+    }
+
+
     private void setAskForLocationPermission(CallbackContext callbackContext)
     {
-       callbackContext.error("Not implemented in Android");
+        callbackContext.error("Not implemented in Android");
     }
 
     private void hitTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -213,6 +250,29 @@ public class XTremePushPlugin extends CordovaPlugin {
         String tag =  data.getString(0);
 
         pushConnector.hitTag(getApplicationContext(), tag);
+
+        callbackContext.success();
+    }
+
+    private void hitEvent(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        if (!isRegistered){
+            callbackContext.error("Please call register function first");
+        }
+
+        if (data.getString(0) == null){
+            callbackContext.error("Please provide title");
+            return;
+        }
+
+        if (data.getString(1) == null){
+            callbackContext.error("Please provide message");
+            return;
+        }
+
+        String title = data.getString(0);
+        String message =  data.getString(1);
+
+        pushConnector.hitEvent(getApplicationContext(), title, message);
 
         callbackContext.success();
     }

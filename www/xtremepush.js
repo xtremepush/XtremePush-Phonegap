@@ -13,8 +13,9 @@ function XTremePush() { }
  *           alert - is register to push notification with alert
  *           showAlerts - set if to show alert when received push notifications
  *         For Android:
- *           if locationTimeout and locationDistance are set 
- *           PushConnector.register function will be called with location configuration 
+ *           if locationTimeout,locationDistance, enableLocations, turnOnDebugLogs, setServerURL,
+ *           beaconLocationBackground will be set PushConnector.register function will be called 
+ *           with this specific configuration 
  *         Generic:
  *           callbackFunction - name of the function which will be called when push notification will be received
  *           
@@ -93,6 +94,16 @@ XTremePush.prototype.setLocationEnabled = function(success, fail, value){
  */
 XTremePush.prototype.setAsksForLocationPermissions = function(success, fail, value){
    return exec(success, fail, 'XTremePush', 'setAsksForLocationPermissions', [value]);
+};   
+
+/**
+ * Only for Android. set if stadard window should be shown on push
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ * @param  {Boolean } value   set if dialog should be shown. nothing - if should not
+ */
+XTremePush.prototype.setShowDialog = function(success, fail, value){
+   return exec(success, fail, 'XTremePush', 'setShowDialog', [value]);
 };           
 
 /**
@@ -114,6 +125,19 @@ XTremePush.prototype.hitTag = function(success, fail, tag){
 XTremePush.prototype.hitImpression = function(success, fail, impression){
    return exec(success, fail, 'XTremePush', 'hitImpression', [impression]);
 };
+
+
+/**
+ * Calling hit event function
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ * @param  {String}   title   title of the event
+ * @param  {String}   message message of the event
+ */             
+XTremePush.prototype.hitEvent = function(success, fail, title, message){
+   return exec(success, fail, 'XTremePush', 'hitEvent', [title, message]);
+};
+
 
 /**
  * Shows push log view
