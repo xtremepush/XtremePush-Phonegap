@@ -2,7 +2,8 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.xtreme.plugins.XtremePush"
-    version="1.1.0">
+    version="1.1.0"
+    onLoad="true" >
 
     <name>XTremePush</name>
 	<author>XTreme Push</author>
@@ -27,6 +28,7 @@
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="XTremePush" >
 				<param name="android-package" value="com.xtreme.plugins.XTremePushPlugin"/>
+				<param name="onload" value="true" />
 			</feature>
 		</config-file>
 
@@ -45,28 +47,28 @@
 			<!-- REQUIRED for XtremePush -->
 			<uses-permission android:name="android.permission.INTERNET" />
 			<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-			
+
 			<!-- Keeps the processor from sleeping when a message is received. -->
 			<uses-permission android:name="android.permission.WAKE_LOCK" />
-			
+
 			 <!-- REQUIRED FOR GEO-LOCATION-->
 			<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
- 			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
- 			<!-- REQUIRED FOR IBEACON -->
+			<!-- REQUIRED FOR IBEACON -->
 			<uses-permission android:name="android.permission.BLUETOOTH" />
 			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 			<uses-feature
 			    android:name="android.hardware.bluetooth_le"
 			    android:required="false" />
-	
-			
+
+
 			<uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
 		</config-file>
 
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-			
+
 			<service android:name="ie.imobile.extremepush.receivers.GCMReceiver" />
 			<service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
 			<service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
@@ -87,7 +89,7 @@
 			   </intent-filter>
 			</service>
 
-			<service android:name="ie.imobile.extremepush.GCMIntentService" />		
+			<service android:name="ie.imobile.extremepush.GCMIntentService" />
 			<receiver
 		        android:name="ie.imobile.extremepush.receivers.GCMReceiver"
 		        android:permission="com.google.android.c2dm.permission.SEND" >
@@ -99,10 +101,10 @@
 		    </receiver>
 
 			<receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
-			<meta-data 
-	            android:name="com.google.android.gms.version" 
+			<meta-data
+	            android:name="com.google.android.gms.version"
 	            android:value="@integer/google_play_services_version" />
-	            
+
 			<activity
 				  android:name="ie.imobile.extremepush.ui.DisplayPushActivity"
 				  android:label="Push received"
@@ -121,10 +123,10 @@
 		</config-file>
 
 		<source-file src="src/android/XTremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
-		
+
 		<framework src="native_libs/android/xpush_android_lib/xtremepush_lib" custom="true" />
 
-		<dependency id="android.support.v4" />
+		<dependency id="cordova-plugin-android-support-v4" />
 		<dependency id="com.google.play.services" />
 	</platform>
 
@@ -151,7 +153,7 @@
 		<header-file src="src/ios/AppDelegate+notification.h" />
 		<header-file src="src/ios/XTremePushPlugin.h" />
 		<header-file src="native_libs/ios/XPush.h" />
-		
+
 
 	</platform>
 </plugin>
