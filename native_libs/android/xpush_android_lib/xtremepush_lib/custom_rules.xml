@@ -15,7 +15,7 @@
     </target>
     <!-- Rename AndroidManifest.xml so that Eclipse's import wizard doesn't detect ant-build as a project -->
     <target name="-post-build">
-        <copy todir="../../ant-gen/ie">
+        <copy todir="../../ant-gen/ie" failonerror="false" >
             <fileset dir="ant-gen/ie"/>
         </copy>
         <move file="ant-build/AndroidManifest.xml" tofile="ant-build/AndroidManifest.cordova.xml" failonerror="false" overwrite="true" />
