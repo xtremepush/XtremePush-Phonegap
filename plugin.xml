@@ -126,7 +126,7 @@
 
 		<framework src="native_libs/android/xpush_android_lib/xtremepush_lib" custom="true" />
 
-		<dependency id="cordova-plugin-android-support-v4" />
+		<dependency id="android.support.v4" />
 		<dependency id="com.google.play.services" />
 	</platform>
 
