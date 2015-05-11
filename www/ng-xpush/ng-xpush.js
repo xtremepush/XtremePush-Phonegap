@@ -1,6 +1,7 @@
 angular.module('XTreme.Plugins', [])
-  .factory('$xpush', function(){
+  .factory('$xpush',['$rootScope', '$timeout', function($rootScope, $timeout){
     return {
+      
       /**
        * Calling register function of the XTremePush plugin
        * @param  {Function} success callback function which will be called in case of success of the function
@@ -20,6 +21,16 @@ angular.module('XTreme.Plugins', [])
        *           
        */
       register: function(success, fail, options){
+        
+        var callbackFunction = function(){
+          $rootScope.$broadcast('$xpush:notificationReceived', notification);     
+        }
+        if (options !== undefined && options.callbackFunction === undefined) {
+          
+          options.callbackFunction = callbackFunction;
+        }
+
+
         return XTremePush.register(success, fail, options);
       },
 
@@ -157,4 +168,4 @@ angular.module('XTreme.Plugins', [])
           return XTremePush.getPushNotificationsOffset(success, fail, offset, limit);
       }
     }
-  });
+  }]);
