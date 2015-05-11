@@ -23,7 +23,7 @@ Full Cordova Phonegap integration guides are given for iOS and Android below.
 
 2. From a terminal navigate to your application directory, and type the command:
     
-        cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap
+        cordova plugin add https://github.com/xtremepush/XtremePush-Phonegap
 
 3. Follow the native iOS instructions to connect you iOS app to the platform - [here](https://xtremepush.com/docs/libs/ios_start/#connect-your-app-to-the-xtremepush-platform)
 
@@ -97,7 +97,7 @@ Full Cordova Phonegap integration guides are given for iOS and Android below.
 
 2. From a terminal navigate to your application directory, and type the command below (Note: You may have already completed this step if you have completed the iOS instructions above):
 
-        cordova plugin add https://github.com/xtremepush/XtremePush_Phonegap
+        cordova plugin add https://github.com/xtremepush/XtremePush-Phonegap
     
 3. Follow the native Android instructions to connect your Android app to the platform - [here](https://xtremepush.com/docs/libs/android_start/#connect-your-app-to-the-xtremepush-platform)
 
