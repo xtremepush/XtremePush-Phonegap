@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import com.squareup.otto.Subscribe;
+import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
 import ie.imobile.extremepush.ui.DisplayPushActivity;
 import ie.imobile.extremepush.util.LibVersion;
@@ -24,6 +25,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by Dmytro Malieiev on 6/8/14.
@@ -129,6 +131,8 @@ public class XTremePushPlugin extends CordovaPlugin {
 
     private void Register(JSONArray data, CallbackContext callbackContext) throws JSONException {
         this._webView = this.webView;
+
+
         JSONObject jo = data.getJSONObject(0);
 
         if (jo.isNull("callbackFunction")){
@@ -137,7 +141,6 @@ public class XTremePushPlugin extends CordovaPlugin {
         }
 
         PushConnector.Builder b = new PushConnector.Builder(this.AppId, this.GoogleProjectID);
-
         if (!jo.isNull("locationTimeout")){
             Integer locationTimeout = jo.getInt("locationTimeout");
             b.setLocationUpdateTimeout(locationTimeout);
@@ -382,7 +385,6 @@ public class XTremePushPlugin extends CordovaPlugin {
         {
             JSONObject json;
             json = new JSONObject().put("event", "message");
-
             JSONObject jsondata = new JSONObject();
             Iterator<String> it = extras.keySet().iterator();
             while (it.hasNext())
@@ -440,6 +442,15 @@ public class XTremePushPlugin extends CordovaPlugin {
                         else
                         {
                             jsondata.put(key, value);
+                        }
+                    }
+
+                    if (value instanceof PushMessage)
+                    {
+                        Iterator iterator = ((PushMessage) value).payLoadMap.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            Map.Entry<String, String> pair = (Map.Entry<String, String>)iterator.next();
+                            jsondata.put(pair.getKey(), pair.getValue());
                         }
                     }
                 }
