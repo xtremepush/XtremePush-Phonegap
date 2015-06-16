@@ -57,6 +57,7 @@ public class XTremePushPlugin extends CordovaPlugin {
     private static Bundle cachedExtras;
     private PushConnector pushConnector;
     private static boolean isRegistered = false;
+    private static boolean isInitialized = false;
 
     private static boolean inForeground = false;
     private static BroadcastReceiver mReceiver;
@@ -130,50 +131,52 @@ public class XTremePushPlugin extends CordovaPlugin {
     }
 
     private void Register(JSONArray data, CallbackContext callbackContext) throws JSONException {
-        this._webView = this.webView;
+        if (pushConnector == null) {
+            this._webView = this.webView;
+            JSONObject jo = data.getJSONObject(0);
 
+            if (jo.isNull("callbackFunction")){
+                callbackContext.error("Please provide callback function");
+                return;
+            }
 
-        JSONObject jo = data.getJSONObject(0);
+            PushConnector.Builder b = new PushConnector.Builder(this.AppId, this.GoogleProjectID);
 
-        if (jo.isNull("callbackFunction")){
-            callbackContext.error("Please provide callback function");
-            return;
+            if (!jo.isNull("locationTimeout")){
+                Integer locationTimeout = jo.getInt("locationTimeout");
+                b.setLocationUpdateTimeout(locationTimeout);
+            }
+
+            if (!jo.isNull("locationDistance")){
+                Integer locationDistance = jo.getInt("locationDistance");
+                b.setLocationUpdateTimeout(locationDistance);
+            }
+
+            if (!jo.isNull("enableLocations")){
+                b.setEnableLocations(true);
+            }
+
+            if (!jo.isNull("turnOnDebugLogs")){
+                b.turnOnDebugLogs(true);
+            }
+
+            if (!jo.isNull("setServerURL")){
+                String serverUrl = jo.getString("setServerURL");
+                b.setServerUrl(serverUrl);
+            }
+
+            if (!jo.isNull("beaconLocationBackground")){
+                Integer beaconBackground = jo.getInt("beaconLocationBackground");
+                b.setBeaconLocationBackgroundTimeout(beaconBackground);
+            }
+
+            pushConnector = b.create(getApplicationActivity());
+
+            callback_function = (String) jo.getString("callbackFunction");
+            initNotificationMessageReceivers();
+            isRegistered = true;
+            initializePushConnector();
         }
-
-        PushConnector.Builder b = new PushConnector.Builder(this.AppId, this.GoogleProjectID);
-        if (!jo.isNull("locationTimeout")){
-            Integer locationTimeout = jo.getInt("locationTimeout");
-            b.setLocationUpdateTimeout(locationTimeout);
-        }
-
-        if (!jo.isNull("locationDistance")){
-            Integer locationDistance = jo.getInt("locationDistance");
-            b.setLocationUpdateTimeout(locationDistance);
-        }
-
-        if (!jo.isNull("enableLocations")){
-            b.setEnableLocations(true);
-        }
-
-        if (!jo.isNull("turnOnDebugLogs")){
-            b.turnOnDebugLogs(true);
-        }
-
-        if (!jo.isNull("setServerURL")){
-            String serverUrl = jo.getString("setServerURL");
-            b.setServerUrl(serverUrl);
-        }
-
-        if (!jo.isNull("beaconLocationBackground")){
-            Integer beaconBackground = jo.getInt("beaconLocationBackground");
-            b.setBeaconLocationBackgroundTimeout(beaconBackground);
-        }
-
-        pushConnector = b.create(getApplicationActivity());
-
-        callback_function = (String) jo.getString("callbackFunction");
-        initNotificationMessageReceivers();
-        isRegistered = true;
 
         callbackContext.success("Successfully registered!");
     }
@@ -468,6 +471,12 @@ public class XTremePushPlugin extends CordovaPlugin {
         return null;
     }
 
+    private void initializePushConnector(){
+        pushConnector.onStart(getApplicationActivity());
+        pushConnector.onResume(getApplicationActivity());
+        isInitialized = true;
+    }
+
     /*
      * Initialization of plugin
      */
@@ -476,11 +485,15 @@ public class XTremePushPlugin extends CordovaPlugin {
         super.initialize(cordova, webView);
         inForeground = true;
     }
+
     /*
      * When application goes to onPause state
      */
     @Override
     public void onPause(boolean multitasking) {
+        if(isInitialized && isRegistered && (pushConnector != null)){
+            pushConnector.onPause(getApplicationActivity());
+        }
         super.onPause(multitasking);
         inForeground = false;
     }
@@ -490,8 +503,39 @@ public class XTremePushPlugin extends CordovaPlugin {
      */
     @Override
     public void onResume(boolean multitasking) {
+        if (isInitialized && isRegistered && (pushConnector != null)) {
+            initializePushConnector();
+        }
         super.onResume(multitasking);
         inForeground = true;
+    }
+
+    /**
+     * Called when the activity receives a new intent.
+     */
+    @Override
+    public void onNewIntent(Intent intent) {
+        if(isInitialized && isRegistered && (pushConnector != null)){
+            pushConnector.onNewIntent(intent);
+        }
+        super.onNewIntent(intent);
+    }
+
+    /**
+     * Called when an activity you launched exits, giving you the requestCode you started it with,
+     * the resultCode it returned, and any additional data from it.
+     *
+     * @param requestCode   The request code originally supplied to startActivityForResult(),
+     *                      allowing you to identify who this result came from.
+     * @param resultCode    The integer result code returned by the child activity through its setResult().
+     * @param intent        An Intent, which can return result data to the caller (various data can be
+     *                      attached to Intent "extras").
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if(isInitialized && isRegistered && (pushConnector != null))
+            pushConnector.onActivityResult(requestCode, resultCode, intent);
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     /*
@@ -500,6 +544,7 @@ public class XTremePushPlugin extends CordovaPlugin {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isInitialized = false;
         inForeground = false;
         callback_function = null;
         webView = null;
