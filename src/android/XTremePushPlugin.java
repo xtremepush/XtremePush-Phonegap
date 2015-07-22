@@ -170,6 +170,11 @@ public class XTremePushPlugin extends CordovaPlugin {
                 b.setBeaconLocationBackgroundTimeout(beaconBackground);
             }
 
+            if (!jo.isNull("setIcon")){
+                String icon = jo.getString("setIcon");
+                b.setIcon(icon);
+            }
+
             pushConnector = b.create(getApplicationActivity());
 
             callback_function = (String) jo.getString("callbackFunction");
