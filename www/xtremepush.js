@@ -104,7 +104,31 @@ XTremePush.prototype.setAsksForLocationPermissions = function(success, fail, val
  */
 XTremePush.prototype.setShowDialog = function(success, fail, value){
    return exec(success, fail, 'XTremePush', 'setShowDialog', [value]);
-};           
+};  
+
+/**
+ * Only for Android. Use to enable tag batching
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ * @param  {Object} options for method:
+ *           batching - (boolean) set batching enabled - required
+ *           limit - (int) max number of tags to store - optional
+ */ 
+XTremePush.prototype.setTagsBatchingEnabled = function(success, fail, value){
+   return exec(success, fail, 'XTremePush', 'setTagsBatchingEnabled', [value]);
+};  
+
+/**
+ * Only for Android. Use to enable impression batching
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ * @param  {Object} options for method:
+ *           batching - (boolean) set batching enabled - required
+ *           limit - (int) max number of impressions to store - optional
+ */ 
+XTremePush.prototype.setImpressionsBatchingEnabled = function(success, fail, value){
+   return exec(success, fail, 'XTremePush', 'setImpressionsBatchingEnabled', [value]);
+};       
 
 /**
  * Calling hit tag function
@@ -126,7 +150,6 @@ XTremePush.prototype.hitImpression = function(success, fail, impression){
    return exec(success, fail, 'XTremePush', 'hitImpression', [impression]);
 };
 
-
 /**
  * Calling hit event function
  * @param  {Function} success callback function which will be called in case of success of the function
@@ -138,6 +161,23 @@ XTremePush.prototype.hitEvent = function(success, fail, title, message){
    return exec(success, fail, 'XTremePush', 'hitEvent', [title, message]);
 };
 
+/**
+ * Calling send tags function
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ */             
+XTremePush.prototype.sendTags = function(success, fail){
+   return exec(success, fail, 'XTremePush', 'sendTags',[]);
+};
+
+/**
+ * Calling send impressions function
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ */             
+XTremePush.prototype.sendImpressions = function(success, fail){
+   return exec(success, fail, 'XTremePush', 'sendImpressions', []);
+};
 
 /**
  * Shows push log view

@@ -47,6 +47,10 @@ public class XTremePushPlugin extends CordovaPlugin {
     public static final String GETPUSHNOTIFICATIONOFFSET = "getPushNotificationsOffset";
     public static final String HITEVENT = "hitEvent";
     public static final String SHOWDIADLOG = "setShowDialog";
+    public static final String TAGBATCHING = "setTagsBatchingEnabled";
+    public static final String IMPRESSIONBATCHING = "setImpressionsBatchingEnabled";
+    public static final String SENDTAGS = "sendTags";
+    public static final String SENDIMPRESSIONS = "sendImpressions";
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -118,8 +122,16 @@ public class XTremePushPlugin extends CordovaPlugin {
             getPushNotificationOffset(data,callbackContext);
         } else if (HITEVENT.equals(action)) {
             hitEvent(data, callbackContext);
-        } else if(SHOWDIADLOG.equals(action)){
+        } else if (SHOWDIADLOG.equals(action)){
             setShowDialog(data, callbackContext);
+        } else if (TAGBATCHING.equals(action)){
+            setTagsBatchingEnabled(data,callbackContext);
+        } else if (IMPRESSIONBATCHING.equals(action)){
+            setImpressionsBatchingEnabled(data,callbackContext);
+        } else if (SENDTAGS.equals(action)) {
+            sendTags(callbackContext);
+        } else if (SENDIMPRESSIONS.equals(action)) {
+            sendImpressions(callbackContext);
         }
 
         if ( cachedExtras != null) {
@@ -173,6 +185,10 @@ public class XTremePushPlugin extends CordovaPlugin {
             if (!jo.isNull("setIcon")){
                 String icon = jo.getString("setIcon");
                 b.setIcon(icon);
+            }
+
+            if (!jo.isNull("setAttributionsEnabled")){
+                b.setAttributionsEnabled(true);
             }
 
             pushConnector = b.create(getApplicationActivity());
@@ -242,6 +258,49 @@ public class XTremePushPlugin extends CordovaPlugin {
         callbackContext.success();
     }
 
+    private void setTagsBatchingEnabled(JSONArray data, CallbackContext callbackContext) throws JSONException
+    {
+        JSONObject jo = data.getJSONObject(0);
+        int limit = 0;
+
+        if(!jo.isNull("limit")){
+            limit = jo.getInt("limit");
+        }
+
+        if (!jo.isNull("batching")){
+            boolean batching = jo.getBoolean("batching");
+            if(limit != 0)
+                pushConnector.setTagsBatchingEnabled(batching, limit);
+            else
+                pushConnector.setTagsBatchingEnabled(batching);
+        } else {
+            callbackContext.error("Please set \"batching\" boolean");
+            return;
+        }
+        callbackContext.success();
+    }
+
+    private void setImpressionsBatchingEnabled(JSONArray data, CallbackContext callbackContext) throws JSONException
+    {
+        JSONObject jo = data.getJSONObject(0);
+        int limit = 0;
+
+        if(!jo.isNull("limit")){
+            limit = jo.getInt("limit");
+        }
+
+        if (!jo.isNull("batching")){
+            boolean batching = jo.getBoolean("batching");
+            if(limit != 0)
+                pushConnector.setImpressionsBatchingEnabled(batching, limit);
+            else
+                pushConnector.setImpressionsBatchingEnabled(batching);
+        } else {
+            callbackContext.error("Please set \"batching\" boolean");
+            return;
+        }
+        callbackContext.success();
+    }
 
     private void setAskForLocationPermission(CallbackContext callbackContext)
     {
@@ -302,6 +361,24 @@ public class XTremePushPlugin extends CordovaPlugin {
 
         pushConnector.hitImpression(getApplicationContext(), impression);
 
+        callbackContext.success();
+    }
+
+    private void sendTags(CallbackContext callbackContext)
+    {
+        if (!isRegistered){
+            callbackContext.error("Please call register function first");
+        }
+        pushConnector.sendTags();
+        callbackContext.success();
+    }
+
+    private void sendImpressions(CallbackContext callbackContext)
+    {
+        if (!isRegistered){
+            callbackContext.error("Please call register function first");
+        }
+        pushConnector.sendImpressions();
         callbackContext.success();
     }
 
@@ -455,6 +532,21 @@ public class XTremePushPlugin extends CordovaPlugin {
 
                     if (value instanceof PushMessage)
                     {
+                        if(((PushMessage)value).pushActionId != null)
+                            json.put("pushActionId", ((PushMessage)value).pushActionId);
+                        if(((PushMessage)value).alert != null)
+                            json.put("alert", ((PushMessage)value).alert);
+                        if(((PushMessage)value).badge != null)
+                            json.put("badge", ((PushMessage)value).badge);
+                        if(((PushMessage)value).sound != null)
+                            json.put("sound", ((PushMessage)value).sound);
+                        if(((PushMessage)value).url != null)
+                            json.put("url", ((PushMessage)value).url);
+                        Boolean temp = ((PushMessage)value).openInBrowser;
+                        if(temp != null)
+                            json.put("openInBrowser", temp);
+                        if(((PushMessage)value).source != null)
+                            json.put("source", ((PushMessage)value).source);
                         Iterator iterator = ((PushMessage) value).payLoadMap.entrySet().iterator();
                         while (iterator.hasNext()) {
                             Map.Entry<String, String> pair = (Map.Entry<String, String>)iterator.next();

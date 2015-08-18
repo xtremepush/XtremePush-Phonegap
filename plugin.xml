@@ -69,7 +69,6 @@
 
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 
-			<service android:name="ie.imobile.extremepush.receivers.GCMReceiver" />
 			<service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
 			<service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
 			<service android:enabled="true"
@@ -99,6 +98,14 @@
 		            <category android:name="$PACKAGE_NAME" />
 		        </intent-filter>
 		    </receiver>
+
+			<receiver
+	            android:name="ie.imobile.extremepush.receivers.ReferrerReceiver">
+	            <intent-filter>
+	                <action android:name="com.android.vending.INSTALL_REFERRER" />
+	                <category android:name="$PACKAGE_NAME" />
+	            </intent-filter>
+	        </receiver>
 
 			<receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
 			<meta-data
