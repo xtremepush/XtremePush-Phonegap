@@ -13,6 +13,8 @@ import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
 import ie.imobile.extremepush.ui.DisplayPushActivity;
 import ie.imobile.extremepush.util.LibVersion;
+import ie.imobile.extremepush.util.SharedPrefUtils;
+import ie.imobile.extremepush.network.ConnectionManager;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -64,7 +66,11 @@ public class XTremePushPlugin extends CordovaPlugin {
     private static boolean isInitialized = false;
 
     private static boolean inForeground = false;
+    private static boolean notNewIntent = false;
     private static BroadcastReceiver mReceiver;
+    private static String lastNotificationID = "";
+    private static String lastForegroundID = "";
+    private static String lastBackgroundID = "";
 
     /*
      * Returns application context
@@ -318,7 +324,7 @@ public class XTremePushPlugin extends CordovaPlugin {
         }
 
         String tag =  data.getString(0);
-        
+
         if (!data.isNull(1)){
             pushConnector.hitTag(tag, data.getString(1));
         } 
@@ -432,8 +438,14 @@ public class XTremePushPlugin extends CordovaPlugin {
                 if (extras != null)
                 {
                     if (inForeground) {
-                        extras.putBoolean("foreground", true);
-                        sendExtras(extras);
+                        PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
+                        if(pushMessage != null){
+                            if(!(pushMessage.pushActionId.equals(lastForegroundID))){
+                                lastForegroundID = pushMessage.pushActionId;
+                                extras.putBoolean("foreground", true);
+                                sendExtras(extras);
+                            }
+                        }
                     }
                 }
             }
@@ -603,6 +615,7 @@ public class XTremePushPlugin extends CordovaPlugin {
         }
         super.onPause(multitasking);
         inForeground = false;
+        notNewIntent = true;
     }
 
     /*
@@ -610,11 +623,30 @@ public class XTremePushPlugin extends CordovaPlugin {
      */
     @Override
     public void onResume(boolean multitasking) {
+        super.onResume(multitasking);
+        inForeground = true;
         if (isInitialized && isRegistered && (pushConnector != null)) {
             initializePushConnector();
         }
-        super.onResume(multitasking);
-        inForeground = true;
+        if (getApplicationActivity().getIntent().hasExtra(GCMIntentService.EXTRAS_PUSH_MESSAGE)) {
+            Bundle extras = getApplicationActivity().getIntent().getExtras();
+            PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
+            if(pushMessage != null){
+                if(!(pushMessage.pushActionId.equals(lastNotificationID)) && !(pushMessage.pushActionId.equals(lastBackgroundID))){
+                    extras.putBoolean("foreground", false);
+                    sendExtras(extras);
+                    if(notNewIntent){
+                        lastNotificationID = pushMessage.pushActionId;
+                        ConnectionManager.getInstance().hitAction(getApplicationContext(), lastNotificationID);
+                        SharedPrefUtils.setLastPushId(getApplicationContext(), lastNotificationID);
+                    }
+                    else{
+                        lastBackgroundID = pushMessage.pushActionId;
+                        SharedPrefUtils.setLastBackgroundPushId(getApplicationContext(), lastBackgroundID);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -626,6 +658,8 @@ public class XTremePushPlugin extends CordovaPlugin {
             pushConnector.onNewIntent(intent);
         }
         super.onNewIntent(intent);
+        getApplicationActivity().setIntent(intent);
+        notNewIntent = false;
     }
 
     /**
