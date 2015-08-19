@@ -141,6 +141,17 @@ XTremePush.prototype.hitTag = function(success, fail, tag){
 };
 
 /**
+ * Calling hit tag function
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ * @param  {String}   tag     value which will be sent
+ * @param  {String}   message     associated with tag
+ */             
+XTremePush.prototype.hitTag = function(success, fail, tag, message){
+   return exec(success, fail, 'XTremePush', 'hitTag', [tag, message]);
+};
+
+/**
  * Calling hit impression function
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
@@ -148,6 +159,17 @@ XTremePush.prototype.hitTag = function(success, fail, tag){
  */             
 XTremePush.prototype.hitImpression = function(success, fail, impression){
    return exec(success, fail, 'XTremePush', 'hitImpression', [impression]);
+};
+
+/**
+ * Calling hit impression function
+ * @param  {Function} success callback function which will be called in case of success of the function
+ * @param  {Function} fail    callback function which will be called in case of failure
+ * @param  {String}   impression value which will be sent
+ * @param  {String}   message associated with impression
+ */             
+XTremePush.prototype.hitImpression = function(success, fail, impression, message){
+   return exec(success, fail, 'XTremePush', 'hitImpression', [impression, message]);
 };
 
 /**

@@ -318,8 +318,13 @@ public class XTremePushPlugin extends CordovaPlugin {
         }
 
         String tag =  data.getString(0);
-
-        pushConnector.hitTag(getApplicationContext(), tag);
+        
+        if (!data.isNull(1)){
+            pushConnector.hitTag(tag, data.getString(1));
+        } 
+        else {
+            pushConnector.hitTag(tag);
+        }
 
         callbackContext.success();
     }
@@ -359,7 +364,12 @@ public class XTremePushPlugin extends CordovaPlugin {
 
         String impression =  data.getString(0);
 
-        pushConnector.hitImpression(getApplicationContext(), impression);
+        if (!data.isNull(1)){
+            pushConnector.hitImpression(impression, data.getString(1));
+        } 
+        else {
+            pushConnector.hitImpression(impression);
+        }
 
         callbackContext.success();
     }
