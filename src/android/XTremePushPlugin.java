@@ -473,7 +473,7 @@ public class XTremePushPlugin extends CordovaPlugin {
 
     private void initializePushConnector(){
         pushConnector.onStart(getApplicationActivity());
-        pushConnector.onResume(getApplicationActivity());
+       // pushConnector.onResume(getApplicationActivity());
         isInitialized = true;
     }
 
@@ -492,7 +492,7 @@ public class XTremePushPlugin extends CordovaPlugin {
     @Override
     public void onPause(boolean multitasking) {
         if(isInitialized && isRegistered && (pushConnector != null)){
-            pushConnector.onPause(getApplicationActivity());
+            //pushConnector.onPause(getApplicationActivity());
         }
         super.onPause(multitasking);
         inForeground = false;
