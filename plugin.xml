@@ -132,7 +132,8 @@
 
 		<framework src="native_libs/android/xpush_android_lib/xtremepush_lib" custom="true" />
 
-		<framework src="com.google.android.gms:play-services-ads:+" />
+		<framework src="com.google.android.gms:play-services-gcm:+" />
+		<framework src="com.google.android.gms:play-services-location:+" />
 	</platform>
 
     <!-- ios -->
