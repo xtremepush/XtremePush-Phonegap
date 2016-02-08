@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.api.model.PushMessage;
-import ie.imobile.extremepush.network.ConnectionManager;
 import ie.imobile.extremepush.util.UrlUtils;
 
 public class DisplayPushActivity extends Activity {
@@ -37,12 +36,12 @@ public class DisplayPushActivity extends Activity {
             dialogBuilder = dialogBuilder.setPositiveButton(R.string.push_dialog_view, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ConnectionManager.getInstance().hitUrl(DisplayPushActivity.this, pushMessage.pushActionId);
-
-                    if (pushMessage.openInBrowser) {
+                    if (TextUtils.equals(pushMessage.um, PushMessage.OUTSIDE)) {
                         UrlUtils.openUrlInBrowser(DisplayPushActivity.this, pushMessage.url);
-                    } else {
+                    } else if (TextUtils.equals(pushMessage.um, PushMessage.INSIDE)){
                         UrlUtils.openUrlInWebView(DisplayPushActivity.this, pushMessage.url);
+                    } else if (TextUtils.equals(pushMessage.um, PushMessage.DEEPLINK)){
+                        UrlUtils.openUrlAsDeepLink(DisplayPushActivity.this, pushMessage.url);
                     }
                     finish();
                 }
