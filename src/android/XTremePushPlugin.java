@@ -47,6 +47,10 @@ public class XTremePushPlugin extends CordovaPlugin {
     public static final String GETPUSHNOTIFICATIONOFFSET = "getPushNotificationsOffset";
     public static final String HITEVENT = "hitEvent";
     public static final String SHOWDIADLOG = "setShowDialog";
+    public static final String TAGBATCHING = "setTagsBatchingEnabled";
+    public static final String IMPRESSIONBATCHING = "setImpressionsBatchingEnabled";
+    public static final String SENDTAGS = "sendTags";
+    public static final String SENDIMPRESSIONS = "sendImpressions";
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -61,6 +65,7 @@ public class XTremePushPlugin extends CordovaPlugin {
 
     private static boolean inForeground = false;
     private static BroadcastReceiver mReceiver;
+    private static String lastForegroundID = "";
 
     /*
      * Returns application context
@@ -118,8 +123,14 @@ public class XTremePushPlugin extends CordovaPlugin {
             getPushNotificationOffset(data,callbackContext);
         } else if (HITEVENT.equals(action)) {
             hitEvent(data, callbackContext);
-        } else if(SHOWDIADLOG.equals(action)){
-            setShowDialog(data, callbackContext);
+        } else if (TAGBATCHING.equals(action)){
+            setTagsBatchingEnabled(data, callbackContext);
+        } else if (IMPRESSIONBATCHING.equals(action)){
+            setImpressionsBatchingEnabled(data, callbackContext);
+        } else if (SENDTAGS.equals(action)) {
+            sendTags(callbackContext);
+        } else if (SENDIMPRESSIONS.equals(action)) {
+            sendImpressions(callbackContext);
         }
 
         if ( cachedExtras != null) {
@@ -168,6 +179,15 @@ public class XTremePushPlugin extends CordovaPlugin {
             if (!jo.isNull("beaconLocationBackground")){
                 Integer beaconBackground = jo.getInt("beaconLocationBackground");
                 b.setBeaconLocationBackgroundTimeout(beaconBackground);
+            }
+
+            if (!jo.isNull("setIcon")){
+                String icon = jo.getString("setIcon");
+                b.setIcon(icon);
+            }
+
+            if (!jo.isNull("setAttributionsEnabled")){
+                b.setAttributionsEnabled(true);
             }
 
             pushConnector = b.create(getApplicationActivity());
@@ -226,17 +246,49 @@ public class XTremePushPlugin extends CordovaPlugin {
         callbackContext.error("Not implemented in Android version");
     }
 
-    private void setShowDialog(JSONArray data, CallbackContext callbackContext) throws JSONException
+    private void setTagsBatchingEnabled(JSONArray data, CallbackContext callbackContext) throws JSONException
     {
-        if (data.getBoolean(0) == false){
-            pushConnector.setShowAlertDialog(false);
-        } else {
-            pushConnector.setShowAlertDialog(true);
+        JSONObject jo = data.getJSONObject(0);
+        int limit = 0;
+
+        if(!jo.isNull("limit")){
+            limit = jo.getInt("limit");
         }
 
+        if (!jo.isNull("batching")){
+            boolean batching = jo.getBoolean("batching");
+            if(limit != 0)
+                pushConnector.setTagsBatchingEnabled(batching, limit);
+            else
+                pushConnector.setTagsBatchingEnabled(batching);
+        } else {
+            callbackContext.error("Please set \"batching\" boolean");
+            return;
+        }
         callbackContext.success();
     }
 
+    private void setImpressionsBatchingEnabled(JSONArray data, CallbackContext callbackContext) throws JSONException
+    {
+        JSONObject jo = data.getJSONObject(0);
+        int limit = 0;
+
+        if(!jo.isNull("limit")){
+            limit = jo.getInt("limit");
+        }
+
+        if (!jo.isNull("batching")){
+            boolean batching = jo.getBoolean("batching");
+            if(limit != 0)
+                pushConnector.setImpressionsBatchingEnabled(batching, limit);
+            else
+                pushConnector.setImpressionsBatchingEnabled(batching);
+        } else {
+            callbackContext.error("Please set \"batching\" boolean");
+            return;
+        }
+        callbackContext.success();
+    }
 
     private void setAskForLocationPermission(CallbackContext callbackContext)
     {
@@ -255,7 +307,12 @@ public class XTremePushPlugin extends CordovaPlugin {
 
         String tag =  data.getString(0);
 
-        pushConnector.hitTag(getApplicationContext(), tag);
+        if (!data.isNull(1)){
+            pushConnector.hitTag(tag, data.getString(1));
+        } 
+        else {
+            pushConnector.hitTag(tag);
+        }
 
         callbackContext.success();
     }
@@ -295,8 +352,31 @@ public class XTremePushPlugin extends CordovaPlugin {
 
         String impression =  data.getString(0);
 
-        pushConnector.hitImpression(getApplicationContext(), impression);
+        if (!data.isNull(1)){
+            pushConnector.hitImpression(impression, data.getString(1));
+        } 
+        else {
+            pushConnector.hitImpression(impression);
+        }
 
+        callbackContext.success();
+    }
+
+    private void sendTags(CallbackContext callbackContext)
+    {
+        if (!isRegistered){
+            callbackContext.error("Please call register function first");
+        }
+        pushConnector.sendTags();
+        callbackContext.success();
+    }
+
+    private void sendImpressions(CallbackContext callbackContext)
+    {
+        if (!isRegistered){
+            callbackContext.error("Please call register function first");
+        }
+        pushConnector.sendImpressions();
         callbackContext.success();
     }
 
@@ -340,8 +420,14 @@ public class XTremePushPlugin extends CordovaPlugin {
                 if (extras != null)
                 {
                     if (inForeground) {
-                        extras.putBoolean("foreground", true);
-                        sendExtras(extras);
+                        PushMessage pushMessage = extras.getParcelable(GCMIntentService.EXTRAS_PUSH_MESSAGE);
+                        if(pushMessage != null){
+                            if(!(pushMessage.pushActionId.equals(lastForegroundID))){
+                                lastForegroundID = pushMessage.pushActionId;
+                                extras.putBoolean("foreground", true);
+                                sendExtras(extras);
+                            }
+                        }
                     }
                 }
             }
@@ -450,6 +536,20 @@ public class XTremePushPlugin extends CordovaPlugin {
 
                     if (value instanceof PushMessage)
                     {
+                        if(((PushMessage)value).pushActionId != null)
+                            json.put("pushActionId", ((PushMessage)value).pushActionId);
+                        if(((PushMessage)value).alert != null)
+                            json.put("alert", ((PushMessage)value).alert);
+                        if(((PushMessage)value).badge != null)
+                            json.put("badge", ((PushMessage)value).badge);
+                        if(((PushMessage)value).sound != null)
+                            json.put("sound", ((PushMessage)value).sound);
+                        if(((PushMessage)value).url != null)
+                            json.put("url", ((PushMessage)value).url);
+                        if(((PushMessage)value).um != null)
+                            json.put("um", ((PushMessage)value).um);
+                        if(((PushMessage)value).source != null)
+                            json.put("source", ((PushMessage)value).source);
                         Iterator iterator = ((PushMessage) value).payLoadMap.entrySet().iterator();
                         while (iterator.hasNext()) {
                             Map.Entry<String, String> pair = (Map.Entry<String, String>)iterator.next();
@@ -473,7 +573,7 @@ public class XTremePushPlugin extends CordovaPlugin {
 
     private void initializePushConnector(){
         pushConnector.onStart(getApplicationActivity());
-       // pushConnector.onResume(getApplicationActivity());
+        pushConnector.onResume(getApplicationActivity());
         isInitialized = true;
     }
 
@@ -492,7 +592,7 @@ public class XTremePushPlugin extends CordovaPlugin {
     @Override
     public void onPause(boolean multitasking) {
         if(isInitialized && isRegistered && (pushConnector != null)){
-            //pushConnector.onPause(getApplicationActivity());
+            pushConnector.onPause(getApplicationActivity());
         }
         super.onPause(multitasking);
         inForeground = false;
@@ -503,11 +603,11 @@ public class XTremePushPlugin extends CordovaPlugin {
      */
     @Override
     public void onResume(boolean multitasking) {
+        super.onResume(multitasking);
+        inForeground = true;
         if (isInitialized && isRegistered && (pushConnector != null)) {
             initializePushConnector();
         }
-        super.onResume(multitasking);
-        inForeground = true;
     }
 
     /**
@@ -519,6 +619,7 @@ public class XTremePushPlugin extends CordovaPlugin {
             pushConnector.onNewIntent(intent);
         }
         super.onNewIntent(intent);
+        getApplicationActivity().setIntent(intent);
     }
 
     /**

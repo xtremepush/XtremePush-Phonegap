@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.xtreme.plugins.XtremePush"
-    version="1.1.0"
+    version="1.2.0"
     onLoad="true" >
 
     <name>XTremePush</name>
@@ -19,7 +19,7 @@
 	</js-module>
 
 	<engines>
-		<engine name="cordova" version=">=3.0.0" />
+		<engine name="cordova" version=">=4.0.0" />
 	</engines>
 
 	<!-- android !-->
@@ -71,8 +71,9 @@
 
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 
-			<service android:name="ie.imobile.extremepush.receivers.GCMReceiver" />
 			<service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
+			<!-- REQUIRED FOR GEO LOCATION SERVICES -->
+			<service android:name="ie.imobile.extremepush.location.GeoLocationService" />
 			<service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
 			
 			 <receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >
@@ -94,7 +95,6 @@
             android:enabled="true"
             android:exported="false" />
 
-
 			<service android:name="ie.imobile.extremepush.GCMIntentService" />
 			<receiver
 		        android:name="ie.imobile.extremepush.receivers.GCMReceiver"
@@ -105,8 +105,6 @@
 		            <category android:name="$PACKAGE_NAME" />
 		        </intent-filter>
 		    </receiver>
-
-			<receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
 
 			<activity
 				  android:name="ie.imobile.extremepush.ui.DisplayPushActivity"

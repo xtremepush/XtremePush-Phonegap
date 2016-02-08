@@ -9,11 +9,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <ImageView
-        android:id="@+id/banner_close_btn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/close_icon"
-        android:layout_gravity="top|left"/>
+    <!--<ImageView-->
+        <!--android:id="@+id/banner_close_btn"-->
+        <!--android:layout_width="20dp"-->
+        <!--android:layout_height="20dp"-->
+        <!--android:src="@drawable/close_icon"-->
+        <!--android:layout_gravity="top|left"/>-->
 
 </FrameLayout>
