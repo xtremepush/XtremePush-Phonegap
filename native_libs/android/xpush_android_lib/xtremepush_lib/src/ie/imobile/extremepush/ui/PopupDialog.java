@@ -20,8 +20,8 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
+//import android.webkit.WebResourceError;
+//import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.PopupWindow;
@@ -318,10 +318,12 @@ public class PopupDialog {
             }
 
             @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                super.onReceivedError(view, request, error);
-                LogEventsUtils.sendLogTextMessage(TAG, "Error loading in-app message: " + error.toString());
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+                LogEventsUtils.sendLogTextMessage(TAG, "Error loading in-app message: " + description);
+                mNotClosed = false;
                 popupMessage.dismiss();
+                PushConnector.postInEventBus(new CloseInAppEvent());
             }
         };
         layoutOfPopup.setWebViewClient(popupViewClient);

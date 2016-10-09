@@ -666,11 +666,25 @@ public class XTremePushPlugin extends CordovaPlugin {
     }
 
     /*
+     * When application goes to onStop state
+     */
+    @Override
+    public void onStop() {
+        if(isInitialized && isRegistered && (pushConnector != null)){
+            pushConnector.onStop(getApplicationActivity());
+        }
+        super.onStop();
+    }
+
+    /*
      * when application goes to onDestroy state
      */
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if(isInitialized && isRegistered && (pushConnector != null)){
+            pushConnector.onDestroy(getApplicationActivity());
+        }
         isInitialized = false;
         inForeground = false;
         callback_function = null;
