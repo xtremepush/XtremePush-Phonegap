@@ -22,8 +22,33 @@
 		<engine name="cordova" version=">=4.0.0" />
 	</engines>
 
+	<preference name="XP_PROJECT_ID" />
+	<preference name="XP_BEACON" default="1" />
+	<preference name="XP_GEO" default="1" />
+	<preference name="XP_ATTRIBUTIONS" default="0" />
+
+	<hook type="after_plugin_install" src="scripts/after_plugin_install.js" />
+	<!-- <hook type="after_plugin_rm" src="scripts/after_plugin_rm.js" /> -->
+
 	<!-- android !-->
 	<platform name="android">
+		<preference name="XP_GCM_NUMBER" default="-1" />
+
+		<resource-file src="xp-config.xml" target="xp-config.xml" />
+		<config-file target="./xp-config.xml" parent="/config">
+		    <xp-project-id>$XP_PROJECT_ID</xp-project-id>
+		    <xp-gcm-number>$XP_GCM_NUMBER</xp-gcm-number>
+		    <xp-beacon>$XP_BEACON</xp-beacon>
+		    <xp-geo>$XP_GEO</xp-geo>
+		    <xp-attributions>$XP_ATTRIBUTIONS</xp-attributions>
+		</config-file>
+
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="XTremePush" >
+				<param name="android-package" value="com.xtreme.plugins.XTremePushPlugin"/>
+				<param name="onload" value="true" />
+			</feature>
+		</config-file>
 
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="XTremePush" >
@@ -128,11 +153,18 @@
 		<framework src="native_libs/android/xpush_android_lib/xtremepush_lib" custom="true" />
 
 		<framework src="com.google.android.gms:play-services-gcm:+" />
-		<framework src="com.google.android.gms:play-services-location:+" />
 	</platform>
 
     <!-- ios -->
 	<platform name="ios">
+		<resource-file src="xp-config.xml" target="xp-config.xml" />
+		<config-file target="./xp-config.xml" parent="/config">
+		    <xp-project-id>$XP_PROJECT_ID</xp-project-id>
+		    <xp-beacon>$XP_BEACON</xp-beacon>
+		    <xp-geo>$XP_GEO</xp-geo>
+		    <xp-attributions>$XP_ATTRIBUTIONS</xp-attributions>
+		</config-file>
+
 		<config-file target="config.xml" parent="/*">
 			<feature name="XTremePush">
 				<param name="ios-package" value="XTremePushPlugin"/>
