@@ -36,31 +36,20 @@
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         
-        
         <script type="text/javascript">
             app.initialize();
-            
-            function testFn(){
-                XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sound:true, callbackFunction:"onPushReceived"});
-            }
         </script>
         
         <div>
             <h1>Apache Cordova</h1>
-            
-            <button onclick="register()"> Register </button> </br>
-            <button onclick="unregister()"> Unregister </button> </br>
-            <button onclick="isSandboxModeOn()"> isSandboxModeOn </button> </br>
-            <button onclick="version()"> version </button> </br>
-            <button onclick="shouldWipeBadgeNumber()"> shouldWipeBadgeNumber </button> </br>
-            <button onclick="deviceInfo()"> deviceInfo </button> </br>
-            <button onclick="setShouldWipeBadgeNumber()"> setShouldWipeBadgeNumber </button> </br>
-            <button onclick="setLocationEnabled()"> setLocationEnabled </button> </br>
-            <button onclick="setAsksForLocationPermissions()"> setAsksForLocationPermissions </button> </br>
-            <button onclick="hitImpression()"> hitImpression </button> </br> 
-            <button onclick="showPushListController()"> showPushListController </button> </br>
-            <button onclick="getPushNotificationsOffset()"> getPushNotificationsOffset </button> </br>
-
+            <button onclick="XtremePush.hitTag('test-tag')"> Hit Tag </button> </br>
+            <button onclick="XtremePush.hitTag('test-tag-with-value', 'value')"> Hit Tag With Value </button> </br>
+            <button onclick="XtremePush.hitEvent('test-event')"> Hit Event </button> </br>
+            <button onclick="XtremePush.hitImpression('test-impression')"> Hit Impression </button> </br>
+            <button onclick="XtremePush.setExternalId('test')"> Set External ID </button> </br>
+            <button onclick="deviceInfo()"> Get Device Info </button> </br>
+            <button onclick="XtremePush.requestPushPermissions()"> Request Push Permission </button> </br>
+            <button onclick="XtremePush.requestLocationsPermissions()"> Request Locations Permissions </button> </br>
         </div>
     </body>
 </html>

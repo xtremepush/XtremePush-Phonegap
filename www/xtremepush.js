@@ -1,9 +1,9 @@
 var exec = require('cordova/exec');
 
-function XTremePush() { }
+function XtremePush() { }
 
 /**
- * Calling register function of the XTremePush plugin
+ * Calling register function of the XtremePush plugin
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  * @param  {Object} options for method. Different for android and iOS:
@@ -20,8 +20,8 @@ function XTremePush() { }
  *           callbackFunction - name of the function which will be called when push notification will be received
  *           
  */
-XTremePush.prototype.register = function(success, fail, options) {
-   return exec(success, fail, 'XTremePush', 'register', [options]);
+XtremePush.prototype.register = function(success, fail, options) {
+   return exec(success, fail, 'XtremePush', 'register', [options]);
 };
              
 /**
@@ -29,8 +29,8 @@ XTremePush.prototype.register = function(success, fail, options) {
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */
-XTremePush.prototype.unregister = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'unregister',[]);
+XtremePush.prototype.unregister = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'unregister',[]);
 };
 
 /**
@@ -38,17 +38,17 @@ XTremePush.prototype.unregister = function(success, fail){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */           
-XTremePush.prototype.isSandboxModeOn = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'isSandboxModeOn',[]);
+XtremePush.prototype.isSandboxModeOn = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'isSandboxModeOn',[]);
 };
 
 /**
- * Only for iOS. Returnes version of the XTremePush library
+ * Only for iOS. Returnes version of the XtremePush library
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */        
-XTremePush.prototype.version = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'version',[]);
+XtremePush.prototype.version = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'version',[]);
 };
 
 /**
@@ -56,8 +56,8 @@ XTremePush.prototype.version = function(success, fail){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */              
-XTremePush.prototype.shouldWipeBadgeNumber = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'shouldWipeBadgeNumber',[]);
+XtremePush.prototype.shouldWipeBadgeNumber = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'shouldWipeBadgeNumber',[]);
 };
 
 /**
@@ -65,8 +65,8 @@ XTremePush.prototype.shouldWipeBadgeNumber = function(success, fail){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */                  
-XTremePush.prototype.setShouldWipeBadgeNumber = function(success, fail, value){
-   return exec(success, fail, 'XTremePush', 'setShouldWipeBadgeNumber', [value]);
+XtremePush.prototype.setShouldWipeBadgeNumber = function(success, fail, value){
+   return exec(success, fail, 'XtremePush', 'setShouldWipeBadgeNumber', [value]);
 };
 
 /**
@@ -74,8 +74,8 @@ XTremePush.prototype.setShouldWipeBadgeNumber = function(success, fail, value){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */              
-XTremePush.prototype.deviceInfo = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'deviceInfo',[]);
+XtremePush.prototype.deviceInfo = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'deviceInfo',[]);
 };
 
 /**
@@ -83,8 +83,8 @@ XTremePush.prototype.deviceInfo = function(success, fail){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */             
-XTremePush.prototype.setLocationEnabled = function(success, fail, value){
-   return exec(success, fail, 'XTremePush', 'setLocationEnabled', [value]);
+XtremePush.prototype.setLocationEnabled = function(success, fail, value){
+   return exec(success, fail, 'XtremePush', 'setLocationEnabled', [value]);
 };
 
 /**
@@ -92,8 +92,8 @@ XTremePush.prototype.setLocationEnabled = function(success, fail, value){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */
-XTremePush.prototype.setAsksForLocationPermissions = function(success, fail, value){
-   return exec(success, fail, 'XTremePush', 'setAsksForLocationPermissions', [value]);
+XtremePush.prototype.setAsksForLocationPermissions = function(success, fail, value){
+   return exec(success, fail, 'XtremePush', 'setAsksForLocationPermissions', [value]);
 };   
 
 /**
@@ -102,8 +102,8 @@ XTremePush.prototype.setAsksForLocationPermissions = function(success, fail, val
  * @param  {Function} fail    callback function which will be called in case of failure
  * @param  {Boolean } value   set if dialog should be shown. nothing - if should not
  */
-XTremePush.prototype.setShowDialog = function(success, fail, value){
-   return exec(success, fail, 'XTremePush', 'setShowDialog', [value]);
+XtremePush.prototype.setShowDialog = function(success, fail, value){
+   return exec(success, fail, 'XtremePush', 'setShowDialog', [value]);
 };  
 
 /**
@@ -114,8 +114,8 @@ XTremePush.prototype.setShowDialog = function(success, fail, value){
  *           batching - (boolean) set batching enabled - required
  *           limit - (int) max number of tags to store - optional
  */ 
-XTremePush.prototype.setTagsBatchingEnabled = function(success, fail, value){
-   return exec(success, fail, 'XTremePush', 'setTagsBatchingEnabled', [value]);
+XtremePush.prototype.setTagsBatchingEnabled = function(success, fail, value){
+   return exec(success, fail, 'XtremePush', 'setTagsBatchingEnabled', [value]);
 };  
 
 /**
@@ -126,8 +126,8 @@ XTremePush.prototype.setTagsBatchingEnabled = function(success, fail, value){
  *           batching - (boolean) set batching enabled - required
  *           limit - (int) max number of impressions to store - optional
  */ 
-XTremePush.prototype.setImpressionsBatchingEnabled = function(success, fail, value){
-   return exec(success, fail, 'XTremePush', 'setImpressionsBatchingEnabled', [value]);
+XtremePush.prototype.setImpressionsBatchingEnabled = function(success, fail, value){
+   return exec(success, fail, 'XtremePush', 'setImpressionsBatchingEnabled', [value]);
 };       
 
 /**
@@ -136,8 +136,8 @@ XTremePush.prototype.setImpressionsBatchingEnabled = function(success, fail, val
  * @param  {Function} fail    callback function which will be called in case of failure
  * @param  {String}   tag     value which will be sent
  */             
-XTremePush.prototype.hitTag = function(success, fail, tag){
-   return exec(success, fail, 'XTremePush', 'hitTag', [tag]);
+XtremePush.prototype.hitTag = function(success, fail, tag){
+   return exec(success, fail, 'XtremePush', 'hitTag', [tag]);
 };
 
 /**
@@ -147,8 +147,8 @@ XTremePush.prototype.hitTag = function(success, fail, tag){
  * @param  {String}   tag     value which will be sent
  * @param  {String}   message     associated with tag
  */             
-XTremePush.prototype.hitTag = function(success, fail, tag, message){
-   return exec(success, fail, 'XTremePush', 'hitTag', [tag, message]);
+XtremePush.prototype.hitTag = function(success, fail, tag, message){
+   return exec(success, fail, 'XtremePush', 'hitTag', [tag, message]);
 };
 
 /**
@@ -157,8 +157,8 @@ XTremePush.prototype.hitTag = function(success, fail, tag, message){
  * @param  {Function} fail    callback function which will be called in case of failure
  * @param  {String}   impression value which will be sent
  */             
-XTremePush.prototype.hitImpression = function(success, fail, impression){
-   return exec(success, fail, 'XTremePush', 'hitImpression', [impression]);
+XtremePush.prototype.hitImpression = function(success, fail, impression){
+   return exec(success, fail, 'XtremePush', 'hitImpression', [impression]);
 };
 
 /**
@@ -168,8 +168,8 @@ XTremePush.prototype.hitImpression = function(success, fail, impression){
  * @param  {String}   impression value which will be sent
  * @param  {String}   message associated with impression
  */             
-XTremePush.prototype.hitImpression = function(success, fail, impression, message){
-   return exec(success, fail, 'XTremePush', 'hitImpression', [impression, message]);
+XtremePush.prototype.hitImpression = function(success, fail, impression, message){
+   return exec(success, fail, 'XtremePush', 'hitImpression', [impression, message]);
 };
 
 /**
@@ -179,8 +179,8 @@ XTremePush.prototype.hitImpression = function(success, fail, impression, message
  * @param  {String}   title   title of the event
  * @param  {String}   message message of the event
  */             
-XTremePush.prototype.hitEvent = function(success, fail, title, message){
-   return exec(success, fail, 'XTremePush', 'hitEvent', [title, message]);
+XtremePush.prototype.hitEvent = function(success, fail, title, message){
+   return exec(success, fail, 'XtremePush', 'hitEvent', [title, message]);
 };
 
 /**
@@ -188,8 +188,8 @@ XTremePush.prototype.hitEvent = function(success, fail, title, message){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */             
-XTremePush.prototype.sendTags = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'sendTags',[]);
+XtremePush.prototype.sendTags = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'sendTags',[]);
 };
 
 /**
@@ -197,8 +197,8 @@ XTremePush.prototype.sendTags = function(success, fail){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */             
-XTremePush.prototype.sendImpressions = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'sendImpressions', []);
+XtremePush.prototype.sendImpressions = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'sendImpressions', []);
 };
 
 /**
@@ -206,8 +206,8 @@ XTremePush.prototype.sendImpressions = function(success, fail){
  * @param  {Function} success callback function which will be called in case of success of the function
  * @param  {Function} fail    callback function which will be called in case of failure
  */             
-XTremePush.prototype.showPushListController = function(success, fail){
-   return exec(success, fail, 'XTremePush', 'showPushListController',[]);
+XtremePush.prototype.showPushListController = function(success, fail){
+   return exec(success, fail, 'XtremePush', 'showPushListController',[]);
 };
 
 /**
@@ -217,8 +217,8 @@ XTremePush.prototype.showPushListController = function(success, fail){
  * @param  {Number}   offset value
  * @param  {Number}   limit value
  */             
-XTremePush.prototype.getPushNotificationsOffset = function(success, fail, offset, limit){
-   return exec(success, fail, 'XTremePush', 'getPushNotificationsOffset', [offset, limit]);
+XtremePush.prototype.getPushNotificationsOffset = function(success, fail, offset, limit){
+   return exec(success, fail, 'XtremePush', 'getPushNotificationsOffset', [offset, limit]);
 };
 
-module.exports = new XTremePush;
+module.exports = new XtremePush;

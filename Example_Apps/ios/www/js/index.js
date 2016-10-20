@@ -34,6 +34,7 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+        registerXtremePush();
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
@@ -43,105 +44,27 @@ var app = {
 };
 
 
-function register(){
-    XTremePush.register(successCallback, failCallback, { alert:true, badge:true, sound:true, callbackFunction:"onPushReceived"});
+function registerXtremePush(){
+    XtremePush.register({
+                        appKey: 'CgTiDoEo4zVq1BkvzTRCL2CruMYyZ8gp',
+                        serverUrl: 'https://api-stage.xtremepush.com',
+                        sandboxMode: true,
+                        debugLogsEnabled: true,
+                        pushOpenCallback: 'onPushOpened',
+                        ios: {
+                            pushPermissionsRequest: true,
+                            locationsEnabled: true,
+                            locationsPermissionsRequest: true
+                        }
+    });
 }
 
-function unregister(){
-    XTremePush.unregister(successCallback, failCallback);
+function onPushOpened(data) {
+    alert('Push opened: ' + JSON.stringify(data));
 }
 
-function isSandboxModeOn(){
-    XTremePush.isSandboxModeOn(successCallback, failCallback);
+function deviceInfo() {
+    XtremePush.deviceInfo(function(data){
+                          alert(data);
+    });
 }
-
-function version(){
-    XTremePush.version(successCallback, failCallback);
-}
-
-function shouldWipeBadgeNumber(){
-    XTremePush.shouldWipeBadgeNumber(successCallback, failCallback);
-}
-
-function deviceInfo(){
-    XTremePush.deviceInfo(successCallback, failCallback);
-}
-
-
-function setShouldWipeBadgeNumber(){
-    XTremePush.setShouldWipeBadgeNumber(successCallback, failCallback, true);
-}
-
-function setLocationEnabled(){
-    XTremePush.setLocationEnabled(successCallback, failCallback, true);
-}
-
-function setAsksForLocationPermissions(){
-    XTremePush.setAsksForLocationPermissions(successCallback, failCallback, true);
-}
-
-function hitTag(){
-    XTremePush.hitTag(successCallback, failCallback, 'hitTag');
-}
-
-function hitImpression(){
-    XTremePush.hitImpression(successCallback, failCallback, 'hitImpression');
-}
-hitImpression
-function hitImpression(){
-    XTremePush.hitImpression(successCallback, failCallback, 'hitTag');
-}
-
-
-function showPushListController(success, fail, impression){
-    XTremePush.showPushListController(successCallback, failCallback);
-};
-
-function getPushNotificationsOffset(success, fail, impression){
-    XTremePush.getPushNotificationsOffset(successCallback, failCallback, 0, 100);
-};
-
-function successCallback(result){
-    alert('Success callback : ' + JSON.stringify(data));
-}
-
-function failCallback(result){
-    alert('Fail callback : ' + JSON.stringify(data));
-}
-
-function onPushReceived(data){
-    alert('Push received : ' + JSON.stringify(data));
-}
-
-function successCallback(status){
-    
-    alert('Succefully registered for push notifications' + 'Token received = ' + JSON.stringify(status));
-}
-
-function failCalback(status){
-    console.log('failed to register', status);
-    
-}
-
-/*
-
- 
- XTremePush.prototype.hitTag = function(success, fail, tag){
- return exec(success, fail, 'XTremePush', 'hitTag', [tag]);
- };
- 
- XTremePush.prototype.hitImpression = function(success, fail, impression){
- return exec(success, fail, 'XTremePush', 'hitImpression', [impression]);
- };
- 
- XTremePush.prototype.showPushListController = function(success, fail){
- return exec(success, fail, 'XTremePush', 'showPushListController');
- };
- 
- XTremePush.prototype.getPushNotificationsOffset = function(success, fail, offset, limit){
- return exec(success, fail, 'XTremePush', 'getPushNotificationsOffset', [offset, limit]);
- };
-
- */
-
-

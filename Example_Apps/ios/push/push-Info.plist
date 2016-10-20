@@ -49,7 +49,7 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>XpushEscapeHotels</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -79,9 +79,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>XtremePushApplicationKey</key>
-	<string>7c638c459d7c866dad</string>
-	<key>XtremePushSandoxMode</key>
-	<string>YES</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Test</string>
 </dict>
 </plist>

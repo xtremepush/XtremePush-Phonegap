@@ -2,119 +2,267 @@
 //  XPush.h
 //  XtremePush
 //
-//  Created by Xtremepush on 3/10/13.
-//  Copyright (c) 2013 Xtremepush. All rights reserved.
+//  Created by Sergey Shmaliy
+//  Copyright (c) 2016 Xtremepush. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
+
 /**
- *	Notification name, which will be sent when device registered in the server. If this device was registered already, notification will be sent too. In a word, thic notification will be sent when api request "deviceCreate" finished and success.
+ *	Notification name, which will be sent when device registered in the server.
  */
 extern NSString *const XPushDeviceRegistrationNotification;
 
+/**
+ *	Notification name, which will be sent when inbox badge has changed
+ */
+extern NSString *const XPushInboxBadgeChangeNotification;
+
+
 @interface XPush : NSObject
+
 /**
- *	Check sandbox mode or not. Call singletone and check sandbox mode in it.
- * Sandbox mode can switched in plist. Key for it: "XtremePushSandoxMode"
- *
- *	@return	YES, if this device in sandbox, otherwise NO.
- */
-+ (BOOL)isSandboxModeOn;
-/**
- *	Should or not application reset a badge icon.
- *
- *	@param	shouldWipeBadgeNumber if YES, application will reset badge icon, otherwise NO.
- */
-+ (void)setShouldWipeBadgeNumber:(BOOL)shouldWipeBadgeNumber;
-+ (BOOL)shouldWipeBadgeNumber;
-/**
- *	Register current application and this lib to receive notifications. You should call it instead of [UIApplication registerForRemoteNotificationTypes:].
- * Uses UIRemoteNotificationType or UIUserNotificationType for ios8
- * @see  -registerForRemoteNotificationTypes:
- * @see UIApplication
- *
- * @see UIRemoteNotificationType
- */
-+ (void)registerForRemoteNotificationTypes:(NSInteger)types;
-/**
- * @see -unregisterForRemoteNotifications in UIApplication class.
- */
-+ (void)unregisterForRemoteNotifications;
-/**
- *	Creates and runs lib. You should call it in [UIApplication applicationDidFinishLaunchingWithOptions:] method.
- *
- *	@param	launchOptions	launch options from [UIApplication applicationDidFinishLaunchingWithOptions:].
+ *	You should call it in [UIApplication applicationDidFinishLaunchingWithOptions:] method after configuring the library.
  */
 + (void)applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+
 /**
- *	You should call it when application calls [UIApplication application: didRegisterForRemoteNotificationsWithDeviceToken:] method. If device was created in the server then lib updates location and send tags which was cached, otherwise lib calls "deviceCreate" api method and saves token.
- *
- *	@param	deviceToken	device token from -application: didRegisterForRemoteNotificationsWithDeviceToken:.
+ *	You should call it when application calls [UIApplication application: didRegisterForRemoteNotificationsWithDeviceToken:] method.
  */
 + (void)applicationDidRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+
 /**
- *	You should call it when your app receives notification and calls -applicationDidReceiveRemoteNotification: method. Lib shows alert with notification text and calls "hitAction" api.
- *
- *	@param	userInfo	user info from -applicationDidReceiveRemoteNotification: method.
- *	@param	showAlert Show alert with push text if needed, otherwise NO.
+ *	You should call it when application calls [UIApplication application: didFailToRegisterForRemoteNotificationsWithError:] method.
  */
-+ (void)applicationDidReceiveRemoteNotification:(NSDictionary *)userInfo showAlert:(BOOL)showAlert;
++ (void)applicationDidFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+
 /**
- *	You should call it when your app receives notification and calls -applicationDidReceiveRemoteNotification: method. Lib shows alert with notification text and calls "hitAction" api.
- *
- *	@param	userInfo	user info from -applicationDidReceiveRemoteNotification: method.
+ *	You should call it when application calls [UIApplication application: didReceiveRemoteNotification:] method.
  */
 + (void)applicationDidReceiveRemoteNotification:(NSDictionary *)userInfo;
 
 /**
- *	Does nothing.
+ *	You should call it when application calls [UIApplication application: didReceiveLocalNotification:] method.
  */
-+ (void)applicationDidFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
++ (void)applicationDidReceiveLocalNotification:(UILocalNotification *)notification;
+
+
+
+
 /**
- *	Returns version of the lib. 
- * @see XPushLibraryVersion const.
+ *	Register current application and this lib to receive notifications. You should call it instead of [UIApplication registerForRemoteNotificationTypes:].
+ * Uses UIRemoteNotificationType or UIUserNotificationType for ios8
  */
-+ (NSString *)version;
++ (void)registerForRemoteNotificationTypes:(NSInteger)types;
+
 /**
- *	Returns dictionary with device token and device id. 
- * deviceToken - key for token
- * XPushDeviceID - key for device id.
+ * Unregister current application and this lib to receive notifications
  */
-+ (NSDictionary *)deviceInfo;
++ (void)unregisterForRemoteNotifications;
+
+/**
+ *	Should or not application reset a badge icon.
+ */
++ (void)setShouldWipeBadgeNumber:(BOOL)shouldWipeBadgeNumber;
+
+
+
+
+/**
+ *  Switches on/off using geofence and ibeacon monitoring in the app.
+ *  By default is off.
+ */
++ (void)setLocationEnabled:(BOOL)locationEnabled;
+
+/**
+ *  If set to YES, application will ask about location permissions on first launch.
+ *  If set to NO, you have manually ask about location permissions anytime you need.
+ *  By default is YES.
+ *  Has no affect is locationEnabled is set to NO.
+ */
++ (void)setAsksForLocationPermissions:(BOOL)asksForLocationPermissions;
+
+/**
+ *  Ask for location permission.
+ *  Use only of locationEnabled is set to YES and asksForLocationPermissions is set to NO.
+ */
++ (void)askForLocationPermissions;
+
+
+
+
+/**
+ *	Switches on/off in-app messages.
+ *  By default is off.
+ */
++ (void)setInAppMessageEnabled:(BOOL)enabled;
+
 /**
  *	Calls "eventHit" api method.
  */
 + (void)hitEvent:(NSString *)event;
+
 /**
  *	Calls "tagHit" api method.
  */
 + (void)hitTag:(NSString *)tag;
+
+/**
+ *  Calls "tagHit" api method with value
+ */
++ (void)hitTag:(NSString *)tag withValue:(NSString *)value;
+
 /**
  *	Calls "impressionHit" api method.
  */
 + (void)hitImpression:(NSString *)impression;
+
 /**
- *	Calls "pushList" api method.
+ *  If set to YES, application will start to batch tag hits and send it on change of application state or on call sendTags method.
+ *  If set to NO, application will send tag immediately after tag hit.
+ *  By default is NO.
+ */
++ (void)setTagsBatchingEnabled:(BOOL)tagsBatchingEnabled;
+
+/**
+ *  Send tags batch. You should use this method only if tags batching is enabled.
+ */
++ (void)sendTags;
+
+/**
+ *  If set to YES, application will start to batch impression hits and send it on change of application state or on call sendImpressions method.
+ *  If set to NO, application will send impression immediately after impression hit.
+ *  By default is NO.
+ */
++ (void)setImpressionsBatchingEnabled:(BOOL)impressionsBatchingEnabled;
+
+/**
+ *  Send impressions batch. You should use this method only if impressions batching is enabled.
+ */
++ (void)sendImpressions;
+
+/**
+ *  Set a limit for a maximum number of stored tags, impressions and sessions
+ */
++ (void)setTagsStoreLimit:(NSUInteger *)limit;
++ (void)setImpressionsStoreLimit:(NSUInteger *)limit;
++ (void)setSessionsStoreLimit:(NSUInteger *)limit;
+
+
+
+
+/**
+ *  Switches on/off collecting IDFA.
+ *  By default is off.
+ */
++ (void)setAttributionsEnabled:(BOOL)attributionsEnabled;
+
+/**
+ *  Switches on/off collecting device name.
+ *  By default is on.
+ */
++ (void)setNameCollectingEnabled:(BOOL)nameCollectingEnabled;
+
+/**
+ *  Set external id of device which can be used then on platform to target devices
+ */
++ (void)setExternalId:(NSString *)externalId;
+
+/**
+ *	Returns version of the lib.
+ */
++ (NSString *)version;
+
+/**
+ *	Returns dictionary with device token and device id.
+ *  XPushDeviceID - key for XtremePush device id.
+ *  deviceToken - key for token.
+ *  deviceID - key for device identifier (IDFV).
+ *  externalID - key for external id.
+ */
++ (NSDictionary *)deviceInfo;
+
+
+
+
+
+/**
+ *	Used to get a list of push notifications for current device
  */
 + (void)getPushNotificationsOffset:(NSUInteger)offset limit:(NSUInteger)limit completion:(void(^)(NSArray *pushList, NSError *error))completion;
+
 /**
- *	Shows XPPushListViewController like modal view controller. Shows Inbox screen.
+ *	Used to manually mark a push as read.
+ */
++ (void)markPushAsRead:(NSString *)actionId;
+
+/**
+ *	Shows Inbox screen.
  */
 + (void)showPushListController;
+
 /**
- *  Switches on/ooff use location manager in the app. Should calls before + (void)applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
- *
+ *  Switches on/off user subscription
+ *  By default is on.
  */
-+ (void)setLocationEnabled:(BOOL)locationEnabled;
-//if location disables then does nothing
-+ (void)setAsksForLocationPermissions:(BOOL)asksForLocationPermissions;
++ (void)setSubscription:(BOOL)subscription;
+
+
+
+/**
+ *  Switches on/off using inbox in the app.
+ *  By default is off.
+ */
++ (void)setInboxEnabled:(BOOL)inboxEnabled;
+
+/**
+ *	Shows Inbox screen.
+ */
++ (void)openInbox;
+
+/**
+ *  Get Inbox badge
+ */
++ (NSInteger *)getInboxBadge;
+
+
+
+/**
+ *  Change app key at runtime
+ */
++ (void)setSandboxModeEnabled:(BOOL)sandboxModeEnabled;
+
+/**
+ *  Turn on/off debug mode
+ */
++ (void)setDebugModeEnabled:(BOOL)debugModeEnabled;
+
+/**
+ *  Turn on/off showing of debug logs
+ */
++ (void)setShouldShowDebugLogs:(BOOL)log;
+
+/**
+ *  Change server url at runtime
+ */
++ (void)setServerURL:(NSString *)url;
+
+/**
+ *  Change app key at runtime
+ */
++ (void)setAppKey:(NSString *)appKey;
+
+/**
+ *  Certificate pinning
+ */
++ (void)setServerExpectedCertificate:(NSString *)certDataString;
++ (void)setServerExpectedCertificateFromFile:(NSString *)filePath;
 @end
 
 /**
- * Model for XPPushListViewController. When server returns pushList then list is parsed to array of models.
+ *  Push model
  */
 @interface XPPushModel : NSObject
-
 @property (nonatomic, readonly) NSDate      *createDate;
 @property (nonatomic, readonly) NSString    *pushId;
 @property (nonatomic, readonly) NSString    *locationId;
@@ -123,10 +271,15 @@ extern NSString *const XPushDeviceRegistrationNotification;
 @property (nonatomic, readonly) NSString    *messageId;
 @property (nonatomic, readonly) NSString    *url;
 @property (nonatomic, readonly) BOOL        shouldOpenInApp;
-@property (nonatomic, assign)   BOOL        isRead;
+@property (nonatomic, readonly) BOOL        isRead;
+@property (nonatomic, readonly) NSDictionary *customPayload;
+@end
 
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
-
+@interface XPInboxButton : UIButton
+- (UILabel *)badge;
+- (void)setBadgeSize:(NSInteger *)badgeSize;
+- (void)setBadgeColor:(UIColor *)color;
+- (void)setBadgeTextColor:(UIColor *)color;
 @end
 
 

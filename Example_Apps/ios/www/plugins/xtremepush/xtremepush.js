@@ -1,61 +1,37 @@
-cordova.define("XTremePush", function(require, exports, module) {
+cordova.define("XtremePush", function(require, exports, module) {
                
   var exec = require('cordova/exec');
   
-  function XTremePush() { }
+  function XtremePush() { }
   
-  XTremePush.prototype.register = function(success, fail, options) {
-     return exec(success, fail, 'XTremePush', 'register', [options]);
+  XtremePush.prototype.register = function(options) {
+     return exec(null, null, 'XtremePush', 'register', [options]);
   };
                
-  XTremePush.prototype.unregister = function(success, fail){
-     return exec(success, fail, 'XTremePush', 'unregister');
+  XtremePush.prototype.deviceInfo = function(success){
+     return exec(success, null, 'XtremePush', 'deviceInfo');
+  };
+                              
+  XtremePush.prototype.hitTag = function(tag, value) {
+     if (value) {
+        return exec(null, null, 'XtremePush', 'hitTag', [tag, value]);
+     } else {
+        return exec(null, null, 'XtremePush', 'hitTag', [tag]);
+     }
   };
                
-  XTremePush.prototype.isSandboxModeOn = function(success, fail){
-     return exec(success, fail, 'XTremePush', 'isSandboxModeOn');
+  XtremePush.prototype.hitImpression = function(impression){
+     return exec(null, null, 'XtremePush', 'hitImpression', [impression]);
   };
                
-  XTremePush.prototype.version = function(success, fail){
-     return exec(success, fail, 'XTremePush', 'version');
-  };
+               XtremePush.prototype.requestLocationsPermissions = function() {
+               return exec(null, null, 'XtremePush', 'requestLocationsPermissions', []);
+               };
                
-  XTremePush.prototype.shouldWipeBadgeNumber = function(success, fail){
-     return exec(success, fail, 'XTremePush', 'shouldWipeBadgeNumber');
-  };
+               XtremePush.prototype.requestPushPermissions = function() {
+               return exec(null, null, 'XtremePush', 'requestPushPermissions', []);
+               };
                
-  XTremePush.prototype.deviceInfo = function(success, fail){
-     return exec(success, fail, 'XTremePush', 'deviceInfo');
-  };
-               
-  XTremePush.prototype.setShouldWipeBadgeNumber = function(success, fail, value){
-     return exec(success, fail, 'XTremePush', 'setShouldWipeBadgeNumber', [value]);
-  };
-               
-  XTremePush.prototype.setLocationEnabled = function(success, fail, value){
-     return exec(success, fail, 'XTremePush', 'setLocationEnabled', [value]);
-  };
-
-  XTremePush.prototype.setAsksForLocationPermissions = function(success, fail, value){
-     return exec(success, fail, 'XTremePush', 'setAsksForLocationPermissions', [value]);
-  };           
-               
-  XTremePush.prototype.hitTag = function(success, fail, tag){
-     return exec(success, fail, 'XTremePush', 'hitTag', [tag]);
-  };
-               
-  XTremePush.prototype.hitImpression = function(success, fail, impression){
-     return exec(success, fail, 'XTremePush', 'hitImpression', [impression]);
-  };
-               
-  XTremePush.prototype.showPushListController = function(success, fail){
-     return exec(success, fail, 'XTremePush', 'showPushListController');
-  };
-               
-  XTremePush.prototype.getPushNotificationsOffset = function(success, fail, offset, limit){
-     return exec(success, fail, 'XTremePush', 'getPushNotificationsOffset', [offset, limit]);
-  };
-    
-  module.exports = new XTremePush();
+  module.exports = new XtremePush();
    
 });

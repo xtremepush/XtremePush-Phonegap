@@ -3,7 +3,7 @@ angular.module('XTreme.Plugins', [])
     return {
       
       /**
-       * Calling register function of the XTremePush plugin
+       * Calling register function of the XtremePush plugin
        * @param  {Function} success callback function which will be called in case of success of the function
        * @param  {Function} fail    callback function which will be called in case of failure
        * @param  {Object} options for method. Different for android and iOS:
@@ -31,7 +31,7 @@ angular.module('XTreme.Plugins', [])
         }
 
 
-        return XTremePush.register(success, fail, options);
+        return XtremePush.register(success, fail, options);
       },
 
       /**
@@ -40,7 +40,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */
       unregister: function(success, fail){
-        return XTremePush.unregister(success, fail);
+        return XtremePush.unregister(success, fail);
       },
 
       /**
@@ -49,16 +49,16 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */         
       isSandboxModeOn: function(success, fail){
-        return XTremePush.isSandboxModeOn(success, fail);
+        return XtremePush.isSandboxModeOn(success, fail);
       },
 
       /**
-       * Only for iOS. Returnes version of the XTremePush library
+       * Only for iOS. Returnes version of the XtremePush library
        * @param  {Function} success callback function which will be called in case of success of the function
        * @param  {Function} fail    callback function which will be called in case of failure
        */        
       version: function(success, fail){
-        return XTremePush.version(success, fail);
+        return XtremePush.version(success, fail);
       },
 
       /**
@@ -67,7 +67,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */   
       shouldWipeBadgeNumber: function(success, fail){
-        return XTremePush.shouldWipeBadgeNumber(success, fail);
+        return XtremePush.shouldWipeBadgeNumber(success, fail);
       },
 
 
@@ -77,7 +77,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */                  
       setShouldWipeBadgeNumber: function(success, fail, value){
-        return XTremePush.setShouldWipeBadgeNumber(uccess, fail, value);
+        return XtremePush.setShouldWipeBadgeNumber(uccess, fail, value);
       },
 
       /**
@@ -86,7 +86,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */     
       deviceInfo: function(success, fail){
-        return XTremePush.deviceInfo(success, fail);
+        return XtremePush.deviceInfo(success, fail);
       },
 
       /**
@@ -95,7 +95,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */    
       setLocationEnabled: function(success, fail, value){
-        return XTremePush.setLocationEnabled(success, fail, value);
+        return XtremePush.setLocationEnabled(success, fail, value);
       },
 
       /**
@@ -104,7 +104,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */
       setAsksForLocationPermissions: function(success, fail, value){
-        return XTremePush.setAsksForLocationPermissions(success, fail, value);
+        return XtremePush.setAsksForLocationPermissions(success, fail, value);
       },
 
       /**
@@ -114,7 +114,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Boolean } value   set if dialog should be shown. nothing - if should not
        */
       setShowDialog: function(success, fail, value){
-        return XTremePush.setShowDialog(success, fail, value);
+        return XtremePush.setShowDialog(success, fail, value);
       },
 
       /**
@@ -124,7 +124,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {String}   tag     value which will be sent
        */             
       hitTag: function(success, fail, tag){
-        return XTremePush.hitTag(success, fail, tag);
+        return XtremePush.hitTag(success, fail, tag);
       },
 
       /**
@@ -134,7 +134,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {String}   impression value which will be sent
        */         
       hitImpression: function(success, fail, impression){
-        return XTremePush.hitImpression(success, fail, impression)
+        return XtremePush.hitImpression(success, fail, impression)
       },
 
       /**
@@ -145,7 +145,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {String}   message message of the event
        */             
       hitEvent: function(success, fail, title, message){
-         return XTremePush.hitEvent(success, fail, title, message);
+         return XtremePush.hitEvent(success, fail, title, message);
       },
 
       /**
@@ -154,7 +154,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Function} fail    callback function which will be called in case of failure
        */             
       showPushListController: function(success, fail){
-         return XTremePush.showPushListController(success, fail)
+         return XtremePush.showPushListController(success, fail)
       },
 
       /**
@@ -165,7 +165,7 @@ angular.module('XTreme.Plugins', [])
        * @param  {Number}   limit value
        */             
       getPushNotificationsOffset: function(success, fail, offset, limit){
-          return XTremePush.getPushNotificationsOffset(success, fail, offset, limit);
+          return XtremePush.getPushNotificationsOffset(success, fail, offset, limit);
       }
     }
   }]);

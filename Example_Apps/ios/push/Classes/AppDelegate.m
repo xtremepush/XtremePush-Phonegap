@@ -27,12 +27,15 @@
 
 #import "AppDelegate.h"
 #import "MainViewController.h"
-#import "XPush.h"
 #import <Cordova/CDVPlugin.h>
 
 @implementation AppDelegate
 
 @synthesize window, viewController;
+
++ (void)load {
+    NSLog(@"App Delegate load");
+}
 
 - (id)init
 {
@@ -63,7 +66,6 @@
  */
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    [XPush applicationDidFinishLaunchingWithOptions:launchOptions];
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
 
 #if __has_feature(objc_arc)
@@ -118,26 +120,6 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:CDVLocalNotification object:notification];
 }
 
--(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-{
-    BOOL showAlert = YES;//should or not library shows alert for this push.
-    [XPush applicationDidReceiveRemoteNotification:userInfo showAlert:showAlert];
-}
-
-- (void)                                application:(UIApplication *)application
-   didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
-    [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-}
-
-- (void)                                 application:(UIApplication *)application
-    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
-    // re-post ( broadcast )
-    [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
-
-}
-
 - (NSUInteger)application:(UIApplication*)application supportedInterfaceOrientationsForWindow:(UIWindow*)window
 {
     // iPhone doesn't support upside down by default, while the iPad does.  Override to allow all orientations always, and let the root view controller decide what's allowed (the supported orientations mask gets intersected).
@@ -150,5 +132,10 @@
 {
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSLog(@"XPush Custom Push Received");
+}
+
 
 @end
