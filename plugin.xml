@@ -138,7 +138,7 @@
 
 		<source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
 
-		<framework src="native_libs/android/xpush_android_lib/xtremepush_lib" custom="true" />
+		<framework src="lib/android/xpush_android_lib/xtremepush_lib" custom="true" />
 
 		<framework src="com.google.android.gms:play-services-gcm:+" />
 	</platform>
@@ -158,6 +158,7 @@
 				<param name="onload" value="true" />
 			</feature>
 		</config-file>
+
 		<framework src="Security.framework" />
 		<framework src="CFNetwork.framework" />
 		<framework src="MobileCoreServices.framework" />
@@ -167,14 +168,12 @@
 		<framework src="CoreBluetooth.framework" />
 		<framework src="libz.dylib" />
 
-		<source-file src="native_libs/ios/libXPush.a" framework="true"/>
-		<source-file src="src/ios/AppDelegate+notification.m" />
-		<source-file src="src/ios/XTremePushPlugin.m" />
+		<source-file src="src/ios/AppDelegate+XtremePush.m" />
+		<source-file src="src/ios/XtremePushPlugin.m" />
+		<source-file src="lib/ios/libXPush.a" framework="true" />
 
-		<header-file src="src/ios/AppDelegate+notification.h" />
-		<header-file src="src/ios/XTremePushPlugin.h" />
-		<header-file src="native_libs/ios/XPush.h" />
-
-
+		<header-file src="src/ios/AppDelegate+XtremePush.h" />
+		<header-file src="src/ios/XtremePushPlugin.h" />
+		<header-file src="lib/ios/XPush.h" />
 	</platform>
 </plugin>

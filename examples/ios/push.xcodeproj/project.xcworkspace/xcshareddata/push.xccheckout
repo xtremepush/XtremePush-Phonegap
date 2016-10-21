@@ -14,7 +14,7 @@
 		<string>git.head.mqd.me:xtremepush/xtremepush_phonegap.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Example_Apps/ios/push.xcodeproj</string>
+	<string>examples/ios/push.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>E4EBD02FA9D444D58B9A7DD1D170C9D6329777C7</key>
