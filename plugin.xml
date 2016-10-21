@@ -1,58 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.xtreme.plugins.XtremePush"
-    version="1.2.0"
+    version="1.3.0"
     onLoad="true" >
 
-    <name>XTremePush</name>
-	<author>XTreme Push</author>
+    <name>XtremePush</name>
+	<author>Xtreme Push</author>
 
 	<description>
-		Plugin allows integration with XTreme Push provider.
+		Plugin allows integration with Xtreme Push provider.
 	</description>
 
 	<license>MIT</license>
 
-	<js-module src="www/xtremepush.js" name="XTremePush">
-        <clobbers target="XTremePush" />
+	<js-module src="www/xtremepush.js" name="XtremePush">
+        <clobbers target="XtremePush" />
 	</js-module>
 
 	<engines>
 		<engine name="cordova" version=">=4.0.0" />
 	</engines>
 
-	<preference name="XP_PROJECT_ID" />
 	<preference name="XP_BEACON" default="1" />
 	<preference name="XP_GEO" default="1" />
 	<preference name="XP_ATTRIBUTIONS" default="0" />
 
+	<hook type="before_plugin_install" src="scripts/before_plugin_install.js" />
 	<hook type="after_plugin_install" src="scripts/after_plugin_install.js" />
-	<!-- <hook type="after_plugin_rm" src="scripts/after_plugin_rm.js" /> -->
 
 	<!-- android !-->
 	<platform name="android">
-		<preference name="XP_GCM_NUMBER" default="-1" />
-
 		<resource-file src="xp-config.xml" target="xp-config.xml" />
 		<config-file target="./xp-config.xml" parent="/config">
-		    <xp-project-id>$XP_PROJECT_ID</xp-project-id>
-		    <xp-gcm-number>$XP_GCM_NUMBER</xp-gcm-number>
 		    <xp-beacon>$XP_BEACON</xp-beacon>
 		    <xp-geo>$XP_GEO</xp-geo>
 		    <xp-attributions>$XP_ATTRIBUTIONS</xp-attributions>
 		</config-file>
 
 		<config-file target="res/xml/config.xml" parent="/*">
-			<feature name="XTremePush" >
-				<param name="android-package" value="com.xtreme.plugins.XTremePushPlugin"/>
-				<param name="onload" value="true" />
-			</feature>
-		</config-file>
-
-		<config-file target="res/xml/config.xml" parent="/*">
-			<feature name="XTremePush" >
-				<param name="android-package" value="com.xtreme.plugins.XTremePushPlugin"/>
+			<feature name="XtremePush" >
+				<param name="android-package" value="com.xtreme.plugins.XtremePushPlugin"/>
 				<param name="onload" value="true" />
 			</feature>
 		</config-file>
@@ -148,7 +136,7 @@
 
 		</config-file>
 
-		<source-file src="src/android/XTremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
+		<source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
 
 		<framework src="native_libs/android/xpush_android_lib/xtremepush_lib" custom="true" />
 
@@ -159,15 +147,15 @@
 	<platform name="ios">
 		<resource-file src="xp-config.xml" target="xp-config.xml" />
 		<config-file target="./xp-config.xml" parent="/config">
-		    <xp-project-id>$XP_PROJECT_ID</xp-project-id>
 		    <xp-beacon>$XP_BEACON</xp-beacon>
 		    <xp-geo>$XP_GEO</xp-geo>
 		    <xp-attributions>$XP_ATTRIBUTIONS</xp-attributions>
 		</config-file>
 
 		<config-file target="config.xml" parent="/*">
-			<feature name="XTremePush">
-				<param name="ios-package" value="XTremePushPlugin"/>
+			<feature name="XtremePush">
+				<param name="ios-package" value="XtremePushPlugin"/>
+				<param name="onload" value="true" />
 			</feature>
 		</config-file>
 		<framework src="Security.framework" />
