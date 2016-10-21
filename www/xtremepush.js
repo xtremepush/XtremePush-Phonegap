@@ -20,8 +20,8 @@ function XtremePush() { }
  *           callbackFunction - name of the function which will be called when push notification will be received
  *           
  */
-XtremePush.prototype.register = function(success, fail, options) {
-   return exec(success, fail, 'XtremePush', 'register', [options]);
+XtremePush.prototype.register = function(options) {
+   return exec(null, null, 'XtremePush', 'register', [options]);
 };
 
 /**
