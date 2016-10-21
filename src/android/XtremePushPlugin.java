@@ -7,14 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import com.squareup.otto.Subscribe;
+import ie.imobile.extremepush.*;
 import ie.imobile.extremepush.api.model.PushMessage;
-import ie.imobile.extremepush.api.model.EventsPushlistWrapper;
-import ie.imobile.extremepush.ui.DisplayPushActivity;
-import ie.imobile.extremepush.util.LibVersion;
+import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
-import ie.imobile.extremepush.network.ConnectionManager;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -22,7 +19,6 @@ import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import ie.imobile.extremepush.*;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -32,7 +28,7 @@ import java.util.Map;
 /**
  * Created by Dmytro Malieiev on 6/8/14.
  */
-public class XTremePushPlugin extends CordovaPlugin {
+public class XtremePushPlugin extends CordovaPlugin {
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
     public static final String UNREGISTER = "unregister";
@@ -98,48 +94,26 @@ public class XTremePushPlugin extends CordovaPlugin {
     {
         boolean result = false;
 
-        Log.v(TAG, "execute: action = " + action);
+        LogEventsUtils.sendLogTextMessage(TAG, "execute: action = " + action);
 
         if (REGISTER.equals(action)) {
             Register(data, callbackContext);
-        } else if (UNREGISTER.equals(action)) {
-            Unregister(callbackContext);
-        } else if (ISSANDBOXMODE.equals(action)) {
-            getIsSandboxModeOn(callbackContext);
-        } else if (VERSION.equals(action)) {
-            getVersion(callbackContext);
-        } else if (SHOULDWIPEBADGENUMBER.equals(action)) {
-            getShouldWipeBadgeNumber(callbackContext);
         } else if (DEVICEINFO.equals(action)) {
             getDeviceInfo(callbackContext);
-        } else if (SETSHOULDWIPEBADGENUMBER.equals(action)) {
-            setShouldWipeBadgeNumber(callbackContext);
-        } else if (SETLOCATIONENABLED.equals(action)) {
-            setLocationEnabled(callbackContext);
-        } else if (SETASKSFORLOCATIONPERMISSION.equals(action)) {
-            setAskForLocationPermission(callbackContext);
         } else if (HITTAG.equals(action)) {
-            hitTag(data, callbackContext);
+            hitTag(data);
         } else if (HITIMPRESSION.equals(action)) {
-            hitImpression(data,callbackContext);
-        } else if (SHOWPUSHLISTCONTROLLER.equals(action)) {
-            showPushListController(callbackContext);
-        } else if (GETPUSHNOTIFICATIONOFFSET.equals(action)) {
-            getPushNotificationOffset(data,callbackContext);
+            hitImpression(data);
         } else if (HITEVENT.equals(action)) {
-            hitEvent(data, callbackContext);
-        } else if (TAGBATCHING.equals(action)){
-            setTagsBatchingEnabled(data, callbackContext);
-        } else if (IMPRESSIONBATCHING.equals(action)){
-            setImpressionsBatchingEnabled(data, callbackContext);
+            hitEvent(data);
         } else if (SENDTAGS.equals(action)) {
-            sendTags(callbackContext);
+            sendTags();
         } else if (SENDIMPRESSIONS.equals(action)) {
-            sendImpressions(callbackContext);
+            sendImpressions();
         }
 
         if ( cachedExtras != null) {
-            Log.v(TAG, "sending cached extras");
+            LogEventsUtils.sendLogTextMessage(TAG, "sending cached extras");
             sendExtras(cachedExtras);
             cachedExtras = null;
         }
@@ -151,53 +125,105 @@ public class XTremePushPlugin extends CordovaPlugin {
             this._webView = this.webView;
             JSONObject jo = data.getJSONObject(0);
 
-            if (jo.isNull("callbackFunction")){
+            if (jo.isNull("pushOpenCallback")){
+                LogEventsUtils.sendLogTextMessage(TAG, "register: Please provide callback function");
                 callbackContext.error("Please provide callback function");
                 return;
             }
 
-            PushConnector.Builder b = new PushConnector.Builder(this.AppId, this.GoogleProjectID);
-
-            if (!jo.isNull("locationTimeout")){
-                Integer locationTimeout = jo.getInt("locationTimeout");
-                b.setLocationUpdateTimeout(locationTimeout);
+            String appKey;
+            if (!jo.isNull("appKey")){
+                appKey = jo.getString("appKey");
+            } else {
+                LogEventsUtils.sendLogTextMessage(TAG, "register: Please provide a valid xtremepush app key");
+                callbackContext.error("Please provide a valid xtremepush app key");
+                return;
             }
 
-            if (!jo.isNull("locationDistance")){
-                Integer locationDistance = jo.getInt("locationDistance");
-                b.setLocationUpdateTimeout(locationDistance);
+            String gcmProjectNumber = null;
+            JSONObject joAndroid = null;
+            if (!jo.isNull("android")) {
+                joAndroid = jo.getJSONObject("android");
+                if (!joAndroid.isNull("gcmProjectNumber")){
+                    gcmProjectNumber = joAndroid.getString("gcmProjectNumber");
+                }
             }
 
-            if (!jo.isNull("enableLocations")){
-                b.setEnableLocations(true);
-            }
+            PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
 
-            if (!jo.isNull("turnOnDebugLogs")){
-                b.turnOnDebugLogs(true);
-            }
-
-            if (!jo.isNull("setServerURL")){
-                String serverUrl = jo.getString("setServerURL");
+            if (!jo.isNull("serverUrl")){
+                String serverUrl = jo.getString("serverUrl");
                 b.setServerUrl(serverUrl);
             }
 
-            if (!jo.isNull("beaconLocationBackground")){
-                Integer beaconBackground = jo.getInt("beaconLocationBackground");
-                b.setBeaconLocationBackgroundTimeout(beaconBackground);
+            if (!jo.isNull("attributionsEnabled")){
+                Boolean attributions = jo.getBoolean("attributionsEnabled");
+                b.setAttributionsEnabled(attributions);
             }
 
-            if (!jo.isNull("setIcon")){
-                String icon = jo.getString("setIcon");
-                b.setIcon(icon);
+            if (!jo.isNull("inappMessagingEnabled")){
+                Boolean inapp = jo.getBoolean("inappMessagingEnabled");
+                b.setEnableStartSession(inapp);
             }
 
-            if (!jo.isNull("setAttributionsEnabled")){
-                b.setAttributionsEnabled(true);
+            if (!jo.isNull("debugLogsEnabled")){
+                Boolean debugLogsEnabled = jo.getBoolean("attributionsEnabled");
+                b.turnOnDebugLogs(debugLogsEnabled);
+            }
+
+            if (!jo.isNull("tagsBatchingEnabled")){
+                Boolean tagsBatchingEnabled = jo.getBoolean("tagsBatchingEnabled");
+                b.setTagsBatchingEnabled(tagsBatchingEnabled);
+            }
+
+            if (!jo.isNull("impressionsBatchingEnabled")){
+                Boolean impressionsBatchingEnabled = jo.getBoolean("impressionsBatchingEnabled");
+                b.setImpressionsBatchingEnabled(impressionsBatchingEnabled);
+            }
+
+            if (!jo.isNull("tagsStoreLimit")){
+                Integer tagsStoreLimit = jo.getInt("tagsStoreLimit");
+                b.setTagsStoreLimit(tagsStoreLimit);
+            }
+
+            if (!jo.isNull("impressionsStoreLimit")){
+                Integer impressionsStoreLimit = jo.getInt("impressionsStoreLimit");
+                b.setImpressionsStoreLimit(impressionsStoreLimit);
+            }
+
+            if (!jo.isNull("sessionsStoreLimit")){
+                Integer sessionsStoreLimit = jo.getInt("sessionsStoreLimit");
+                b.setSessionsStoreLimit(sessionsStoreLimit);
+            }
+
+
+            if(joAndroid != null) {
+                // Android only options
+                if (!joAndroid.isNull("geoEnabled")){
+                    Boolean geoEnabled = joAndroid.getBoolean("geoEnabled");
+                    b.setEnableGeo(geoEnabled);
+                }
+
+                if (!joAndroid.isNull("locationsPermissionsRequest")){
+                    Boolean locationsPermissionsRequest = joAndroid.getBoolean("locationsPermissionsRequest");
+                    b.setRequestPermissions(locationsPermissionsRequest);
+                }
+
+                if (!joAndroid.isNull("beaconsEnabled")){
+                    Boolean beaconsEnabled = joAndroid.getBoolean("beaconsEnabled");
+                    b.setEnableBeacons(beaconsEnabled);
+                }
+
+                if (!joAndroid.isNull("setIcon")){
+                    // Might need rewriting so that it takes image from www folder
+                    String icon = joAndroid.getString("setIcon");
+                    b.setIcon(icon);
+                }
             }
 
             pushConnector = b.create(getApplicationActivity());
 
-            callback_function = (String) jo.getString("callbackFunction");
+            callback_function = (String) jo.getString("pushOpenCallback");
             initNotificationMessageReceivers();
             isRegistered = true;
             initializePushConnector();
@@ -206,36 +232,10 @@ public class XTremePushPlugin extends CordovaPlugin {
         callbackContext.success("Successfully registered!");
     }
 
-    private void Unregister(CallbackContext callbackContext)
-    {
-        pushConnector = null;
-        isRegistered = false;
-
-    }
-
-    private void getIsSandboxModeOn(CallbackContext callbackContext)
-    {
-        callbackContext.error("Not implemented in Android version");
-    }
-
-    private void getVersion(CallbackContext callbackContext)
-    {
-        callbackContext.success(LibVersion.VER);
-    }
-
-    private void setShouldWipeBadgeNumber(CallbackContext callbackContext)
-    {
-        callbackContext.error("Not implemented in Android version");
-    }
-
-    private void getShouldWipeBadgeNumber(CallbackContext callbackContext)
-    {
-        callbackContext.error("Not implemented in Android version");
-    }
-
     private void getDeviceInfo(CallbackContext callbackContext)
     {
         if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "getDeviceInfo: Please call register function first");
             callbackContext.error("Please call register function first");
         }
 
@@ -246,67 +246,14 @@ public class XTremePushPlugin extends CordovaPlugin {
         callbackContext.success(devInfo.toString());
     }
 
-    private void setLocationEnabled(CallbackContext callbackContext)
-    {
-        callbackContext.error("Not implemented in Android version");
-    }
-
-    private void setTagsBatchingEnabled(JSONArray data, CallbackContext callbackContext) throws JSONException
-    {
-        JSONObject jo = data.getJSONObject(0);
-        int limit = 0;
-
-        if(!jo.isNull("limit")){
-            limit = jo.getInt("limit");
-        }
-
-        if (!jo.isNull("batching")){
-            boolean batching = jo.getBoolean("batching");
-            if(limit != 0)
-                pushConnector.setTagsBatchingEnabled(batching, limit);
-            else
-                pushConnector.setTagsBatchingEnabled(batching);
-        } else {
-            callbackContext.error("Please set \"batching\" boolean");
-            return;
-        }
-        callbackContext.success();
-    }
-
-    private void setImpressionsBatchingEnabled(JSONArray data, CallbackContext callbackContext) throws JSONException
-    {
-        JSONObject jo = data.getJSONObject(0);
-        int limit = 0;
-
-        if(!jo.isNull("limit")){
-            limit = jo.getInt("limit");
-        }
-
-        if (!jo.isNull("batching")){
-            boolean batching = jo.getBoolean("batching");
-            if(limit != 0)
-                pushConnector.setImpressionsBatchingEnabled(batching, limit);
-            else
-                pushConnector.setImpressionsBatchingEnabled(batching);
-        } else {
-            callbackContext.error("Please set \"batching\" boolean");
-            return;
-        }
-        callbackContext.success();
-    }
-
-    private void setAskForLocationPermission(CallbackContext callbackContext)
-    {
-        callbackContext.error("Not implemented in Android");
-    }
-
-    private void hitTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
+    private void hitTag(JSONArray data) throws JSONException {
         if (!isRegistered){
-            callbackContext.error("Please call register function first");
+            LogEventsUtils.sendLogTextMessage(TAG, "hitTag: Please call register function first");
+            return;
         }
 
         if (data.getString(0) == null){
-            callbackContext.error("Please provide tag");
+            LogEventsUtils.sendLogTextMessage(TAG, "hitTag: Please provide tag title");
             return;
         }
 
@@ -318,22 +265,16 @@ public class XTremePushPlugin extends CordovaPlugin {
         else {
             pushConnector.hitTag(tag);
         }
-
-        callbackContext.success();
     }
 
-    private void hitEvent(JSONArray data, CallbackContext callbackContext) throws JSONException {
+    private void hitEvent(JSONArray data) throws JSONException {
         if (!isRegistered){
-            callbackContext.error("Please call register function first");
-        }
-
-        if (data.getString(0) == null){
-            callbackContext.error("Please provide title");
+            LogEventsUtils.sendLogTextMessage(TAG, "hitEvent: Please call register function first");
             return;
         }
 
-        if (data.getString(1) == null){
-            callbackContext.error("Please provide message");
+        if (data.getString(0) == null){
+            LogEventsUtils.sendLogTextMessage(TAG, "hitEvent: Please provide event title");
             return;
         }
 
@@ -341,17 +282,16 @@ public class XTremePushPlugin extends CordovaPlugin {
         String message =  data.getString(1);
 
         pushConnector.hitEvent(getApplicationContext(), title, message);
-
-        callbackContext.success();
     }
 
-    private void hitImpression(JSONArray data, CallbackContext callbackContext) throws JSONException {
+    private void hitImpression(JSONArray data) throws JSONException {
         if (!isRegistered){
-            callbackContext.error("Please call register function first");
+            LogEventsUtils.sendLogTextMessage(TAG, "hitImpression: Please call register function first");
+            return;
         }
 
         if (data.getString(0) == null){
-            callbackContext.error("Please provide impression");
+            LogEventsUtils.sendLogTextMessage(TAG, "hitImpression: Please provide impression title");
             return;
         }
 
@@ -363,51 +303,24 @@ public class XTremePushPlugin extends CordovaPlugin {
         else {
             pushConnector.hitImpression(impression);
         }
-
-        callbackContext.success();
     }
 
-    private void sendTags(CallbackContext callbackContext)
+    private void sendTags()
     {
         if (!isRegistered){
-            callbackContext.error("Please call register function first");
+            LogEventsUtils.sendLogTextMessage(TAG, "sendTags: Please call register function first");
+            return;
         }
         pushConnector.sendTags();
-        callbackContext.success();
     }
 
-    private void sendImpressions(CallbackContext callbackContext)
+    private void sendImpressions()
     {
         if (!isRegistered){
-            callbackContext.error("Please call register function first");
+            LogEventsUtils.sendLogTextMessage(TAG, "sendImpressions: Please call register function first");
+            return;
         }
         pushConnector.sendImpressions();
-        callbackContext.success();
-    }
-
-    private void showPushListController(CallbackContext callbackContext)
-    {
-        if (!isRegistered){
-            callbackContext.error("Please call register function first");
-        }
-        Intent intent = new Intent(this.getApplicationContext(), DisplayPushActivity.class);
-        this.cordova.getActivity().startActivity(intent);
-        callbackContext.success();
-    }
-
-    private void getPushNotificationOffset(JSONArray data, CallbackContext callbackContext) throws JSONException {
-        if (!isRegistered){
-            callbackContext.error("Please call register function first");
-        }
-
-        Integer offset = (!data.isNull(0)) ? data.getInt(0) : 0;
-        Integer limit = (!data.isNull(1)) ? data.getInt(1) : 0;
-
-
-        PushConnector.registerInEventBus(this);
-        _callbackContext = callbackContext;
-
-        pushConnector.getPushlist(getApplicationContext(), offset, limit);
     }
 
     /*
@@ -451,7 +364,7 @@ public class XTremePushPlugin extends CordovaPlugin {
             if (callback_function != null && _webView != null) {
                 sendJavascript(convertBundleToJson(extras));
             } else {
-                Log.v(TAG, "sendExtras: caching extras to send at a later time.");
+                LogEventsUtils.sendLogTextMessage(TAG, "sendExtras: caching extras to send at a later time.");
                 cachedExtras = extras;
             }
         }
@@ -463,7 +376,7 @@ public class XTremePushPlugin extends CordovaPlugin {
     public static void sendJavascript(JSONObject _json) {
 
         String _d = "javascript:" + callback_function + "(" + _json.toString() + ")";
-        Log.v(TAG, "sendJavascript: " + _d);
+        LogEventsUtils.sendLogTextMessage(TAG, "sendJavascript: " + _d);
 
         if (callback_function != null && _webView != null) {
             _webView.sendJavascript(_d);
@@ -565,13 +478,13 @@ public class XTremePushPlugin extends CordovaPlugin {
             } // while
             json.put("payload", jsondata);
 
-            Log.v(TAG, "extrasToJSON: " + json.toString());
+            LogEventsUtils.sendLogTextMessage(TAG, "extrasToJSON: " + json.toString());
 
             return json;
         }
         catch( JSONException e)
         {
-            Log.e(TAG, "extrasToJSON: JSON exception");
+            LogEventsUtils.sendLogTextMessage(TAG, "extrasToJSON: JSON exception");
         }
         return null;
     }
@@ -689,20 +602,6 @@ public class XTremePushPlugin extends CordovaPlugin {
         inForeground = false;
         callback_function = null;
         webView = null;
-    }
-
-    /*
-     * event will be called, after getPushMessagesList called
-     */
-    @Subscribe
-    public void consumeEventList(EventsPushlistWrapper pushmessageListItems) {
-
-        JSONArray json = new JSONArray(pushmessageListItems.getEventPushlist());
-        String s = json.toString();
-        PushConnector.unregisterInEventBus(this);
-        _callbackContext.success(s);
-
-        Log.d(TAG, "List received");
     }
 
 }
