@@ -27,18 +27,14 @@ XtremePush.prototype.register = function(options) {
 /**
  * Calling hit tag function
  * @param  {String}   tag     value which will be sent
+ * @param  {String}   value   associated with tag (optional)
  */             
-XtremePush.prototype.hitTag = function(tag){
-   return exec(null, null, 'XtremePush', 'hitTag', [tag]);
-};
-
-/**
- * Calling hit tag function
- * @param  {String}   tag     value which will be sent
- * @param  {String}   message     associated with tag
- */             
-XtremePush.prototype.hitTag = function(tag, message){
-   return exec(null, null, 'XtremePush', 'hitTag', [tag, message]);
+XtremePush.prototype.hitTag = function(tag, value) {
+   if (value) {
+      return exec(null, null, 'XtremePush', 'hitTag', [tag, value]);
+   } else {
+      return exec(null, null, 'XtremePush', 'hitTag', [tag]);
+   }
 };
 
 /**
@@ -52,18 +48,14 @@ XtremePush.prototype.hitImpression = function(impression){
 /**
  * Calling hit event function
  * @param  {String}   title   title of the event
+ * @param  {String}   value   value of the event (optional)
  */             
-XtremePush.prototype.hitEvent = function(title){
-   return exec(null, null, 'XtremePush', 'hitEvent', [title]);
-};
-
-/**
- * Calling hit event function
- * @param  {String}   title   title of the event
- * @param  {String}   message message of the event
- */             
-XtremePush.prototype.hitEvent = function(title, message){
-   return exec(null, null, 'XtremePush', 'hitEvent', [title, message]);
+XtremePush.prototype.hitEvent = function(title, value){
+   if (value) {
+      return exec(null, null, 'XtremePush', 'hitEvent', [title, value]);
+   } else {
+      return exec(null, null, 'XtremePush', 'hitEvent', [title]);
+   }
 };
 
 /**
