@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.squareup.otto.Subscribe;
 import ie.imobile.extremepush.*;
 import ie.imobile.extremepush.api.model.PushMessage;
+import ie.imobile.extremepush.network.ConnectionManager;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
 import org.apache.cordova.CallbackContext;
@@ -31,24 +32,15 @@ import java.util.Map;
 public class XtremePushPlugin extends CordovaPlugin {
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
-    public static final String UNREGISTER = "unregister";
-    public static final String ISSANDBOXMODE = "isSandboxModeOn";
-    public static final String VERSION = "version";
-    public static final String SHOULDWIPEBADGENUMBER = "shouldWipeBadgeNumber";
-    public static final String DEVICEINFO = "deviceInfo";
-    public static final String SETSHOULDWIPEBADGENUMBER = "setShouldWipeBadgeNumber";
-    public static final String SETLOCATIONENABLED = "setLocationEnabled";
-    public static final String SETASKSFORLOCATIONPERMISSION = "setAsksForLocationPermissions";
     public static final String HITTAG = "hitTag";
     public static final String HITIMPRESSION = "hitImpression";
-    public static final String SHOWPUSHLISTCONTROLLER = "showPushListController";
-    public static final String GETPUSHNOTIFICATIONOFFSET = "getPushNotificationsOffset";
     public static final String HITEVENT = "hitEvent";
-    public static final String SHOWDIADLOG = "setShowDialog";
-    public static final String TAGBATCHING = "setTagsBatchingEnabled";
-    public static final String IMPRESSIONBATCHING = "setImpressionsBatchingEnabled";
     public static final String SENDTAGS = "sendTags";
     public static final String SENDIMPRESSIONS = "sendImpressions";
+    public static final String SETEXTERNALID = "setExternalId";
+    public static final String SETSUBSCRIPTION = "setSubscription";
+    public static final String DEVICEINFO = "deviceInfo";
+    public static final String REQUESTLOCATIONSPERMISSIONS = "requestLocationsPermissions";    
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -97,9 +89,7 @@ public class XtremePushPlugin extends CordovaPlugin {
         LogEventsUtils.sendLogTextMessage(TAG, "execute: action = " + action);
 
         if (REGISTER.equals(action)) {
-            Register(data, callbackContext);
-        } else if (DEVICEINFO.equals(action)) {
-            getDeviceInfo(callbackContext);
+            register(data, callbackContext);
         } else if (HITTAG.equals(action)) {
             hitTag(data);
         } else if (HITIMPRESSION.equals(action)) {
@@ -110,6 +100,14 @@ public class XtremePushPlugin extends CordovaPlugin {
             sendTags();
         } else if (SENDIMPRESSIONS.equals(action)) {
             sendImpressions();
+        } else if (SETEXTERNALID.equals(action)) {
+            setExternalId(data);
+        } else if(SETSUBSCRIPTION.equals(action)) {
+            setSubscription(data);
+        } else if (DEVICEINFO.equals(action)) {
+            getDeviceInfo(callbackContext);
+        } else if (REQUESTLOCATIONSPERMISSIONS.equals(action)) {
+            requestLocationsPermissions();
         }
 
         if ( cachedExtras != null) {
@@ -120,7 +118,7 @@ public class XtremePushPlugin extends CordovaPlugin {
         return true;
     }
 
-    private void Register(JSONArray data, CallbackContext callbackContext) throws JSONException {
+    private void register(JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (pushConnector == null) {
             this._webView = this.webView;
             JSONObject jo = data.getJSONObject(0);
@@ -232,20 +230,6 @@ public class XtremePushPlugin extends CordovaPlugin {
         callbackContext.success("Successfully registered!");
     }
 
-    private void getDeviceInfo(CallbackContext callbackContext)
-    {
-        if (!isRegistered){
-            LogEventsUtils.sendLogTextMessage(TAG, "getDeviceInfo: Please call register function first");
-            callbackContext.error("Please call register function first");
-        }
-
-        HashMap<String, String> deviceInfo = pushConnector.getDeviceInfo(getApplicationContext());
-
-        JSONObject devInfo = new JSONObject(deviceInfo);
-
-        callbackContext.success(devInfo.toString());
-    }
-
     private void hitTag(JSONArray data) throws JSONException {
         if (!isRegistered){
             LogEventsUtils.sendLogTextMessage(TAG, "hitTag: Please call register function first");
@@ -322,12 +306,12 @@ public class XtremePushPlugin extends CordovaPlugin {
     }
 
     private void setExternalId(JSONArray data) throws JSONException {
-        if (!isRegistered){
+        if (!isRegistered) {
             LogEventsUtils.sendLogTextMessage(TAG, "setExternalId: Please call register function first");
             return;
         }
 
-        if (data.isNull(0)){
+        if (data.isNull(0)) {
             LogEventsUtils.sendLogTextMessage(TAG, "setExternalId: Please provide ID");
             return;
         }
@@ -335,6 +319,35 @@ public class XtremePushPlugin extends CordovaPlugin {
         String id =  data.getString(0);
 
         pushConnector.hitTag("user.external_id", id);
+    }
+
+    private void setSubscription(JSONArray data) throws JSONException {
+        if (data.isNull(0)) {
+            LogEventsUtils.sendLogTextMessage(TAG, "setSubscription: Please provide true/false value");
+            return;
+        }
+
+        Boolean subBoolean = data.getBoolean(0);
+        String subStatus = subBoolean ? "1" : "0";
+        SharedPrefUtils.setSubscriptionStatus(subStatus, getApplicationContext());
+        ConnectionManager.getInstance().updateDevice(getApplicationContext());
+    }
+
+    private void getDeviceInfo(CallbackContext callbackContext) {
+        if (!isRegistered) {
+            LogEventsUtils.sendLogTextMessage(TAG, "getDeviceInfo: Please call register function first");
+            callbackContext.error("Please call register function first");
+        }
+
+        HashMap<String, String> deviceInfo = pushConnector.getDeviceInfo(getApplicationContext());
+
+        JSONObject devInfo = new JSONObject(deviceInfo);
+
+        callbackContext.success(devInfo);
+    }
+
+    private void requestLocationsPermissions() {
+        pushConnector.requestLocationsPermissions(getApplicationActivity());
     }
 
     /*
