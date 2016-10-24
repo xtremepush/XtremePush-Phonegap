@@ -32,7 +32,7 @@ public class DisplayPushActivity extends Activity {
                 .setTitle("Push received")
                 .setCancelable(false)
                 .setView(view);
-        if (pushMessage.url != null && !TextUtils.isEmpty(pushMessage.url)) {
+        if (!TextUtils.isEmpty(pushMessage.url)) {
             dialogBuilder = dialogBuilder.setPositiveButton(R.string.push_dialog_view, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -42,7 +42,7 @@ public class DisplayPushActivity extends Activity {
                         UrlUtils.openUrlInWebView(DisplayPushActivity.this, pushMessage.url);
                     } else if (TextUtils.equals(pushMessage.um, PushMessage.DEEPLINK)){
                         UrlUtils.openUrlAsDeepLink(DisplayPushActivity.this, pushMessage.url);
-                    }
+                    } else UrlUtils.openUrlInWebView(DisplayPushActivity.this, pushMessage.url);
                     finish();
                 }
             });

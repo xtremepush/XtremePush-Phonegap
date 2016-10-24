@@ -252,7 +252,7 @@ public class XtremePushPlugin extends CordovaPlugin {
             return;
         }
 
-        if (data.getString(0) == null){
+        if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "hitTag: Please provide tag title");
             return;
         }
@@ -273,13 +273,16 @@ public class XtremePushPlugin extends CordovaPlugin {
             return;
         }
 
-        if (data.getString(0) == null){
+        if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "hitEvent: Please provide event title");
             return;
         }
 
         String title = data.getString(0);
-        String message =  data.getString(1);
+        String message = null;
+        if (!data.isNull(1)) {
+            message = data.getString(1);
+        }
 
         pushConnector.hitEvent(getApplicationContext(), title, message);
     }
@@ -290,19 +293,14 @@ public class XtremePushPlugin extends CordovaPlugin {
             return;
         }
 
-        if (data.getString(0) == null){
+        if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "hitImpression: Please provide impression title");
             return;
         }
 
         String impression =  data.getString(0);
 
-        if (!data.isNull(1)){
-            pushConnector.hitImpression(impression, data.getString(1));
-        } 
-        else {
-            pushConnector.hitImpression(impression);
-        }
+        pushConnector.hitImpression(impression);
     }
 
     private void sendTags()
@@ -321,6 +319,22 @@ public class XtremePushPlugin extends CordovaPlugin {
             return;
         }
         pushConnector.sendImpressions();
+    }
+
+    private void setExternalId(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "setExternalId: Please call register function first");
+            return;
+        }
+
+        if (data.isNull(0)){
+            LogEventsUtils.sendLogTextMessage(TAG, "setExternalId: Please provide ID");
+            return;
+        }
+
+        String id =  data.getString(0);
+
+        pushConnector.hitTag("user.external_id", id);
     }
 
     /*

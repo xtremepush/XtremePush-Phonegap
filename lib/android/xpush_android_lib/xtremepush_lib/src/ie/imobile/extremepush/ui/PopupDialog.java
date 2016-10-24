@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
@@ -19,28 +21,40 @@ import android.view.Gravity;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
+//import android.webkit.JavascriptInterface;
 //import android.webkit.WebResourceError;
 //import android.webkit.WebResourceRequest;
+
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.PopupWindow;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import android.os.Handler;
 
 import ie.imobile.extremepush.PushConnector;
 import ie.imobile.extremepush.R;
 import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.api.model.events.CloseInAppEvent;
-import ie.imobile.extremepush.api.model.events.InAppActionButtonClickEvent;
 import ie.imobile.extremepush.api.model.events.InAppActionDeliveredEvent;
+import ie.imobile.extremepush.api.model.events.WebViewActionButtonClickEvent;
+import ie.imobile.extremepush.api.model.events.WebViewRedeemEvent;
 import ie.imobile.extremepush.util.LogEventsUtils;
 
 /**
  * Created by vitaliishastun on 1/16/15.
  */
+
+// ToDo change Modal view rotation when in multiWindow mode
+// ToDo in multiWindow mode, detect change in screen size
+// ToDo in multiWindow mode, banner should always be in portrait orientation
+
 public class PopupDialog {
     private static final String TAG = PopupDialog.class.getSimpleName();
     private final PopupWindow mMessage;
@@ -50,41 +64,56 @@ public class PopupDialog {
     private static boolean refreshing = false;
     public static PushMessage pm;
     private static boolean mNotClosed;
+    private static boolean sb = false;
+    private static Integer visibilityMask = null;
+    private static WebView inAppWebView;
+    private static String slideInFrom = "";
+    private static int screenWidth = 0;
+    private static int screenHeight = 0;
+    private static int fade = 0;
+    private static final int FADE_DURATION = 200;
+    private static final int TRANSLATE_DURATION = 1000;
+    private static boolean inMultiWindow = false;
+//    //Used with JavascriptInterface code at bottom of file
+//    private static String messageType = "";
 
     public PopupDialog(PopupWindow popupMessage) {
         mMessage = popupMessage;
     }
 
-    public static int convertDpToPixel(Double dp, Context context){
+    public static int convertDpToPixel(Double dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        return (int)(dp * (metrics.densityDpi / 160f));
+        return (int) (dp * (metrics.densityDpi / 160f));
     }
 
     /**
      * This method converts device specific pixels to density independent pixels.
      *
-     * @param px A value in px (pixels) unit. Which we need to convert into db
+     * @param px      A value in px (pixels) unit. Which we need to convert into db
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent dp equivalent to px value
      */
-    public static Double convertPixelsToDp(int px, Context context){
+    public static Double convertPixelsToDp(int px, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
         return (px / (metrics.densityDpi / 160d));
     }
 
-    public static String calculateDimensions(){
+    public static String calculateDimensions() {
         Activity activity = mActivityHolder.get();
         View decorView = activity.findViewById(android.R.id.content);
         int orientation;
         int width;
         int height;
         int sb_size;
+        int sb_size_w = 0;
         int sb_collapsible;
         Rect rectangle = new Rect();
         decorView.getWindowVisibleDisplayFrame(rectangle);
         statusBarHeight = rectangle.top;
+        int mRight = rectangle.right;
+        int mLeft = rectangle.left;
 
         DisplayMetrics metrics = new DisplayMetrics();
         Display display = activity.getWindowManager().getDefaultDisplay();
@@ -94,7 +123,11 @@ public class PopupDialog {
         int realWidth;
         int realHeight;
 
-        if (Build.VERSION.SDK_INT >= 17){
+        if (Build.VERSION.SDK_INT >= 24) {
+            //inMultiWindow = mActivityHolder.get().isInMultiWindowMode();
+        }
+
+        if (Build.VERSION.SDK_INT >= 17) {
             //new pleasant way to get real metrics
             DisplayMetrics realMetrics = new DisplayMetrics();
             display.getRealMetrics(realMetrics);
@@ -123,7 +156,19 @@ public class PopupDialog {
         width = realWidth;
         height = realHeight;
         sb_size = (realHeight - availPlusNav) + statusBarHeight;
-        switch (display.getRotation()){
+
+        if (inMultiWindow) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                Point size = new Point(0, 0);
+                display.getSize(size);
+                width = size.x + statusBarHeight;
+                height = size.y;
+                height = height - statusBarHeight;
+                sb_size = (height - availPlusNav);
+            }
+        }
+
+        switch (display.getRotation()) {
             case Surface.ROTATION_90:
                 orientation = 90;
                 break;
@@ -136,16 +181,24 @@ public class PopupDialog {
         }
         mOrientation = display.getRotation();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+        if (inMultiWindow) {
+            orientation += 90;
+        }
+
+        if ((mRight < width) || (mLeft > 0)) {
+            sb_size_w = mLeft + (width - mRight);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && !inMultiWindow) {
             sb_collapsible = 1;
         } else {
             sb_collapsible = 0;
         }
 
 //        LogEventsUtils.sendLogTextMessage(TAG, orientation + " --- " + PopupDialog.convertPixelsToDp(width, activity) +
-//                " --- " + PopupDialog.convertPixelsToDp(height, activity) + " --- " + PopupDialog.convertPixelsToDp(sb_size, activity) + " --- " + sb_collapsible);
-        return "javascript:InAppMessage.render("+orientation+", "+PopupDialog.convertPixelsToDp(width, activity)+", "+PopupDialog.convertPixelsToDp(height, activity)+
-                ", "+PopupDialog.convertPixelsToDp(sb_size, activity)+", "+sb_collapsible+");";
+//                " --- " + PopupDialog.convertPixelsToDp(height, activity) + " --- " + PopupDialog.convertPixelsToDp(sb_size, activity) + " --- " + sb_collapsible + " --- " + sb_size_w);
+        return "javascript:InAppMessage.render(" + orientation + ", " + PopupDialog.convertPixelsToDp(width, activity) + ", " + PopupDialog.convertPixelsToDp(height, activity) +
+                ", " + PopupDialog.convertPixelsToDp(sb_size, activity) + ", " + sb_collapsible + ", " + PopupDialog.convertPixelsToDp(sb_size_w, activity) + ");";
     }
 
     public static PopupDialog showInApp(final Activity activity, final PushMessage pm, final boolean refreshFlag) {
@@ -155,16 +208,16 @@ public class PopupDialog {
         PopupDialog.pm = pm;
         final View decorView = activity.findViewById(android.R.id.content);
         View container = activity.getLayoutInflater().inflate(R.layout.big_banner, null);
-        final WebView layoutOfPopup = (WebView) container.findViewById(R.id.banner_webview);
+        inAppWebView = (WebView) container.findViewById(R.id.banner_webview);
+//        //Used with JavascriptInterface code at bottom of file
+//        inAppWebView.addJavascriptInterface(new PopupInterface(), "AndroidApp");
         final int uiOptions;
-        final int visibilityMask;
 
-        layoutOfPopup.getSettings().setJavaScriptEnabled(true);
-        layoutOfPopup.loadUrl(pm.url);
-        layoutOfPopup.setBackgroundColor(Color.TRANSPARENT);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            layoutOfPopup.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-
+        inAppWebView.getSettings().setJavaScriptEnabled(true);
+        inAppWebView.loadUrl(pm.url);
+        inAppWebView.setBackgroundColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            inAppWebView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
         final MyPopupWindow popupMessage = new MyPopupWindow(container, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         popupMessage.setBackgroundDrawable(new ColorDrawable(
@@ -174,8 +227,15 @@ public class PopupDialog {
             public void onDismiss() {
                 LogEventsUtils.sendLogTextMessage(TAG, "onDismissListener hit");
                 Display display = mActivityHolder.get().getWindowManager().getDefaultDisplay();
-                if (display.getRotation() == mOrientation){
+                if (display.getRotation() == mOrientation) {
+                    mNotClosed = false;
                     PushConnector.postInEventBus(new CloseInAppEvent());
+                    inAppWebView.loadUrl("javascript:InAppMessage.dispatched();");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                        if (!sb && (visibilityMask != null)) {
+                            decorView.setSystemUiVisibility(visibilityMask);
+                        }
+                    }
                 }
             }
         });
@@ -198,7 +258,6 @@ public class PopupDialog {
             private int height = 0;
             private int x = 0;
             private int y = 0;
-            private boolean sb = false;
             private boolean focusable = false;
 
             @Override
@@ -228,10 +287,15 @@ public class PopupDialog {
                             }
                             String xParam = parsed.getQueryParameter("x");
                             String yParam = parsed.getQueryParameter("y");
+                            slideInFrom = parsed.getQueryParameter("slide");
+                            fade = Integer.parseInt(parsed.getQueryParameter("fade"));
+
                             if (!(TextUtils.isEmpty(xParam) && TextUtils.isEmpty(yParam))) {
                                 x = PopupDialog.convertDpToPixel(Double.parseDouble(xParam), activity);
                                 y = PopupDialog.convertDpToPixel(Double.parseDouble(yParam), activity);
                             }
+
+
                         } catch (Exception e) {
                             LogEventsUtils.sendLogTextMessage(TAG, "InApp position setting failed.");
                             x = 0;
@@ -242,16 +306,21 @@ public class PopupDialog {
                         view.loadUrl("javascript:InAppMessage.dispatched();");
                         return true;
                     } else if (url.contains("inapp://ready")) {
-                        View mDecorView = mActivityHolder.get().findViewById(android.R.id.content);
-                        InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        //use Layer type hardware to make the inApp animation smooth
+                        if (Build.VERSION.SDK_INT > 11) {
+                            view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                        }
+                        final View mDecorView = mActivityHolder.get().findViewById(android.R.id.content);
+                        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                             if (!sb) {
                                 imm.hideSoftInputFromWindow(mDecorView.getWindowToken(), 0, new keyboardReceiver(mDecorView, uiOptions));
-                                if(focusable) {
+                                if (focusable) {
                                     popupMessage.setFocusable(true);
                                 }
+                                animateIn(view);
                                 popupMessage.showAtLocation(mDecorView, Gravity.NO_GRAVITY, x, y);
-                                if(mDecorView.getSystemUiVisibility() != uiOptions)
+                                if (mDecorView.getSystemUiVisibility() != uiOptions)
                                     mDecorView.setSystemUiVisibility(uiOptions);
                             } else {
                                 if (focusable) {
@@ -259,18 +328,24 @@ public class PopupDialog {
                                     popupMessage.setFocusable(true);
                                 }
                                 popupMessage.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+
+                                animateIn(view);
                                 popupMessage.showAtLocation(mDecorView, Gravity.NO_GRAVITY, x, y + statusBarHeight);
                             }
                         } else {
-                            if(focusable) {
+                            if (focusable) {
                                 imm.hideSoftInputFromWindow(mDecorView.getWindowToken(), 0);
                                 popupMessage.setFocusable(true);
                             }
                             popupMessage.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+
+                            animateIn(view);
                             popupMessage.showAtLocation(mDecorView, Gravity.NO_GRAVITY, x, y + statusBarHeight);
                         }
-                        if(!refreshing)
+
+                        if (!refreshing)
                             PushConnector.postInEventBus(new InAppActionDeliveredEvent(pm));
+
                         view.loadUrl("javascript:InAppMessage.dispatched();");
                         return true;
                     } else if (url.contains("inapp://action")) {
@@ -278,7 +353,7 @@ public class PopupDialog {
                             String u = parsed.getQueryParameter("u");
                             String um = parsed.getQueryParameter("um");
                             String button = parsed.getQueryParameter("button");
-                            PushConnector.postInEventBus(new InAppActionButtonClickEvent(pm, u, um, button, PushMessage.OPEN));
+                            PushConnector.postInEventBus(new WebViewActionButtonClickEvent(pm.pushActionId, u, um, button, PushMessage.OPEN, false));
                         } catch (Exception e) {
                             LogEventsUtils.sendLogTextMessage(TAG, "InApp action failed.");
                         }
@@ -291,12 +366,26 @@ public class PopupDialog {
                             }
                         }
                         return true;
-                    } else if (url.contains("inapp://close")) {
-                        String button = parsed.getQueryParameter("button");
-                        PushConnector.postInEventBus(new InAppActionButtonClickEvent(pm, null, null, button, PushMessage.CLOSE));
-                        mNotClosed = false;
-                        popupMessage.dismiss();
+                    } else if (url.contains("inapp://redeem")) {
+                        PushConnector.postInEventBus(new WebViewRedeemEvent(pm.pushActionId));
                         view.loadUrl("javascript:InAppMessage.dispatched();");
+                        return true;
+                    } else if (url.contains("inapp://close")) {
+                        //call slide out animation
+                        animateOut(view);
+                        String button = parsed.getQueryParameter("button");
+                        PushConnector.postInEventBus(new WebViewActionButtonClickEvent(pm.pushActionId, null, null, button, PushMessage.CLOSE, false));
+                        mNotClosed = false;
+
+                        Handler h = new Handler();
+                        //have short delay for animation to happen before popup dismissed
+                        h.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                popupMessage.dismiss();
+                            }
+                        }, 1000);
+
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                             if (!sb) {
                                 decorView.setSystemUiVisibility(visibilityMask);
@@ -314,6 +403,11 @@ public class PopupDialog {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+//                //type of message
+//                view.loadUrl("javascript:if((typeof InAppBannerMessage) == 'object'){AndroidApp.isBanner();}");
+//                view.loadUrl("javascript:if((typeof InAppEditorMessage) == 'object'){AndroidApp.isModal();}");
+//                view.loadUrl("javascript:if((typeof InAppFullsizeMessage) == 'object'){AndroidApp.isFullScreen();}");
+                animateIn(view);
                 view.loadUrl(PopupDialog.calculateDimensions());
             }
 
@@ -326,19 +420,26 @@ public class PopupDialog {
                 PushConnector.postInEventBus(new CloseInAppEvent());
             }
         };
-        layoutOfPopup.setWebViewClient(popupViewClient);
+        inAppWebView.setWebViewClient(popupViewClient);
         return new PopupDialog(popupMessage);
+    }
+
+    public static void redemptionResult(boolean success, int code) {
+        if (success)
+            inAppWebView.loadUrl("javascript:InAppMessage.redeemSuccess();");
+        else
+            inAppWebView.loadUrl("javascript:InAppMessage.redeemFailure(" + code + ");");
     }
 
     public boolean dismiss() {
         LogEventsUtils.sendLogTextMessage(TAG, "dismiss function called from manager");
         Display display = mActivityHolder.get().getWindowManager().getDefaultDisplay();
-        if ((display.getRotation() != mOrientation) && (mNotClosed)){
+        if (((display.getRotation() != mOrientation) && (mNotClosed))) {
             refreshing = true;
-        } else {
+        } else if ((mNotClosed)) {
+            refreshing = true;
+        } else
             refreshing = false;
-//            PushConnector.postInEventBus(new CloseInAppEvent());
-        }
         mMessage.dismiss();
 
         return refreshing;
@@ -346,32 +447,28 @@ public class PopupDialog {
 
     public static class MyPopupWindow extends PopupWindow {
         public MyPopupWindow(View container, int width,
-                      int height){
+                             int height) {
             super(container, width, height);
         }
 
         @Override
-        public void showAtLocation(View parent, int gravity, int x, int y){
-//            this.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
-//            this.setFocusable(true);
+        public void showAtLocation(View parent, int gravity, int x, int y) {
             super.showAtLocation(parent, gravity, x, y);
-//            this.update();
         }
     }
 
-    static class keyboardReceiver extends ResultReceiver
-    {
+    static class keyboardReceiver extends ResultReceiver {
         private View decorView;
         private int uiOptions;
         public final Parcelable.Creator<ResultReceiver> CREATOR = ResultReceiver.CREATOR;
-        public keyboardReceiver(View view, int options)
-        {
+
+        public keyboardReceiver(View view, int options) {
             super(null);
             decorView = view;
             uiOptions = options;
         }
-        public void onReceiveResult(int resultCode, Bundle resultData)
-        {
+
+        public void onReceiveResult(int resultCode, Bundle resultData) {
             // Get a handler that can be used to post to the main thread
             Handler mainHandler = new Handler(Looper.getMainLooper());
             Runnable myRunnable = new Runnable() {
@@ -384,4 +481,136 @@ public class PopupDialog {
             mainHandler.post(myRunnable);
         }
     }
+
+    public static void animateIn(final WebView wView) {
+        //get variables needed for translate animation
+        if (screenWidth == 0 || screenHeight == 0)
+            getScreen();
+        int x = 0;
+        int y = 0;
+        if (slideInFrom.equals("from-right"))
+            x = screenWidth;
+
+        if (slideInFrom.equals("from-left"))
+            x = screenWidth * -1;
+
+        if (slideInFrom.equals("from-top"))
+            y = screenHeight * -1;
+
+        if (slideInFrom.equals("from-bottom"))
+            y = screenHeight;
+
+        //slideIn animation
+        TranslateAnimation tAnimation = new TranslateAnimation(x, 0, y, 0);
+        tAnimation.setDuration(TRANSLATE_DURATION);
+        tAnimation.setFillAfter(true);
+
+        //fade animation
+        AlphaAnimation fAnimation = new AlphaAnimation((Math.abs(fade - 1)), 1);
+        fAnimation.setDuration(FADE_DURATION);
+
+        AnimationSet anim = new AnimationSet(true);
+        anim.addAnimation(tAnimation);
+        anim.addAnimation(fAnimation);
+
+        //view layer type was set to hardware up above, it is recommended to set it back to its original value when not being used
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            //end of animation, stop using hardware layer type
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                //Stop using hardware after animation
+                if (Build.VERSION.SDK_INT >= 11)
+                    wView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        wView.startAnimation(anim);
+    }
+
+    //the animation to get the animation off screen
+    public static void animateOut(final WebView wView) {
+        //variables used to programatically define translate animation
+        if (screenWidth == 0 || screenHeight == 0)
+            getScreen();
+        int x = 0;
+        int y = 0;
+        if (slideInFrom.equals("from-right"))
+            x = screenWidth;
+        if (slideInFrom.equals("from-left"))
+            x = screenWidth * -1;
+        if (slideInFrom.equals("from-top"))
+            y = screenHeight * -1;
+        if (slideInFrom.equals("from-bottom"))
+            y = screenHeight;
+        //set slideInFrom variable back to empty so next animation wont use it by accident
+        slideInFrom = "";
+
+        //slideIn animation
+        TranslateAnimation tAnimation = new TranslateAnimation(0, x, 0, y);
+        tAnimation.setDuration(TRANSLATE_DURATION);
+        tAnimation.setFillAfter(true);
+
+        //fade animation
+        AlphaAnimation fAnimation = new AlphaAnimation(1, (Math.abs(fade - 1)));
+        fAnimation.setDuration(FADE_DURATION);
+
+        AnimationSet anim = new AnimationSet(true);
+        anim.addAnimation(tAnimation);
+        anim.addAnimation(fAnimation);
+
+        wView.startAnimation(anim);
+    }
+
+    public static void getScreen() {
+        if (Build.VERSION.SDK_INT >= 13) {
+            WindowManager wm = (WindowManager) mActivityHolder.get().getSystemService(Context.WINDOW_SERVICE);
+            Display display = wm.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            screenWidth = size.x;
+            screenHeight = size.y;
+        }
+    }
+
+////    Class used to determine the type of an inApp message
+////    To use the class must be added to the webview, e.g. inAppWebView.addJavascriptInterface(new PopupInterface(), "AndroidApp");
+////    Following lines of code make callbacks to the javascript interface in this class
+//    view.loadUrl("javascript:if((typeof InAppBannerMessage) == 'object'){AndroidApp.isBanner();}");
+//    view.loadUrl("javascript:if((typeof InAppEditorMessage) == 'object'){AndroidApp.isModal();}");
+//    view.loadUrl("javascript:if((typeof InAppFullsizeMessage) == 'object'){AndroidApp.isFullScreen();}");
+//    private static class PopupInterface {
+//        PopupInterface() {
+//        }
+//
+//        @JavascriptInterface
+//        public void isBanner() {
+//            messageType = "Banner";
+//        }
+//
+//        @JavascriptInterface
+//        public void isFullScreen() {
+//            messageType = "Fullscreen";
+//        }
+//
+//        @JavascriptInterface
+//        public void isModal() {
+//            messageType = "Modal";
+//        }
+//
+//        @JavascriptInterface
+//        public void testInterface(String c) {
+//            LogEventUtils.sendLogTextMessage(TAG, "InterfaceWorking " + c);
+//        }
+//    }
 }
+

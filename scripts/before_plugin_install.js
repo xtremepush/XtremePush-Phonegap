@@ -19,13 +19,13 @@ var INSTALLATION_FLAG_FILE_NAME = '.npmInstalled';
  * @return {Boolean} true if already executed; otherwise - false
  */
 function isInstallationAlreadyPerformed(ctx) {
-  var pathToInstallFlag = path.join(ctx.opts.projectRoot, 'plugins', ctx.opts.plugin.id, INSTALLATION_FLAG_FILE_NAME);
-  try {
-    fs.accessSync(pathToInstallFlag, fs.F_OK);
-    return true;
-  } catch (err) {
-    return false;
-  }
+	var pathToInstallFlag = path.join(ctx.opts.projectRoot, 'plugins', ctx.opts.plugin.id, INSTALLATION_FLAG_FILE_NAME);
+	try {
+		fs.accessSync(pathToInstallFlag, fs.F_OK);
+		return true;
+	} catch (err) {
+		return false;
+	}
 }
 
 /**
@@ -39,19 +39,19 @@ function createPluginInstalledFlag(ctx) {
 // endregion
 
 module.exports = function(ctx) {
-	// console.log(JSON.stringify(ctx));
-  if (isInstallationAlreadyPerformed(ctx)) {
-    return;
-  }
+	console.log(JSON.stringify(ctx));
+	if (isInstallationAlreadyPerformed(ctx)) {
+		return;
+	}
 
-  console.log('Installing dependency packages: ');
-  console.log(JSON.stringify(pluginNpmDependencies, null, 2));
+	console.log('Installing dependency packages: ');
+	console.log(JSON.stringify(pluginNpmDependencies, null, 2));
 
-  var npm = (process.platform === "win32" ? "npm.cmd" : "npm");
-  var result = spawnSync(npm, ['install', '--production'], { cwd: './plugins/' + ctx.opts.plugin.id });
-  if (result.error) {
-    throw result.error;
-  }
+	var npm = (process.platform === "win32" ? "npm.cmd" : "npm");
+	var result = spawnSync(npm, ['install', '--production'], { cwd: './plugins/' + ctx.opts.plugin.id });
+	if (result.error) {
+		throw result.error;
+	}
 
-  createPluginInstalledFlag(ctx);
+	createPluginInstalledFlag(ctx);
 };
