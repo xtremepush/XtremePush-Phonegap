@@ -167,7 +167,7 @@ public class XtremePushPlugin extends CordovaPlugin {
             }
 
             if (!jo.isNull("debugLogsEnabled")){
-                Boolean debugLogsEnabled = jo.getBoolean("attributionsEnabled");
+                Boolean debugLogsEnabled = jo.getBoolean("debugLogsEnabled");
                 b.turnOnDebugLogs(debugLogsEnabled);
             }
 
