@@ -22,19 +22,7 @@
 		<engine name="cordova" version=">=4.0.0" />
 	</engines>
 
-	<!-- EDIT: Settings for what libraries to include in the build -->
-	<preference name="XP_BEACON" default="1" />
-	<preference name="XP_GEO" default="1" />
-	<preference name="XP_ATTRIBUTIONS" default="0" />
-	<!-- EDIT END -->
-
 	<platform name="android">
-		<resource-file src="xp-config.xml" target="xp-config.xml" />
-		<config-file target="./xp-config.xml" parent="/config">
-			<xp-beacon>$XP_BEACON</xp-beacon>
-			<xp-geo>$XP_GEO</xp-geo>
-			<xp-attributions>$XP_ATTRIBUTIONS</xp-attributions>
-		</config-file>
 
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="XtremePush" >
@@ -157,13 +145,6 @@
 	</platform>
 
 	<platform name="ios">
-		<resource-file src="xp-config.xml" target="xp-config.xml" />
-		<config-file target="./xp-config.xml" parent="/config">
-			<xp-beacon>$XP_BEACON</xp-beacon>
-			<xp-geo>$XP_GEO</xp-geo>
-			<xp-attributions>$XP_ATTRIBUTIONS</xp-attributions>
-		</config-file>
-
 		<config-file target="config.xml" parent="/*">
 			<feature name="XtremePush">
 				<param name="ios-package" value="XtremePushPlugin"/>
