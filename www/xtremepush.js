@@ -23,12 +23,12 @@ function XtremePush() { }
  *    }
  *
  * Description:
- *    appKey - String (Required) Key for Xtremepush project
+ *    appKey - String (*required*) Key for Xtremepush project
  *    debugLogsEnabled - Boolean (optional) to turn on debug logs
  *    impressionsBatchingEnabled - Boolean (optional) to turn on caching impressions and batch sending when app closing
  *    impressionsStoreLimit - Integer (optional) size for impression cache
  *    inappMessagingEnabled - Boolean (optional) to turn on sending an event on app start
- *    pushOpenCallback - String (required) JavaScript function to be executed when a message is opened
+ *    pushOpenCallback - String (*required*) JavaScript function to be executed when a message is opened
  *    serverUrl - String (optional) to send all data to different Xtremepush API endpoint
  *    tagsBatchingEnabled - Boolean (optional) to turn on caching tags and batch sending when app closing
  *    tagsStoreLimit - Integer (optional) size for tag cache
@@ -41,8 +41,9 @@ function XtremePush() { }
  *        pushPermissionsRequest - Boolean (optional) Can be used to prevent automatically showing the notification permission request dialog
  *        shouldWipeBadgeNumber - Boolean (optional) Badge of application gets cleared on app open
  *    android:
- *        beaconsEnabled - Boolean (option) Can be used to turn on Xtremepush iBeacon scanning functionality
- *        geoEnabled - Boolean (option) Can be used to turn on Xtremepush geo-location functionality
+ *        beaconsEnabled - Boolean (optional) Can be used to turn on Xtremepush iBeacon scanning functionality
+ *        gcmProjectNumber - String (optional) If push is used in your application, set the GCM/FCM project number here
+ *        geoEnabled - Boolean (optional) Can be used to turn on Xtremepush geo-location functionality
  *        locationsPermissionsRequest - Boolean (optional) Can be used to prevent automatically showing the location permission request dialog
  */
 XtremePush.prototype.register = function(options) {
