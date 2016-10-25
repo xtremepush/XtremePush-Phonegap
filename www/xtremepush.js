@@ -4,21 +4,46 @@ function XtremePush() { }
 
 /**
  * Calling register function of the XtremePush plugin
- * @param  {Function} success callback function which will be called in case of success of the function
- * @param  {Function} fail    callback function which will be called in case of failure
- * @param  {Object} options for method. Different for android and iOS:
- *         For iOS: 
- *           badge - is register push notification with badge
- *           sound - is register to push notifications with sound
- *           alert - is register to push notification with alert
- *           showAlerts - set if to show alert when received push notifications
- *         For Android:
- *           if locationTimeout,locationDistance, enableLocations, turnOnDebugLogs, setServerURL,
- *           beaconLocationBackground will be set PushConnector.register function will be called 
- *           with this specific configuration 
- *         Generic:
- *           callbackFunction - name of the function which will be called when push notification will be received
- *           
+ * @param  {Object} options   JSON object containing the options for which bit of Xtremepush functionality
+ *                            to turn on/off
+ *
+ * Sample format:
+ *    {
+ *        appKey: "asdjfaSDFASfjkfasd",
+ *        pushOpenCallback: "onPushOpened",
+ *        inappMessagingEnabled: true,
+ *        ios: {
+ *            locationsEnabled: true,
+ *        },
+ *        android: {
+ *            gcmProjectNumber: "012345678910",
+ *            geoEnabled: true,
+ *            beaconsEnabled: true
+ *        }
+ *    }
+ *
+ * Description:
+ *    appKey - String (Required) Key for Xtremepush project
+ *    debugLogsEnabled - Boolean (optional) to turn on debug logs
+ *    impressionsBatchingEnabled - Boolean (optional) to turn on caching impressions and batch sending when app closing
+ *    impressionsStoreLimit - Integer (optional) size for impression cache
+ *    inappMessagingEnabled - Boolean (optional) to turn on sending an event on app start
+ *    pushOpenCallback - String (required) JavaScript function to be executed when a message is opened
+ *    serverUrl - String (optional) to send all data to different Xtremepush API endpoint
+ *    tagsBatchingEnabled - Boolean (optional) to turn on caching tags and batch sending when app closing
+ *    tagsStoreLimit - Integer (optional) size for tag cache
+ *    sessionsStoreLimit - Integer (optional) size for session event cache
+ *    attributionsEnabled - Boolean (optional) *(requires plugin from master+attributions branch)* to turn on collection of IDFA, Ad ID and attribution information
+ *    ios: 
+ *        locationsEnabled - Boolean (optional) Can be used to turn on Xtremepush location and iBeacon scanning functionality
+ *        locationsPermissionsRequest - Boolean (optional) Can be used to prevent automatically showing the location permission request dialog
+ *        nameCollectingEnabled - Boolean (optional) Can be used to turn off collection of the device name, e.g. "John's iPhone"
+ *        pushPermissionsRequest - Boolean (optional) Can be used to prevent automatically showing the notification permission request dialog
+ *        shouldWipeBadgeNumber - Boolean (optional) Badge of application gets cleared on app open
+ *    android:
+ *        beaconsEnabled - Boolean (option) Can be used to turn on Xtremepush iBeacon scanning functionality
+ *        geoEnabled - Boolean (option) Can be used to turn on Xtremepush geo-location functionality
+ *        locationsPermissionsRequest - Boolean (optional) Can be used to prevent automatically showing the location permission request dialog
  */
 XtremePush.prototype.register = function(options) {
    return exec(null, null, 'XtremePush', 'register', [options]);
@@ -74,7 +99,7 @@ XtremePush.prototype.sendImpressions = function(){
 
 /**
  * Setting an external ID for the app user
- * @param  {String}   id      ID to sent to Xtremepush
+ * @param  {String}   id      ID to send to Xtremepush
  */ 
 XtremePush.prototype.setExternalId = function(id){
    return exec(null, null, 'XtremePush', 'setExternalId', [id]);

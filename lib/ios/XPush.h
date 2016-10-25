@@ -277,7 +277,8 @@ extern NSString *const XPushInboxBadgeChangeNotification;
 
 @interface XPInboxButton : UIButton
 - (UILabel *)badge;
-- (void)setBadgeSize:(NSInteger *)badgeSize;
+- (void)setBadgeSize:(int)badgeSize;
+- (void)setBadgePosition:(CGPoint)badgeSize;
 - (void)setBadgeColor:(UIColor *)color;
 - (void)setBadgeTextColor:(UIColor *)color;
 @end
