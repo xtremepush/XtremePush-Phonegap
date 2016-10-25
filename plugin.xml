@@ -33,16 +33,16 @@
 
 		<config-file target="AndroidManifest.xml" parent="/manifest">
 			<!-- EDIT: Required for both Geo and Beacon scanning -->
-			<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+			<!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
 			<!-- EDIT END -->
 
 			<!-- EDIT: Required for Beacon scanning -->
-			<uses-permission android:name="android.permission.BLUETOOTH" />
+			<!-- <uses-permission android:name="android.permission.BLUETOOTH" />
 			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 			<uses-feature
 				android:name="android.hardware.bluetooth_le"
-				android:required="false" />
+				android:required="false" /> -->
 			<!-- EDIT END -->
 
 			<uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -60,12 +60,12 @@
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 
 			<!-- EDIT: Required for Geo scanning -->
-			<service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
-			<service android:name="ie.imobile.extremepush.location.GeoLocationService" />
+			<!-- <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
+			<service android:name="ie.imobile.extremepush.location.GeoLocationService" /> -->
 			<!-- EDIT END -->
 
 			<!-- EDIT: Required for Beacon scanning -->
-			<service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
+			<!-- <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
 			<receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >
 				<intent-filter>
 					<action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -82,7 +82,7 @@
 			<service
 				android:name="org.altbeacon.beacon.BeaconIntentProcessor"
 				android:enabled="true"
-				android:exported="false" />
+				android:exported="false" /> -->
 			<!-- EDIT END -->
 
 			<!-- EDIT: Required for Attributions and Ad ID collection -->
@@ -131,11 +131,11 @@
 		<framework src="com.google.android.gms:play-services-gcm:+" />
 
 		<!-- EDIT: Required for Geo scanning -->
-		<framework src="com.google.android.gms:play-services-location:+" />
+		<!-- <framework src="com.google.android.gms:play-services-location:+" /> -->
 		<!-- EDIT END -->
 		
 		<!-- EDIT: Required for Beacon scanning -->
-		<source-file src="lib/android/android-beacon-library-2.6.1.jar" target-dir="libs/" />
+		<!-- <source-file src="lib/android/android-beacon-library-2.6.1.jar" target-dir="libs/" /> -->
 		<!-- EDIT END -->
 
 		<!-- EDIT: Required for Attributions and Ad ID collection -->
