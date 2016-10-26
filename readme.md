@@ -79,8 +79,8 @@ Tagging and events can then be implemented in your app as follows:
 
 If you have any difficulty in configuring the implementation, a sample app can be built using the following two files:
 
-* [sample_index.html](https://support.xtremepush.com/hc/en-us/articles/212720309)
-* [sample_index.js](https://support.xtremepush.com/hc/en-us/articles/212720289)
+* [index.html](https://support.xtremepush.com/hc/en-us/article_attachments/208158049/index.html)
+* [sample_index.js](https://support.xtremepush.com/hc/en-us/article_attachments/208158069/index.js)
 
 A full list of our JavaScript functions and their parameters can be found in the [xtremepush.js](https://github.com/xtremepush/XtremePush-Phonegap/blob/master/www/xtremepush.js) plugin file.
 
