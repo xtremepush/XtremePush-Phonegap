@@ -152,10 +152,12 @@
 			</feature>
 		</config-file>
 
+		<!-- EDIT: Required when location functionality is used -->
 		<preference name="NSLocationAlwaysUsageDescription" default="We use location services to send you relevant information, when and where you need it" />
 		<config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
 			<string>$NSLocationAlwaysUsageDescription</string>
 		</config-file>
+		<!-- EDIT END -->
 
 		<framework src="Security.framework" />
 		<framework src="CFNetwork.framework" />
