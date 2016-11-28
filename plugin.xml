@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="2.0.0"
+	version="2.0.1"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -51,7 +51,6 @@
 			<uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
 
 			<uses-permission android:name="android.permission.INTERNET" />
-			<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
 			<uses-permission android:name="android.permission.WAKE_LOCK" />
 			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
