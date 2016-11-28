@@ -66,7 +66,7 @@ function registerXtremePush(){
 app.initialize()
 ```
  
-##Tagging and events
+## Tagging and events
 
 Tagging and events can then be implemented in your app as follows:
 

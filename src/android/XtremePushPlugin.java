@@ -124,7 +124,7 @@ public class XtremePushPlugin extends CordovaPlugin {
             JSONObject jo = data.getJSONObject(0);
 
             if (jo.isNull("pushOpenCallback")){
-                LogEventsUtils.sendLogTextMessage(TAG, "register: Please provide callback function");
+                Log.e(TAG, "register: Please provide callback function");
                 callbackContext.error("Please provide callback function");
                 return;
             }
@@ -133,7 +133,7 @@ public class XtremePushPlugin extends CordovaPlugin {
             if (!jo.isNull("appKey")){
                 appKey = jo.getString("appKey");
             } else {
-                LogEventsUtils.sendLogTextMessage(TAG, "register: Please provide a valid xtremepush app key");
+                Log.e(TAG, "register: Please provide a valid xtremepush app key");
                 callbackContext.error("Please provide a valid xtremepush app key");
                 return;
             }
