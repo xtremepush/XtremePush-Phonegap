@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Created by Dmytro Malieiev on 6/8/14.
  */
-public class XtremePushPlugin extends CordovaPlugin {
+public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListener {
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
     public static final String HITTAG = "hitTag";
@@ -42,13 +42,15 @@ public class XtremePushPlugin extends CordovaPlugin {
     public static final String SETSUBSCRIPTION = "setSubscription";
     public static final String DEVICEINFO = "deviceInfo";
     public static final String REQUESTLOCATIONSPERMISSIONS = "requestLocationsPermissions";   
-    public static final String OPENINBOX = "openInbox"; 
+    public static final String OPENINBOX = "openInbox";
+    public static final String GETINBOXBADGE = "getInboxBadge";
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
 
     private static CordovaWebView _webView;
     private static String callback_function;
+    private static String badge_callback_function;
     private static CallbackContext _callbackContext;
     private static Bundle cachedExtras;
     private PushConnector pushConnector;
@@ -112,6 +114,8 @@ public class XtremePushPlugin extends CordovaPlugin {
             requestLocationsPermissions();
         } else if (OPENINBOX.equals(action)) {
             openInbox();
+        } else if (GETINBOXBADGE.equals(action)) {
+            getInboxBadge();
         }
 
         if ( cachedExtras != null) {
@@ -231,6 +235,7 @@ public class XtremePushPlugin extends CordovaPlugin {
             pushConnector = b.create(getApplicationActivity());
 
             callback_function = (String) jo.getString("pushOpenCallback");
+            badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
             initNotificationMessageReceivers();
             isRegistered = true;
             initializePushConnector();
@@ -349,6 +354,26 @@ public class XtremePushPlugin extends CordovaPlugin {
             return;
         }
         pushConnector.openInbox(getApplicationActivity());
+    }
+
+    private void getInboxBadge()
+    {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "openInbox: Please call register function first");
+            return;
+        }
+        inboxBadgeUpdated(pushConnector.getInboxBadge());
+    }
+
+    @Override
+    public void inboxBadgeUpdated(int badge) {
+        if (badge_callback_function != null && _webView != null) {
+            String _d = "javascript:" + badge_callback_function + "(" + badge + ")";
+            LogEventsUtils.sendLogTextMessage(TAG, "inboxBadgeUpdated: " + _d);
+            _webView.sendJavascript(_d);
+        } else {
+            LogEventsUtils.sendLogTextMessage(TAG, "inboxBadgeUpdated: callback or webview is null");
+        }
     }
 
     private void getDeviceInfo(CallbackContext callbackContext) {
