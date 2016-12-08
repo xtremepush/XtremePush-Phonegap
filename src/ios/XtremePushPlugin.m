@@ -30,6 +30,9 @@
     
     id inappMessagingEnabled = [options objectForKey:@"inappMessagingEnabled"];
     if (inappMessagingEnabled != nil) [XPush setInAppMessageEnabled:[inappMessagingEnabled boolValue]];
+
+    id inboxEnabled = [options objectForKey:@"inboxEnabled"];
+    if (inboxEnabled != nil) [XPush setInboxEnabled:[inappMessagingEnabled boolValue]];
     
     id debugLogsEnabled = [options objectForKey:@"debugLogsEnabled"];
     if (debugLogsEnabled != nil) [XPush setShouldShowDebugLogs:[debugLogsEnabled boolValue]];
@@ -125,6 +128,10 @@
 - (void) setSubscription:(CDVInvokedUrlCommand *)command {
     BOOL subscription = [[command.arguments objectAtIndex:0] boolValue];
     [XPush setSubscription:subscription];
+}
+
+- (void) openInbox:(CDVInvokedUrlCommand *)command {
+    [XPush openInbox];
 }
 
 - (void) deviceInfo:(CDVInvokedUrlCommand *)command {

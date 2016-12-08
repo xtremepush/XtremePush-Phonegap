@@ -28,6 +28,7 @@ function XtremePush() { }
  *    impressionsBatchingEnabled - Boolean (optional) to turn on caching impressions and batch sending when app closing
  *    impressionsStoreLimit - Integer (optional) size for impression cache
  *    inappMessagingEnabled - Boolean (optional) to turn on sending an event on app start
+ *    inboxEnabled - Boolean (optional) to turn on inbox functionality in the app
  *    pushOpenCallback - String (*required*) JavaScript function to be executed when a message is opened
  *    serverUrl - String (optional) to send all data to different Xtremepush API endpoint
  *    tagsBatchingEnabled - Boolean (optional) to turn on caching tags and batch sending when app closing
@@ -112,6 +113,13 @@ XtremePush.prototype.setExternalId = function(id){
  */ 
 XtremePush.prototype.setSubscription = function(subscription){
    return exec(null, null, 'XtremePush', 'setSubscription', [subscription]);
+};
+
+/**
+ * Calling function to open the app inbox
+ */             
+XtremePush.prototype.openInbox = function(){
+   return exec(null, null, 'XtremePush', 'openInbox', []);
 };
 
 /**

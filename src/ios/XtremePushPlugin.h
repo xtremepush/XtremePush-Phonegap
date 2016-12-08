@@ -15,6 +15,7 @@
 
 - (void) setExternalId:(CDVInvokedUrlCommand*)command;
 - (void) setSubscription:(CDVInvokedUrlCommand*)command;
+- (void) openInbox:(CDVInvokedUrlCommand*)command;
 - (void) deviceInfo:(CDVInvokedUrlCommand*)command;
 
 @end

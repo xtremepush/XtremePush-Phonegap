@@ -41,7 +41,8 @@ public class XtremePushPlugin extends CordovaPlugin {
     public static final String SETEXTERNALID = "setExternalId";
     public static final String SETSUBSCRIPTION = "setSubscription";
     public static final String DEVICEINFO = "deviceInfo";
-    public static final String REQUESTLOCATIONSPERMISSIONS = "requestLocationsPermissions";    
+    public static final String REQUESTLOCATIONSPERMISSIONS = "requestLocationsPermissions";   
+    public static final String OPENINBOX = "openInbox"; 
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -109,6 +110,8 @@ public class XtremePushPlugin extends CordovaPlugin {
             getDeviceInfo(callbackContext);
         } else if (REQUESTLOCATIONSPERMISSIONS.equals(action)) {
             requestLocationsPermissions();
+        } else if (OPENINBOX.equals(action)) {
+            openInbox();
         }
 
         if ( cachedExtras != null) {
@@ -163,6 +166,11 @@ public class XtremePushPlugin extends CordovaPlugin {
             if (!jo.isNull("inappMessagingEnabled")){
                 Boolean inapp = jo.getBoolean("inappMessagingEnabled");
                 b.setEnableStartSession(inapp);
+            }
+
+            if (!jo.isNull("inboxEnabled")){
+                Boolean inbox = jo.getBoolean("inboxEnabled");
+                b.setInboxEnabled(inbox);
             }
 
             if (!jo.isNull("debugLogsEnabled")){
@@ -332,6 +340,15 @@ public class XtremePushPlugin extends CordovaPlugin {
         String subStatus = subBoolean ? "1" : "0";
         SharedPrefUtils.setSubscriptionStatus(subStatus, getApplicationContext());
         ConnectionManager.getInstance().updateDevice(getApplicationContext());
+    }
+
+    private void openInbox()
+    {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "openInbox: Please call register function first");
+            return;
+        }
+        pushConnector.openInbox(getApplicationActivity());
     }
 
     private void getDeviceInfo(CallbackContext callbackContext) {
