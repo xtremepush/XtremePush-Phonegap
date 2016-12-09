@@ -79,22 +79,45 @@ Tagging and events can then be implemented in your app as follows:
 
 If you have any difficulty in configuring the implementation, a sample app can be built using the following two files:
 
-* [index.html](https://support.xtremepush.com/hc/en-us/article_attachments/208158049/index.html)
-* [sample_index.js](https://support.xtremepush.com/hc/en-us/article_attachments/208158069/index.js)
+* [index.html](https://support.xtremepush.com/hc/en-us/article_attachments/209443849/index.html)
+* [sample_index.js](https://support.xtremepush.com/hc/en-us/article_attachments/209443829/index.js)
 
 A full list of our JavaScript functions and their parameters can be found in the [xtremepush.js](https://github.com/xtremepush/XtremePush-Phonegap/blob/master/www/xtremepush.js) plugin file.
 
 ## Advanced Options
 
+###Attributions
+
 If you would like xtremepush to collect IDFA/Ad ID and attribution data in your app, we have a git branch of the plugin that copies the required frameworks into your app. This can be installed using the following command:
 
-`cordova plugin add https://github.com/xtremepush/XtremePush-Phonegap#master+attributions`
+cordova plugin add https://github.com/xtremepush/XtremePush-Phonegap#master+attributions
 
-To enable the collection functionality, the *attributionsEnabled* parameter in the *XtremePush.register()* function must also be set with a value of *true*.
+To enable the collection functionality, the attributionsEnabled parameter in the XtremePush.register() function must also be set with a value of true.
 
+
+###Remove Location Services
 
 If you would like to remove the geo-location and beacon frameworks and services from your app, please use the following command when installing the plugin:
 
-`cordova plugin add  https://github.com/xtremepush/XtremePush-Phonegap#master-geo-beacon`
+cordova plugin add  https://github.com/xtremepush/XtremePush-Phonegap#master-geo-beacon
+
+###Inbox 
+
+The inbox feature can be turned on in your app by adding the following to your XtremePush.register() function:
+
+* `inboxEnabled: true`
+
+* Here is a sample button showing how to open inbox
+    * `<button onclick="XtremePush.openInbox()">Open Inbox</button>`
+
+If you want to use the inbox badge functionality please use the following in your XtremePush.register() function:
+
+* `inboxBadgeCallback: "onInboxBadgeUpdate"`
+
+* Here is a sample button showing how to retrieve the latest badge number:
+    * `<button onclick="XtremePush.getInboxBadge()">Get Inbox Badge</button>`
+
+ 
+###Other
 
 For any further customisation of the plugin, please feel free to fork the GitHub repository and make any changes you like in your forked version, before adding the plugin to you app.
