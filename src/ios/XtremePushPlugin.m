@@ -2,6 +2,7 @@
 
 @interface XtremePushPlugin()
 @property NSString *pushOpenCallback;
+@property NSString *inboxBadgeCallback;
 @property NSDictionary *launchOptions;
 @end
 
@@ -13,6 +14,8 @@
 
 - (void)didFinishLaunchingListener:(NSNotification *)notification {
     self.launchOptions = notification.userInfo;
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callInboxBadgeCallback) name:XPushInboxBadgeChangeNotification object:nil];
 }
 
 - (void) register:(CDVInvokedUrlCommand *)command {    
@@ -30,6 +33,9 @@
     
     id inappMessagingEnabled = [options objectForKey:@"inappMessagingEnabled"];
     if (inappMessagingEnabled != nil) [XPush setInAppMessageEnabled:[inappMessagingEnabled boolValue]];
+
+    id inboxEnabled = [options objectForKey:@"inboxEnabled"];
+    if (inboxEnabled != nil) [XPush setInboxEnabled:[inappMessagingEnabled boolValue]];
     
     id debugLogsEnabled = [options objectForKey:@"debugLogsEnabled"];
     if (debugLogsEnabled != nil) [XPush setShouldShowDebugLogs:[debugLogsEnabled boolValue]];
@@ -42,6 +48,9 @@
     
     id pushOpenCallback = [options objectForKey:@"pushOpenCallback"];
     if (pushOpenCallback != nil) self.pushOpenCallback = pushOpenCallback;
+
+    id inboxBadgeCallback = [options objectForKey:@"inboxBadgeCallback"];
+    if (inboxBadgeCallback != nil) self.inboxBadgeCallback = inboxBadgeCallback;
     
     NSDictionary *iosOptions = [options objectForKey:@"ios"];
     
@@ -127,6 +136,14 @@
     [XPush setSubscription:subscription];
 }
 
+- (void) openInbox:(CDVInvokedUrlCommand *)command {
+    [XPush openInbox];
+}
+
+- (void) getInboxBadge:(CDVInvokedUrlCommand *)command {
+    [self callInboxBadgeCallback];
+}
+
 - (void) deviceInfo:(CDVInvokedUrlCommand *)command {
     NSDictionary *deviceInfo = [XPush deviceInfo];
     [self successWithDictionary:deviceInfo withCallbackId:command.callbackId];
@@ -141,6 +158,19 @@
         [jsonStr appendString:@"}"];
         
         NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self.pushOpenCallback, jsonStr];
+        if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+            // Cordova-iOS pre-4
+            [self.webView performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsCallBack waitUntilDone:NO];
+        } else {
+            // Cordova-iOS 4+
+            [self.webView performSelectorOnMainThread:@selector(evaluateJavaScript:completionHandler:) withObject:jsCallBack waitUntilDone:NO];
+        }
+    }
+}
+
+- (void) callInboxBadgeCallback {
+    if (self.inboxBadgeCallback) {        
+        NSString * jsCallBack = [NSString stringWithFormat:@"%@(%d);", self.inboxBadgeCallback, [XPush getInboxBadge]];
         if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
             // Cordova-iOS pre-4
             [self.webView performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsCallBack waitUntilDone:NO];
