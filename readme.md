@@ -86,7 +86,7 @@ A full list of our JavaScript functions and their parameters can be found in the
 
 ## Advanced Options
 
-###Attributions
+### Attributions
 
 If you would like xtremepush to collect IDFA/Ad ID and attribution data in your app, we have a git branch of the plugin that copies the required frameworks into your app. This can be installed using the following command:
 
@@ -95,13 +95,13 @@ cordova plugin add https://github.com/xtremepush/XtremePush-Phonegap#master+attr
 To enable the collection functionality, the attributionsEnabled parameter in the XtremePush.register() function must also be set with a value of true.
 
 
-###Remove Location Services
+### Remove Location Services
 
 If you would like to remove the geo-location and beacon frameworks and services from your app, please use the following command when installing the plugin:
 
 cordova plugin add  https://github.com/xtremepush/XtremePush-Phonegap#master-geo-beacon
 
-###Inbox 
+### Inbox 
 
 The inbox feature can be turned on in your app by adding the following to your XtremePush.register() function:
 
@@ -118,6 +118,6 @@ If you want to use the inbox badge functionality please use the following in you
     * `<button onclick="XtremePush.getInboxBadge()">Get Inbox Badge</button>`
 
  
-###Other
+### Other
 
 For any further customisation of the plugin, please feel free to fork the GitHub repository and make any changes you like in your forked version, before adding the plugin to you app.
