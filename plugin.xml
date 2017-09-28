@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="2.0.4"
+	version="2.0.5"
 	onLoad="true" >
 
 	<name>XtremePush</name>
