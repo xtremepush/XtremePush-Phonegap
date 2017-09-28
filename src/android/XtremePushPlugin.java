@@ -14,10 +14,7 @@ import ie.imobile.extremepush.api.model.PushMessage;
 import ie.imobile.extremepush.network.ConnectionManager;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -353,6 +350,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
             LogEventsUtils.sendLogTextMessage(TAG, "openInbox: Please call register function first");
             return;
         }
+        cordova.setActivityResultCallback(this);
         pushConnector.openInbox(getApplicationActivity());
     }
 
