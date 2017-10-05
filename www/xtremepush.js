@@ -152,4 +152,25 @@ XtremePush.prototype.requestPushPermissions = function(){
    return exec(null, null, 'XtremePush', 'requestPushPermissions', []);
 };
 
+/**
+ * Calling function to open the app inbox
+ */             
+XtremePush.prototype.clickMessage = function(id){
+   return exec(null, null, 'XtremePush', 'clickMessage', [id]);
+};
+
+/**
+ * Calling function to open the app inbox
+ */             
+XtremePush.prototype.reportMessageClick = function(id){
+   return exec(null, null, 'XtremePush', 'reportMessageClick', [id]);
+};
+
+/**
+ * Calling function to open the app inbox
+ */             
+XtremePush.prototype.reportMessageDismissed = function(id){
+   return exec(null, null, 'XtremePush', 'reportMessageDismissed', [id]);
+};
+
 module.exports = new XtremePush();

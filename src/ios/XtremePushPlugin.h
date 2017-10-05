@@ -19,4 +19,8 @@
 - (void) getInboxBadge:(CDVInvokedUrlCommand*)command;
 - (void) deviceInfo:(CDVInvokedUrlCommand*)command;
 
+- (void) clickMessage:(CDVInvokedUrlCommand*)command;
+- (void) reportMessageClick:(CDVInvokedUrlCommand*)command;
+- (void) reportMessageDismissed:(CDVInvokedUrlCommand*)command;
+
 @end

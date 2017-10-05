@@ -1,0 +1,25 @@
+{
+  "name": "com.xtreme.plugins.XtremePush",
+  "version": "2.0.4",
+  "description": "\n\t\tPlugin allows integration with Xtreme Push provider.\n\t",
+  "cordova": {
+    "id": "com.xtreme.plugins.XtremePush",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=4.0.0"
+    }
+  ],
+  "author": "",
+  "license": "MIT"
+}
