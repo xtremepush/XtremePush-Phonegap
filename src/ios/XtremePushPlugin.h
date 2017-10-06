@@ -20,7 +20,7 @@
 - (void) deviceInfo:(CDVInvokedUrlCommand*)command;
 
 - (void) clickMessage:(CDVInvokedUrlCommand*)command;
-- (void) reportMessageClick:(CDVInvokedUrlCommand*)command;
+- (void) reportMessageClicked:(CDVInvokedUrlCommand*)command;
 - (void) reportMessageDismissed:(CDVInvokedUrlCommand*)command;
 
 @end

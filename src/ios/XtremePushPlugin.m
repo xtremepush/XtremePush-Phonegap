@@ -123,7 +123,7 @@ static NSMutableDictionary *pushNotificationBackupList;
         //Insert in the list last notification arrived that don't have in the list yet
         if ([pushNotificationBackupList objectForKey:response.message.identifier]==nil)
         {
-            [pushNotificationBackupList setObject:response  forKey:response.message.identifier];
+            [pushNotificationBackupList setObject:response.message forKey:response.message.identifier];
         }
         //Create NSMutableDictionary with message and response
         NSMutableDictionary *mapToReturn = [NSMutableDictionary new];
@@ -204,7 +204,6 @@ static NSMutableDictionary *pushNotificationBackupList;
     [XPush hitEvent:event];
 }
 
-//TODO
 - (void)hitEventWithValue:(CDVInvokedUrlCommand *)command {
     NSDictionary *options = [command.arguments objectAtIndex:0];
     NSString *title = [options objectForKey:@"title"];
@@ -262,11 +261,9 @@ static NSMutableDictionary *pushNotificationBackupList;
 
 - (void)clickMessage:(CDVInvokedUrlCommand *)command {
     NSString *idNotification = [command.arguments objectAtIndex:0];
-    NSLog(@"clickMessage CLICKED with id = %@",idNotification);
-    XPMessageResponse *x = [pushNotificationBackupList objectForKey:idNotification];
+    XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
     if (x!=nil){
         [XPush clickMessage:x];
-        NSLog(@"clickMessage - Push notification with id = %@ clicked", idNotification);
     }else
     {
         NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
@@ -274,13 +271,11 @@ static NSMutableDictionary *pushNotificationBackupList;
     }
 }
 
-- (void)reportMessageClick:(CDVInvokedUrlCommand *)command {
+- (void)reportMessageClicked:(CDVInvokedUrlCommand *)command {
     NSString *idNotification = [command.arguments objectAtIndex:0];
-    NSLog(@"reportMessageClick CLICKED with id = %@",idNotification);
-    XPMessageResponse *x = [pushNotificationBackupList objectForKey:idNotification];
+    XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
     if (x!=nil){
         [XPush reportMessageClicked:x];
-        NSLog(@"Push notification with id = %@ reportMessageClick", idNotification);
     }else
     {
         NSLog(@"Invalid push notification with id = %@", idNotification);
@@ -290,11 +285,9 @@ static NSMutableDictionary *pushNotificationBackupList;
 
 - (void)reportMessageDismissed:(CDVInvokedUrlCommand *)command {
     NSString *idNotification = [command.arguments objectAtIndex:0];
-    NSLog(@"reportMessageDismissed CLICKED with id = %@",idNotification);
-    XPMessageResponse *x = [pushNotificationBackupList objectForKey:idNotification];
+    XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
     if (x!=nil){
         [XPush reportMessageDismissed:x];
-        NSLog(@"Push notification with id = %@ reportMessageDismissed", idNotification);
     }else
     {
         NSLog(@"Invalid push notification with id = %@", idNotification);
@@ -313,7 +306,7 @@ static NSMutableDictionary *pushNotificationBackupList;
         } else {
             NSString *jsonStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self._receiveCallback, jsonStr];
-            NSLog(@"!!!jsCallBack: %@", jsCallBack);
+            //NSLog(@"!!!jsCallBack: %@", jsCallBack);
             [self.commandDelegate evalJs:jsCallBack];
         }
     }
@@ -375,8 +368,6 @@ static NSMutableDictionary *pushNotificationBackupList;
     handleActionWithIdentifier:(NSString *)identifier 
     forRemoteNotification:(NSDictionary *)userInfo
     completionHandler:(void (^)())completionHandler {
-        
-        NSLog(@"handleActionWithIdentifier userInfo");
 
     [XPush application:application
            handleActionWithIdentifier:identifier
@@ -389,30 +380,10 @@ static NSMutableDictionary *pushNotificationBackupList;
     forLocalNotification:(UILocalNotification *)notification
     completionHandler:(void (^)())completionHandler {
 
-        NSLog(@"handleActionWithIdentifier notification");
-
     [XPush application:application
            handleActionWithIdentifier:identifier
            forLocalNotification:notification
            completionHandler:completionHandler];
 }
-
-//#pragma mark Push Notification Delegates
-
-// - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-//     [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-// }
-
-// - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-//     [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
-// }
-
-// - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-//     [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:nil];
-// }
-
-// - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-//     [XPush applicationDidReceiveLocalNotification:notification];
-// }
 
 @end

@@ -86,6 +86,10 @@ XtremePush.prototype.hitEvent = function(title, value){
    }
 };
 
+XtremePush.prototype.hitEventWithValue = function(id){
+   return exec(null, null, 'XtremePush', 'hitEventWithValue', [id]);
+};
+
 /**
  * Calling send tags function
  */             
@@ -153,22 +157,22 @@ XtremePush.prototype.requestPushPermissions = function(){
 };
 
 /**
- * Calling function to open the app inbox
+ * Calling function to open click in message
  */             
 XtremePush.prototype.clickMessage = function(id){
    return exec(null, null, 'XtremePush', 'clickMessage', [id]);
 };
 
 /**
- * Calling function to open the app inbox
- */             
-XtremePush.prototype.reportMessageClick = function(id){
-   return exec(null, null, 'XtremePush', 'reportMessageClick', [id]);
+ * Calling function to report message clicked
+ */
+XtremePush.prototype.reportMessageClicked = function(id){
+   return exec(null, null, 'XtremePush', 'reportMessageClicked', [id]);
 };
 
 /**
- * Calling function to open the app inbox
- */             
+ * Calling function to report message dismissed
+ */
 XtremePush.prototype.reportMessageDismissed = function(id){
    return exec(null, null, 'XtremePush', 'reportMessageDismissed', [id]);
 };
