@@ -90,7 +90,7 @@ static NSMutableDictionary *pushNotificationBackupList;
 
 - (void)registerXpushConfiguration {
     
-    [XPush registerForegroundNotificationOptions:^XPNotificationType(XPMessage *message) {        
+    [XPush registerForegroundNotificationOptions:^XPNotificationType(XPMessage *message) {
             //Show notification if the specific notification has showForegroundNotifications = true
             if (foregroundNotificationsEnabledValue) {
                 return XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge;
@@ -260,10 +260,12 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 - (void)clickMessage:(CDVInvokedUrlCommand *)command {
-    NSString *idNotification = [command.arguments objectAtIndex:0];
+    NSDictionary *options = [command.arguments objectAtIndex:0];
+    NSString *idNotification = [options objectForKey:@"id"];
+    NSString *actionNotification = [options objectForKey:@"action"];
     XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
     if (x!=nil){
-        [XPush clickMessage:x];
+        [XPush clickMessage:x actionIdentifier:actionNotification];
     }else
     {
         NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
@@ -272,13 +274,15 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 - (void)reportMessageClicked:(CDVInvokedUrlCommand *)command {
-    NSString *idNotification = [command.arguments objectAtIndex:0];
+    NSDictionary *options = [command.arguments objectAtIndex:0];
+    NSString *idNotification = [options objectForKey:@"id"];
+    NSString *actionNotification = [options objectForKey:@"action"];
     XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
     if (x!=nil){
-        [XPush reportMessageClicked:x];
+        [XPush reportMessageClicked:x actionIdentifier:actionNotification];
     }else
     {
-        NSLog(@"Invalid push notification with id = %@", idNotification);
+        NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
         return;
     }
 }
