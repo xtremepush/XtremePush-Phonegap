@@ -16,8 +16,7 @@
     <string name="options_unregister">Unregister</string>
     <string name="options_clear">Clear</string>
     <string name="options_exit">Exit</string>
-    <string name="gcm_unregistred">Unregistred from GCM server</string>
-    <string name="console_initialized">> initialized\n</string>
+    <string name="console_initialized">initialized\n</string>
 
     <!-- No location providers dialog -->
     <string name="location_providers_dialog_message">Location providers are not available. Enable GPS or network providers.</string>
