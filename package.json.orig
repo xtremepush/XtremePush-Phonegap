@@ -1,0 +1,43 @@
+{
+  "name": "com.xtreme.plugins.XtremePush",
+<<<<<<< HEAD
+  "version": "2.0.5",
+  "description": "Plugin allows integration with Xtreme Push provider.",
+=======
+<<<<<<< HEAD
+  "version": "2.0.4",
+  "description": "\n\t\tPlugin allows integration with Xtreme Push provider.\n\t",
+=======
+  "version": "2.0.5",
+  "description": "Plugin allows integration with Xtreme Push provider.",
+>>>>>>> e98ea907786bcaa3d789ae1b3fa891e3a651921c
+>>>>>>> mateus_ios_cordova
+  "cordova": {
+    "id": "com.xtreme.plugins.XtremePush",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=4.0.0"
+    }
+  ],
+<<<<<<< HEAD
+  "author": "Xtremepush Ltd."
+=======
+<<<<<<< HEAD
+  "author": "",
+  "license": "MIT"
+=======
+  "author": "Xtremepush Ltd."
+>>>>>>> e98ea907786bcaa3d789ae1b3fa891e3a651921c
+>>>>>>> mateus_ios_cordova
+}

@@ -171,10 +171,14 @@
 
 		<source-file src="src/ios/AppDelegate+XtremePush.m" />
 		<source-file src="src/ios/XtremePushPlugin.m" />
-		<source-file src="lib/ios/libXPush.a" framework="true" />
-
 		<header-file src="src/ios/AppDelegate+XtremePush.h" />
 		<header-file src="src/ios/XtremePushPlugin.h" />
+		<source-file src="lib/ios/libXPush.a" framework="true" />
+		<header-file src="lib/ios/XPAction.h" />
+		<header-file src="lib/ios/XPMessage.h" />
+		<header-file src="lib/ios/XPMessageResponse.h" />
+		<header-file src="lib/ios/XPMessageResponseNotification.h" />
+		<header-file src="lib/ios/XPPublicConstants.h" />
 		<header-file src="lib/ios/XPush.h" />
 	</platform>
 </plugin>

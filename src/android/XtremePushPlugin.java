@@ -156,8 +156,9 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     }
 
     private void register(JSONArray data, CallbackContext callbackContext) throws JSONException {
-        Log.d("HelloMike", "here in register");
+        Log.d("HelloMike", "Here in register");
         if (pushConnector == null) {
+            Log.d("HelloMike", "Here in register PushConnector NUll");
             this._webView = this.webView;
             JSONObject jo = data.getJSONObject(0);
             
@@ -239,17 +240,19 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
                 Integer sessionsStoreLimit = jo.getInt("sessionsStoreLimit");
                 b.setSessionsStoreLimit(sessionsStoreLimit);
             }
+            
+            
+            if(!jo.isNull("setShowForegroundNotifications")){
+                boolean setShowForegroundNotifications = joAndroid.getBoolean("setShowForegroundNotifications");
+                b.setShowForegroundNotifications(setShowForegroundNotifications);
+            }
 
             if(joAndroid != null) {
+                
                 // Android only options
                 if (!joAndroid.isNull("geoEnabled")){
                     Boolean geoEnabled = joAndroid.getBoolean("geoEnabled");
                     b.setEnableGeo(geoEnabled);
-                }
-                
-                if(!joAndroid.isNull("setShowForegroundNotifications")){
-                    boolean setShowForegroundNotifications = joAndroid.getBoolean("setShowForegroundNotifications");
-                    b.setShowForegroundNotifications(setShowForegroundNotifications);
                 }
 
                 if (!joAndroid.isNull("locationsPermissionsRequest")){
@@ -270,7 +273,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
             }
 
             b.create(getApplicationActivity().getApplication());
-            Log.d("HelloMike", "PushConnector Created");
             callback_function = (String) jo.getString("pushOpenCallback");
             badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
             message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
@@ -682,7 +684,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     }
     
     private void onRotation(){
-        Log.d("HelloMike", "onRotation");
         mPushConnector.onRotation(getApplicationActivity());
     }
 
@@ -736,13 +737,17 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
         if(pushList.size() >= PUSH_LIMIT)
             pushList.remove(pushList.entrySet().iterator().next());
         pushList.put(messagePayload.id, messagePayload);
-        Log.d("HelloMike", pushList.toString());
+        
+        if(responsePayload.get("type").equals("present") && !(SharedPrefUtils.getShowForegroundNotifications(getApplicationActivity()))){
+            if(messagePayload.data.containsKey("showForegroundNotifications"))
+                mPushConnector.showNotification(messagePayload);
+        }
         
         if (message_response_callback_function != null && _webView != null){
             JSONObject jo = new JSONObject();
             try {
-                jo.put("messagePayload", new JSONObject(messagePayload.toJson()));
-                jo.put("responsePayload", new JSONObject(responsePayload));
+                jo.put("message", new JSONObject(messagePayload.toJson()));
+                jo.put("response", new JSONObject(responsePayload));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -756,7 +761,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     }
     
     public void reportMessageClicked(JSONArray data) throws JSONException {
-        Log.d("HelloMike", "Here in report with messageId : "+data.toString());
         
         String messageId;
         String action = null;
@@ -776,7 +780,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     }
     
     public void reportMessageDismissed(JSONArray data) throws JSONException {
-        Log.d("HelloMike", "Here in dismiss with messageId : "+data.toString());
         
         String messageId;
         String action = null;
@@ -788,15 +791,10 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
         
         messageId = data.getString(0);
         
-        if(!data.isNull(1)){
-            action = data.getString(1);
-        }
-        
-        mPushConnector.reportMessageDismissed(pushList.get(messageId), action);
+        mPushConnector.reportMessageDismissed(pushList.get(messageId), null);
     }
     
     public void clickMessage(JSONArray data) throws JSONException {
-        Log.d("HelloMike", "Here in click with messageId : "+data.toString());
         
         String messageId;
         String action = null;
@@ -816,8 +814,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     }
     
     public void showNotification(JSONArray data) throws JSONException {
-
-        Log.d("HelloMike", "Here in show notif with messageId : "+data.toString());
         
         String messageId;
         String action = null;

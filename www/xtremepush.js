@@ -180,8 +180,8 @@ XtremePush.prototype.reportMessageClicked = function(id, action){
 /**
  * Calling function to report message dismissed
  */
-XtremePush.prototype.reportMessageDismissed = function(id, action){
-   return exec(null, null, 'XtremePush', 'reportMessageDismissed', [id, action]);
+XtremePush.prototype.reportMessageDismissed = function(id){
+   return exec(null, null, 'XtremePush', 'reportMessageDismissed', [id]);
 };
 
 XtremePush.prototype.onConfigChanged = function(){
