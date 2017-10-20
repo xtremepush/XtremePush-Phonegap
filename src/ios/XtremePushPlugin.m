@@ -140,6 +140,7 @@ static NSMutableDictionary *pushNotificationBackupList;
             [messageMap setObject:@"inapp" forKey:@"type"];
             if(response.message.type == XPMessageType_Inbox)
             [messageMap setObject:@"inbox" forKey:@"type"];
+            
             if(response.message.text!=nil)
             [messageMap setObject:response.message.text forKey:@"text"];
             if(response.message.title!=nil)
@@ -150,6 +151,21 @@ static NSMutableDictionary *pushNotificationBackupList;
             [messageMap setObject:response.message.identifier forKey:@"id"];
             if(response.message.data!=nil)
             [messageMap setObject:response.message.data forKey:@"data"];
+            
+            if([response.message.payload objectForKey:@"um"]){
+                NSString *um = [response.message.payload valueForKeyPath:@"um"];
+                if(([um isEqualToString:@"outside"]) && ([response.message.payload objectForKey:@"u"])){
+                    [messageMap setObject:[response.message.payload objectForKey:@"u"] forKey:@"url"];
+                } else if (([um isEqualToString:@"deeplink"]) && ([response.message.payload valueForKeyPath:@"u"])){
+                    [messageMap setObject:[response.message.payload objectForKey:@"u"] forKey:@"deeplink"];
+                }
+            }
+            
+            if([response.message.payload objectForKey:@"url"])
+            [messageMap setObject:[response.message.payload objectForKey:@"url"] forKey:@"url"];
+            
+            if([response.message.payload objectForKey:@"deeplink"])
+            [messageMap setObject:[response.message.payload objectForKey:@"deeplink"] forKey:@"deeplink"];
             
             [mapToReturn setObject:messageMap forKey:@"message"];
         }

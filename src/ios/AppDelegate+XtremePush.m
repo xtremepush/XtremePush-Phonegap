@@ -21,9 +21,10 @@
                 andAddedSelector: @selector(xtremepushAdded:didReceiveRemoteNotification:)];
     
     [self swizzleMethodWithClass: [self class]
-                originalSelector: @selector(application:didReceiveLocalNotification:)
-             andReplacedSelector: @selector(xtremepushReplaced:didReceiveLocalNotification:)
-                andAddedSelector: @selector(xtremepushAdded:didReceiveLocalNotification:)];
+                originalSelector: @selector(application:handleActionWithIdentifier:)
+             andReplacedSelector: @selector(xtremepushReplaced:handleActionWithIdentifier:)
+                andAddedSelector: @selector(xtremepushAdded:handleActionWithIdentifier:)];
+    
 }
 
 + (void)swizzleMethodWithClass:(Class)class
@@ -55,12 +56,23 @@
     [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:nil];
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     [XPush applicationDidReceiveLocalNotification:notification];
+}
+
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
+   completionHandler:(void (^)())completionHandler {
+    
+    [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+}
+
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
+    [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
 }
 
 
@@ -101,3 +113,4 @@
 // }
 
 @end
+
