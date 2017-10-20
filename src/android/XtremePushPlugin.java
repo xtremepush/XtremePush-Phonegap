@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Created by Dmytro Malieiev on 6/8/14.
  */
-public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListener, MessageResponseListener, DeeplinkListener {
+public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener {
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
     public static final String HITTAG = "hitTag";
@@ -156,17 +156,15 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     }
 
     private void register(JSONArray data, CallbackContext callbackContext) throws JSONException {
-        Log.d("HelloMike", "Here in register");
         if (pushConnector == null) {
-            Log.d("HelloMike", "Here in register PushConnector NUll");
             this._webView = this.webView;
             JSONObject jo = data.getJSONObject(0);
             
-            if (jo.isNull("pushOpenCallback")){
-                Log.e(TAG, "register: Please provide callback function");
-                callbackContext.error("Please provide callback function");
-                return;
-            }
+//            if (jo.isNull("pushOpenCallback")){
+//                Log.e(TAG, "register: Please provide callback function");
+//                callbackContext.error("Please provide callback function");
+//                return;
+//            }
 
             String appKey;
             if (!jo.isNull("appKey")){
@@ -185,11 +183,11 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
                     gcmProjectNumber = joAndroid.getString("gcmProjectNumber");
                 }
             }
-
             PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
 
             b.setMessageResponseListener(this);
             b.setDeeplinkListener(this);
+            b.setInboxBadgeUpdateListener(this);
             
             if (!jo.isNull("serverUrl")){
                 String serverUrl = jo.getString("serverUrl");
@@ -242,13 +240,12 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
             }
             
             
-            if(!jo.isNull("setShowForegroundNotifications")){
-                boolean setShowForegroundNotifications = joAndroid.getBoolean("setShowForegroundNotifications");
+            if(!jo.isNull("foregroundNotificationsEnabled")){
+                boolean setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
                 b.setShowForegroundNotifications(setShowForegroundNotifications);
             }
 
             if(joAndroid != null) {
-                
                 // Android only options
                 if (!joAndroid.isNull("geoEnabled")){
                     Boolean geoEnabled = joAndroid.getBoolean("geoEnabled");
@@ -271,9 +268,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
                     b.setIcon(icon);
                 }
             }
-
             b.create(getApplicationActivity().getApplication());
-            callback_function = (String) jo.getString("pushOpenCallback");
+//            callback_function = (String) jo.getString("pushOpenCallback");
             badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
             message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
             deeplink_callback_function = (String) jo.optString("deeplinkCallback", null);
@@ -404,11 +400,11 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
             LogEventsUtils.sendLogTextMessage(TAG, "openInbox: Please call register function first");
             return;
         }
-        inboxBadgeUpdated(mPushConnector.getInboxBadge());
+        inboxBadgeUpdated(mPushConnector.getInboxBadge(), null);
     }
 
     @Override
-    public void inboxBadgeUpdated(int badge) {
+    public void inboxBadgeUpdated(int badge, WeakReference<Context> uiReference) {
         if (badge_callback_function != null && _webView != null) {
             String _d = "javascript:" + badge_callback_function + "(" + badge + ")";
             LogEventsUtils.sendLogTextMessage(TAG, "inboxBadgeUpdated: " + _d);
@@ -646,9 +642,9 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
 //        inForeground = true;
-//        if (isInitialized && isRegistered && (pushConnector != null)) {
-//            initializePushConnector();
-//        }
+        if (isInitialized && isRegistered && (pushConnector != null)) {
+            initializePushConnector();
+        }
 //        if (getApplicationActivity().getIntent().hasExtra(GCMListenerService.EXTRAS_PUSH_MESSAGE)) {
 //            Bundle extras = getApplicationActivity().getIntent().getExtras();
 //            Message pushMessage = extras.getParcelable(GCMListenerService.EXTRAS_PUSH_MESSAGE);
@@ -746,6 +742,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
         if (message_response_callback_function != null && _webView != null){
             JSONObject jo = new JSONObject();
             try {
+                JSONObject messageJson = new JSONObject(messagePayload.toJson());
                 jo.put("message", new JSONObject(messagePayload.toJson()));
                 jo.put("response", new JSONObject(responsePayload));
             } catch (JSONException e) {
@@ -759,6 +756,23 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeListene
             LogEventsUtils.sendLogTextMessage(TAG, "messageResponseReceived: callback or webview is null");
         }
     }
+    
+    public void replaceJsonKeys(JSONObject jo){
+        try {
+            if(jo.has("text")){
+                jo.put("alert", jo.get("text"));
+                jo.remove("text");
+            }
+            if(jo.has("campaignId")){
+                jo.put("cid", jo.get("campaignId"));
+                jo.remove("campaignId");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
     
     public void reportMessageClicked(JSONArray data) throws JSONException {
         
