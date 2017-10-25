@@ -1,6 +1,7 @@
 #import "AppDelegate+XtremePush.h"
 #import "XtremePushPlugin.h"
 #import <objc/runtime.h>
+#import "Storage.h"
 
 @implementation AppDelegate (notifications)
 
@@ -58,7 +59,12 @@
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+    if(Storage.store.isRegistered == true){
+        [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+    } else{
+        Storage.store.tempUserStuff = userInfo;
+        Storage.store.identifier = nil;
+    }
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
@@ -68,12 +74,20 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
    completionHandler:(void (^)())completionHandler {
     
-    [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+    if(Storage.store.isRegistered){
+        [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+    } else{
+        Storage.store.tempUserStuff = userInfo;
+        Storage.store.identifier = identifier;
+    }
 }
 
 - (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
     [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
 }
+
+
+
 
 
 // - (void)xtremepushReplaced:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {

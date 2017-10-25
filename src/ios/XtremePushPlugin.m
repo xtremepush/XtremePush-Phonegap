@@ -1,4 +1,5 @@
 #import "XtremePushPlugin.h"
+#import "Storage.h"
 
 @interface XtremePushPlugin()
 @property (nonatomic, strong) NSString *_receiveCallback;//callbackId
@@ -89,6 +90,16 @@ static NSMutableDictionary *pushNotificationBackupList;
     pushNotificationBackupList = [[NSMutableDictionary alloc] init];
     [self registerXpushConfiguration];
     
+    Storage.store.isRegistered = true;
+    
+    if(Storage.store.tempUserStuff != nil){
+        if(Storage.store.identifier == nil){
+            [XPush applicationDidReceiveRemoteNotification:Storage.store.tempUserStuff fetchCompletionHandler:nil];
+        } else{
+            [XPush application:[UIApplication sharedApplication] handleActionWithIdentifier:Storage.store.identifier forRemoteNotification:Storage.store.tempUserStuff  completionHandler:nil];
+        }
+    }
+    
     [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
 }
 
@@ -110,6 +121,10 @@ static NSMutableDictionary *pushNotificationBackupList;
                 return XPNotificationType_None;
             }
         }
+    }];
+    
+    [XPush registerDeeplinkHandler:^(NSString *x) {
+        [self callDeeplinkCallback: x];
     }];
     
     [XPush registerMessageResponseHandler: ^(XPMessageResponse * _Nonnull response) {
@@ -181,7 +196,6 @@ static NSMutableDictionary *pushNotificationBackupList;
             [responseMap setObject:@"present" forKey:@"type"];
             if(response.action.type == XPActionType_Dismiss)
             [responseMap setObject:@"dismiss" forKey:@"type"];
-            
         }
         
         [mapToReturn setObject:responseMap forKey:@"response"];
@@ -189,11 +203,7 @@ static NSMutableDictionary *pushNotificationBackupList;
         if(self._receiveCallback != nil){
             [self callPushOpenCallback: mapToReturn];
         }
-        [XPush registerDeeplinkHandler:^(NSString *x) {
-            [self callDeeplinkCallback: x];
-        }];
         //NSLog(@"!!!Notification: %@", response.message.payload);
-        
     }];
     [XPush askForLocationPermissions];
 }

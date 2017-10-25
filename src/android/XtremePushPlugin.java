@@ -25,6 +25,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.view.OrientationEventListener;
+import android.hardware.SensorManager;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,6 +41,7 @@ import java.util.Map;
  * Created by Dmytro Malieiev on 6/8/14.
  */
 public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener {
+
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
     public static final String HITTAG = "hitTag";
@@ -156,127 +160,131 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     }
 
     private void register(JSONArray data, CallbackContext callbackContext) throws JSONException {
-        if (pushConnector == null) {
-            this._webView = this.webView;
-            JSONObject jo = data.getJSONObject(0);
-            
+//        if (pushConnector == null) {
+        
+        this._webView = this.webView;
+        JSONObject jo = data.getJSONObject(0);
+        
 //            if (jo.isNull("pushOpenCallback")){
 //                Log.e(TAG, "register: Please provide callback function");
 //                callbackContext.error("Please provide callback function");
 //                return;
 //            }
 
-            String appKey;
-            if (!jo.isNull("appKey")){
-                appKey = jo.getString("appKey");
-            } else {
-                Log.e(TAG, "register: Please provide a valid xtremepush app key");
-                callbackContext.error("Please provide a valid xtremepush app key");
-                return;
-            }
-
-            String gcmProjectNumber = null;
-            JSONObject joAndroid = null;
-            if (!jo.isNull("android")) {
-                joAndroid = jo.getJSONObject("android");
-                if (!joAndroid.isNull("gcmProjectNumber")){
-                    gcmProjectNumber = joAndroid.getString("gcmProjectNumber");
-                }
-            }
-            PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
-
-            b.setMessageResponseListener(this);
-            b.setDeeplinkListener(this);
-            b.setInboxBadgeUpdateListener(this);
-            
-            if (!jo.isNull("serverUrl")){
-                String serverUrl = jo.getString("serverUrl");
-                b.setServerUrl(serverUrl);
-            }
-
-            if (!jo.isNull("attributionsEnabled")){
-                Boolean attributions = jo.getBoolean("attributionsEnabled");
-                b.setAttributionsEnabled(attributions);
-            }
-
-            if (!jo.isNull("inappMessagingEnabled")){
-                Boolean inapp = jo.getBoolean("inappMessagingEnabled");
-                b.setEnableStartSession(inapp);
-            }
-
-            if (!jo.isNull("inboxEnabled")){
-                Boolean inbox = jo.getBoolean("inboxEnabled");
-                b.setInboxEnabled(inbox);
-            }
-
-            if (!jo.isNull("debugLogsEnabled")){
-                Boolean debugLogsEnabled = jo.getBoolean("debugLogsEnabled");
-                b.turnOnDebugLogs(debugLogsEnabled);
-            }
-
-            if (!jo.isNull("tagsBatchingEnabled")){
-                Boolean tagsBatchingEnabled = jo.getBoolean("tagsBatchingEnabled");
-                b.setTagsBatchingEnabled(tagsBatchingEnabled);
-            }
-
-            if (!jo.isNull("impressionsBatchingEnabled")){
-                Boolean impressionsBatchingEnabled = jo.getBoolean("impressionsBatchingEnabled");
-                b.setImpressionsBatchingEnabled(impressionsBatchingEnabled);
-            }
-
-            if (!jo.isNull("tagsStoreLimit")){
-                Integer tagsStoreLimit = jo.getInt("tagsStoreLimit");
-                b.setTagsStoreLimit(tagsStoreLimit);
-            }
-
-            if (!jo.isNull("impressionsStoreLimit")){
-                Integer impressionsStoreLimit = jo.getInt("impressionsStoreLimit");
-                b.setImpressionsStoreLimit(impressionsStoreLimit);
-            }
-
-            if (!jo.isNull("sessionsStoreLimit")){
-                Integer sessionsStoreLimit = jo.getInt("sessionsStoreLimit");
-                b.setSessionsStoreLimit(sessionsStoreLimit);
-            }
-            
-            
-            if(!jo.isNull("foregroundNotificationsEnabled")){
-                boolean setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
-                b.setShowForegroundNotifications(setShowForegroundNotifications);
-            }
-
-            if(joAndroid != null) {
-                // Android only options
-                if (!joAndroid.isNull("geoEnabled")){
-                    Boolean geoEnabled = joAndroid.getBoolean("geoEnabled");
-                    b.setEnableGeo(geoEnabled);
-                }
-
-                if (!joAndroid.isNull("locationsPermissionsRequest")){
-                    Boolean locationsPermissionsRequest = joAndroid.getBoolean("locationsPermissionsRequest");
-                    b.setRequestPermissions(locationsPermissionsRequest);
-                }
-
-                if (!joAndroid.isNull("beaconsEnabled")){
-                    Boolean beaconsEnabled = joAndroid.getBoolean("beaconsEnabled");
-                    b.setEnableBeacons(beaconsEnabled);
-                }
-
-                if (!joAndroid.isNull("setIcon")){
-                    // Might need rewriting so that it takes image from www folder
-                    String icon = joAndroid.getString("setIcon");
-                    b.setIcon(icon);
-                }
-            }
-            b.create(getApplicationActivity().getApplication());
-//            callback_function = (String) jo.getString("pushOpenCallback");
-            badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
-            message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
-            deeplink_callback_function = (String) jo.optString("deeplinkCallback", null);
-            initNotificationMessageReceivers();
-            isRegistered = true;
-            initializePushConnector();
+        String appKey;
+        if (!jo.isNull("appKey")){
+            appKey = jo.getString("appKey");
+        } else {
+            Log.e(TAG, "register: Please provide a valid xtremepush app key");
+            callbackContext.error("Please provide a valid xtremepush app key");
+            return;
         }
+
+        String gcmProjectNumber = null;
+        JSONObject joAndroid = null;
+        if (!jo.isNull("android")) {
+            joAndroid = jo.getJSONObject("android");
+            if (!joAndroid.isNull("gcmProjectNumber")){
+                gcmProjectNumber = joAndroid.getString("gcmProjectNumber");
+            }
+        }
+        PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
+
+        b.setMessageResponseListener(this);
+        b.setDeeplinkListener(this);
+        b.setInboxBadgeUpdateListener(this);
+        
+        if (!jo.isNull("serverUrl")){
+            String serverUrl = jo.getString("serverUrl");
+            b.setServerUrl(serverUrl);
+        }
+
+        if (!jo.isNull("attributionsEnabled")){
+            Boolean attributions = jo.getBoolean("attributionsEnabled");
+            b.setAttributionsEnabled(attributions);
+        }
+
+        if (!jo.isNull("inappMessagingEnabled")){
+            Boolean inapp = jo.getBoolean("inappMessagingEnabled");
+            b.setEnableStartSession(inapp);
+        }
+
+        if (!jo.isNull("inboxEnabled")){
+            Boolean inbox = jo.getBoolean("inboxEnabled");
+            b.setInboxEnabled(inbox);
+        }
+
+        if (!jo.isNull("debugLogsEnabled")){
+            Boolean debugLogsEnabled = jo.getBoolean("debugLogsEnabled");
+            b.turnOnDebugLogs(debugLogsEnabled);
+        }
+
+        if (!jo.isNull("tagsBatchingEnabled")){
+            Boolean tagsBatchingEnabled = jo.getBoolean("tagsBatchingEnabled");
+            b.setTagsBatchingEnabled(tagsBatchingEnabled);
+        }
+
+        if (!jo.isNull("impressionsBatchingEnabled")){
+            Boolean impressionsBatchingEnabled = jo.getBoolean("impressionsBatchingEnabled");
+            b.setImpressionsBatchingEnabled(impressionsBatchingEnabled);
+        }
+
+        if (!jo.isNull("tagsStoreLimit")){
+            Integer tagsStoreLimit = jo.getInt("tagsStoreLimit");
+            b.setTagsStoreLimit(tagsStoreLimit);
+        }
+
+        if (!jo.isNull("impressionsStoreLimit")){
+            Integer impressionsStoreLimit = jo.getInt("impressionsStoreLimit");
+            b.setImpressionsStoreLimit(impressionsStoreLimit);
+        }
+
+        if (!jo.isNull("sessionsStoreLimit")){
+            Integer sessionsStoreLimit = jo.getInt("sessionsStoreLimit");
+            b.setSessionsStoreLimit(sessionsStoreLimit);
+        }
+        
+        
+        if(!jo.isNull("foregroundNotificationsEnabled")){
+            boolean setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
+            b.setShowForegroundNotifications(setShowForegroundNotifications);
+        }
+
+        if(joAndroid != null) {
+            // Android only options
+            if (!joAndroid.isNull("geoEnabled")){
+                Boolean geoEnabled = joAndroid.getBoolean("geoEnabled");
+                b.setEnableGeo(geoEnabled);
+            }
+
+            if (!joAndroid.isNull("locationsPermissionsRequest")){
+                Boolean locationsPermissionsRequest = joAndroid.getBoolean("locationsPermissionsRequest");
+                b.setRequestPermissions(locationsPermissionsRequest);
+            }
+
+            if (!joAndroid.isNull("beaconsEnabled")){
+                Boolean beaconsEnabled = joAndroid.getBoolean("beaconsEnabled");
+                b.setEnableBeacons(beaconsEnabled);
+            }
+
+            if (!joAndroid.isNull("setIcon")){
+                // Might need rewriting so that it takes image from www folder
+                String icon = joAndroid.getString("setIcon");
+                b.setIcon(icon);
+            }
+        }
+        b.create(getApplicationActivity().getApplication());
+//            callback_function = (String) jo.getString("pushOpenCallback");
+        badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
+        message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
+        deeplink_callback_function = (String) jo.optString("deeplinkCallback", null);
+        initNotificationMessageReceivers();
+        isRegistered = true;
+        initializePushConnector();
+        
+        if(mPushConnector.tempResponseHolder != null)
+            mPushConnector.tempResponseHolder.callPushOpened();
+//        }
 
         callbackContext.success("Successfully registered!");
     }
@@ -609,6 +617,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     }
 
     private void initializePushConnector(){
+        mPushConnector.mLifecycleListener.onActivityCreated(getApplicationActivity(), null);
+        mPushConnector.mLifecycleListener.onActivityStarted(getApplicationActivity());
         mPushConnector.mLifecycleListener.onActivityResumed(getApplicationActivity());
         isInitialized = true;
     }
@@ -730,6 +740,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public void messageResponseReceived(Message messagePayload,
                                         HashMap<String, String> responsePayload,
                                         WeakReference<Context> uiReference) {
+        Log.d(TAG, "here in message response received");
         if(pushList.size() >= PUSH_LIMIT)
             pushList.remove(pushList.entrySet().iterator().next());
         pushList.put(messagePayload.id, messagePayload);
