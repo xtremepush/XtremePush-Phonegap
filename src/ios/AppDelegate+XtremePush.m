@@ -17,15 +17,19 @@
                 andAddedSelector: @selector(xtremepushAdded:didFailToRegisterForRemoteNotificationsWithError:)];
     
     [self swizzleMethodWithClass: [self class]
-                originalSelector: @selector(application:didReceiveRemoteNotification:)
-             andReplacedSelector: @selector(xtremepushReplaced:didReceiveRemoteNotification:)
-                andAddedSelector: @selector(xtremepushAdded:didReceiveRemoteNotification:)];
+                originalSelector: @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
+             andReplacedSelector: @selector(xtremepushReplaced:didReceiveRemoteNotification:fetchCompletionHandler:)
+                andAddedSelector: @selector(xtremepushAdded:didReceiveRemoteNotification:fetchCompletionHandler:)];
     
     [self swizzleMethodWithClass: [self class]
-                originalSelector: @selector(application:handleActionWithIdentifier:)
-             andReplacedSelector: @selector(xtremepushReplaced:handleActionWithIdentifier:)
-                andAddedSelector: @selector(xtremepushAdded:handleActionWithIdentifier:)];
+                originalSelector: @selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)
+             andReplacedSelector: @selector(xtremepushReplaced:handleActionWithIdentifier:forRemoteNotification:completionHandler:)
+                andAddedSelector: @selector(xtremepushAdded:handleActionWithIdentifier:forRemoteNotification:completionHandler:)];
     
+    [self swizzleMethodWithClass: [self class]
+                originalSelector: @selector(application:didReceiveLocalNotification:)
+             andReplacedSelector: @selector(xtremepushReplaced:didReceiveLocalNotification:)
+                andAddedSelector: @selector(xtremepushAdded:didReceiveLocalNotification:)];
 }
 
 + (void)swizzleMethodWithClass:(Class)class
@@ -49,16 +53,57 @@
     }
 }
 
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+//- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+//    [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+//}
+//
+//- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+//    [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
+//}
+//
+//- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+//fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+
+//}
+//
+//- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+//    [XPush applicationDidReceiveLocalNotification:notification];
+//}
+//
+//- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
+//   completionHandler:(void (^)())completionHandler {
+//
+//}
+//
+//- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
+//    [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+//}
+
+
+
+
+
+- (void)xtremepushReplaced:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [self xtremepushReplaced:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
     [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+- (void)xtremepushAdded:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
+- (void)xtremepushReplaced:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    [self xtremepushReplaced:application didFailToRegisterForRemoteNotificationsWithError:error];
     [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+- (void)xtremepushAdded:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
+}
+
+- (void)xtremepushReplaced:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+    fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    [self xtremepushReplaced:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     if(Storage.store.isRegistered == true){
         [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     } else{
@@ -67,13 +112,28 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     }
 }
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+- (void)xtremepushAdded:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    if(Storage.store.isRegistered == true){
+        [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+    } else{
+        Storage.store.tempUserStuff = userInfo;
+        Storage.store.identifier = nil;
+    }
+}
+
+- (void)xtremepushReplaced:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    [self xtremepushReplaced:application didReceiveLocalNotification:notification];
     [XPush applicationDidReceiveLocalNotification:notification];
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
-   completionHandler:(void (^)())completionHandler {
-    
+- (void)xtremepushAdded:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    [XPush applicationDidReceiveLocalNotification:notification];
+}
+
+- (void) xtremepushReplaced:(UIApplication *) application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
+          completionHandler:(void (^)())completionHandler{
+    [self xtremepushReplaced:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
     if(Storage.store.isRegistered){
         [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
     } else{
@@ -82,49 +142,23 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     }
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
+- (void) xtremepushAdded:(UIApplication *) application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
+       completionHandler:(void (^)())completionHandler{
+    if(Storage.store.isRegistered){
+        [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+    } else{
+        Storage.store.tempUserStuff = userInfo;
+        Storage.store.identifier = identifier;
+    }
+}
+
+- (void) xtremepushReplaced:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
+    [self xtremepushReplaced:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
     [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
 }
 
-
-
-
-
-// - (void)xtremepushReplaced:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-//     [self xtremepushReplaced:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-//     [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-// }
-
-// - (void)xtremepushAdded:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-//     [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-// }
-
-// - (void)xtremepushReplaced:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-//     [self xtremepushReplaced:application didFailToRegisterForRemoteNotificationsWithError:error];
-//     [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
-// }
-
-// - (void)xtremepushAdded:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-//     [XPush applicationDidFailToRegisterForRemoteNotificationsWithError:error];
-// }
-
-// - (void)xtremepushReplaced:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-//     [self xtremepushReplaced:application didReceiveRemoteNotification:userInfo];
-//     [XPush applicationDidReceiveRemoteNotification:userInfo];
-// }
-
-// - (void)xtremepushAdded:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-//     [XPush applicationDidReceiveRemoteNotification:userInfo];
-// }
-
-// - (void)xtremepushReplaced:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-//     [self xtremepushReplaced:application didReceiveLocalNotification:notification];
-//     [XPush applicationDidReceiveLocalNotification:notification];
-// }
-
-// - (void)xtremepushAdded:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-//     [XPush applicationDidReceiveLocalNotification:notification];
-// }
-
+- (void) xtremepushAdded:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
+    [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+}
 @end
 
