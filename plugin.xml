@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="2.0.5"
+	version="2.1.0"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -49,50 +49,66 @@
 			<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 			<permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" android:protectionLevel="signature" />
 			<uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
-
 			<uses-permission android:name="android.permission.INTERNET" />
-
 			<uses-permission android:name="android.permission.WAKE_LOCK" />
 			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 		</config-file>
 
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity
-            android:name="ie.imobile.extremepush.ui.InboxActivity"
-            android:label="@string/title_activity_inbox"
-            android:theme="@style/Theme.Transparent"
-            android:configChanges="orientation|screenSize" />
             
-            <activity
-            android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
-            android:exported="false"
-            android:taskAffinity="ie.imobile.extremepush.ui.temptask" />
-            
-            <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />
-            
-            <activity
-            android:name="ie.imobile.extremepush.ui.WebViewActivity"
-            android:exported="false" />
-            
-            <!-- REQUIRED FOR LOCATION SERVICES-->
-            <service
-            android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
-            
-            <activity
-            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
-            android:label="Locations are not available"
-            android:theme="@android:style/Theme.Dialog"
-            android:exported="false" />
-            
-            <!-- REQUIRED FOR GEO LOCATION SERVICES -->
+            <!-- EDIT: Required for Geo scanning -->
+            <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
             <service android:name="ie.imobile.extremepush.location.GeoLocationService" />
+            <activity
+	            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
+	            android:label="Locations are not available"
+	            android:theme="@android:style/Theme.Dialog"
+	            android:exported="false" />
+            <!-- EDIT END -->
             
-            <!-- REQUIRED FOR IBEACON -->
+            <!-- EDIT: Required for Beacon scanning -->
             <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
+            <receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >
+				<intent-filter>
+					<action android:name="android.intent.action.BOOT_COMPLETED" />
+					<action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+					<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+				</intent-filter>
+			</receiver>
+			<service
+				android:name="org.altbeacon.beacon.service.BeaconService"
+				android:enabled="true"
+				android:exported="false"
+				android:isolatedProcess="false"
+				android:label="beacon" />
+			<service
+				android:name="org.altbeacon.beacon.BeaconIntentProcessor"
+				android:enabled="true"
+				android:exported="false" />
+            <!-- EDIT END -->
+
+            <!-- EDIT: Required for Attributions and Ad ID collection -->
+			<!-- <receiver android:name="ie.imobile.extremepush.receivers.ReferrerReceiver"> 
+				<intent-filter>
+					<action android:name="com.android.vending.INSTALL_REFERRER" />
+					<category android:name="$PACKAGE_NAME" /> 
+				</intent-filter>
+			</receiver> -->
+			<!-- EDIT END -->
             
-            <!-- REQUIRED FOR GCM, LOCATION AND BEACON -->
-            <receiver
-                android:name="ie.imobile.extremepush.receivers.CoreBroadcastReceiver" >
+            <activity
+	            android:name="ie.imobile.extremepush.ui.InboxActivity"
+	            android:label="@string/title_activity_inbox"
+	            android:theme="@style/Theme.Transparent"
+	            android:configChanges="orientation|screenSize" />
+            <activity
+	            android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
+	            android:exported="false"
+	            android:taskAffinity="ie.imobile.extremepush.ui.temptask" />
+            <activity
+	            android:name="ie.imobile.extremepush.ui.WebViewActivity"
+	            android:exported="false" />
+            <receiver android:name="ie.imobile.extremepush.receivers.CoreBroadcastReceiver" >
                 <intent-filter>
                     <action android:name="ie.imobile.extremepush.BEACON_SERVICE_STARTED" />
                     <category android:name="." />
@@ -120,6 +136,7 @@
                     <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 </intent-filter>
             </service>
+            <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />
 		</config-file>
 
 		<source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
@@ -132,7 +149,7 @@
 		<!-- EDIT END -->
 		
 		<!-- EDIT: Required for Beacon scanning -->
-		<source-file src="lib/android/android-beacon-library-2.6.1.jar" target-dir="libs/" />
+		<source-file src="lib/android/android-beacon-library-2.9.2.jar" target-dir="libs/" />
 		<!-- EDIT END -->
 
 		<!-- EDIT: Required for Attributions and Ad ID collection -->
