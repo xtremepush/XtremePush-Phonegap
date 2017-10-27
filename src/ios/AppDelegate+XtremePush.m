@@ -27,6 +27,11 @@
                 andAddedSelector: @selector(xtremepushAdded:handleActionWithIdentifier:forRemoteNotification:completionHandler:)];
     
     [self swizzleMethodWithClass: [self class]
+                originalSelector: @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:)
+             andReplacedSelector: @selector(xtremepushReplaced:handleActionWithIdentifier:forLocalNotification:completionHandler:)
+                andAddedSelector: @selector(xtremepushAdded:handleActionWithIdentifier:forLocalNotification:completionHandler:)];
+    
+    [self swizzleMethodWithClass: [self class]
                 originalSelector: @selector(application:didReceiveLocalNotification:)
              andReplacedSelector: @selector(xtremepushReplaced:didReceiveLocalNotification:)
                 andAddedSelector: @selector(xtremepushAdded:didReceiveLocalNotification:)];
