@@ -12,6 +12,8 @@
 
 static NSNotification *savedNotification;
 bool foregroundNotificationsEnabledValue = true;
+bool requestLocationPermissions = true;
+bool requestNotificationPermissions = true;
 static NSMutableDictionary *pushNotificationBackupList;
 
 - (void)pluginInitialize {
@@ -26,7 +28,6 @@ static NSMutableDictionary *pushNotificationBackupList;
 #pragma Public APIs
 
 - (void) register:(CDVInvokedUrlCommand *)command {
-    //BOOL registerForPush = YES;
     NSDictionary *options = [command.arguments objectAtIndex:0];
     
     id appKey = [options objectForKey:@"appKey"];
@@ -64,8 +65,7 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     id foregroundNotificationsEnabled = [options objectForKey:@"foregroundNotificationsEnabled"];
     if (foregroundNotificationsEnabled != nil) foregroundNotificationsEnabledValue = [foregroundNotificationsEnabled boolValue];
-    
-    
+
     NSDictionary *iosOptions = [options objectForKey:@"ios"];
     
     if (iosOptions != nil)
@@ -77,50 +77,52 @@ static NSMutableDictionary *pushNotificationBackupList;
         if (locationsEnabled != nil) [XPush setLocationEnabled:[locationsEnabled boolValue]];
         
         id locationsPermissionsRequest = [iosOptions objectForKey:@"locationsPermissionsRequest"];
-        if (locationsPermissionsRequest != nil) [XPush setAsksForLocationPermissions:[locationsPermissionsRequest boolValue]];
+        if (locationsPermissionsRequest != nil) requestLocationPermissions = [locationsPermissionsRequest boolValue];
         
         id badgeWipingEnabled = [iosOptions objectForKey:@"badgeWipingEnabled"];
         if (badgeWipingEnabled != nil) [XPush setShouldWipeBadgeNumber:[badgeWipingEnabled boolValue]];
         
-        // id pushPermissionsRequest = [iosOptions objectForKey:@"pushPermissionsRequest"];
-        // if (pushPermissionsRequest != nil) registerForPush = [pushPermissionsRequest boolValue];
+        id pushPermissionsRequest = [iosOptions objectForKey:@"pushPermissionsRequest"];
+        if (pushPermissionsRequest != nil) requestNotificationPermissions = [pushPermissionsRequest boolValue];
     }
-    
-    [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
+    [XPush setAsksForLocationPermissions:requestLocationPermissions];
+    if (requestNotificationPermissions)
+        [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
     pushNotificationBackupList = [[NSMutableDictionary alloc] init];
     [self registerXpushConfiguration];
     
-    Storage.store.isRegistered = true;
+    [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
     
-    if(Storage.store.tempUserStuff != nil){
-        if(Storage.store.identifier == nil){
-            [XPush applicationDidReceiveRemoteNotification:Storage.store.tempUserStuff fetchCompletionHandler:nil];
-        } else{
-            [XPush application:[UIApplication sharedApplication] handleActionWithIdentifier:Storage.store.identifier forRemoteNotification:Storage.store.tempUserStuff  completionHandler:nil];
+    Storage.store.isRegistered = true;
+    NSLog(@"tempUserStuff = %@", Storage.store.tempUserInfo);
+    NSLog(@"identifier = %@", Storage.store.identifier);
+    if (Storage.store.tempUserInfo != nil) {
+        // ToDo implement fix for interactive notifications, if required
+        if (Storage.store.identifier == nil) {
+            [XPush applicationColdLaunchRemoteNotification: Storage.store.tempUserInfo];
+        } else {
+            [XPush application:[UIApplication sharedApplication] handleActionWithIdentifier:Storage.store.identifier forRemoteNotification:Storage.store.tempUserInfo  completionHandler:nil];
         }
     }
-    
-    [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
+    Storage.store.tempUserInfo = nil;
+    Storage.store.identifier = nil;
 }
 
 - (void)registerXpushConfiguration {
     
     [XPush registerForegroundNotificationOptions:^XPNotificationType(XPMessage *message) {
-        //Show notification if the specific notification has showForegroundNotifications = true
+        // Show notification if the specific notification has showForegroundNotification = true
+        if (message.payload[@"showForegroundNotification"] != nil) {
+            id showForegroundNotification = message.payload[@"showForegroundNotification"];
+            if ([showForegroundNotification boolValue]) {
+                return XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge;
+            }
+            return XPNotificationType_None;
+        }
         if (foregroundNotificationsEnabledValue) {
             return XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge;
         }
-        else {
-            if (message.payload[@"showForegroundNotifications"] != nil) {
-                id showForegroundNotifications = message.payload[@"showForegroundNotifications"];
-                if ([showForegroundNotifications boolValue]) {
-                    return XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge;
-                }
-                return XPNotificationType_None;
-            }else{
-                return XPNotificationType_None;
-            }
-        }
+        return XPNotificationType_None;
     }];
     
     [XPush registerDeeplinkHandler:^(NSString *x) {
@@ -128,10 +130,9 @@ static NSMutableDictionary *pushNotificationBackupList;
     }];
     
     [XPush registerMessageResponseHandler: ^(XPMessageResponse * _Nonnull response) {
-        
-        // Remove the entry of old notifications in the backup
+        // Remove the surplus of old notifications in the backup
         if ([pushNotificationBackupList count] > 30) {
-            NSArray *keys=[pushNotificationBackupList allKeys];
+            NSArray *keys = [pushNotificationBackupList allKeys];
             NSInteger xmin = MAXFLOAT;
             for (NSNumber *num in keys) {
                 NSInteger x = num.integerValue;
@@ -139,7 +140,7 @@ static NSMutableDictionary *pushNotificationBackupList;
             }
             [pushNotificationBackupList removeObjectForKey:[NSString stringWithFormat: @"%ld", xmin]];
         }
-        //Insert in the list last notification arrived that don't have in the list yet
+        //Insert in the list last notification arrived that is not in the list yet
         if ([pushNotificationBackupList objectForKey:response.message.identifier]==nil)
         {
             [pushNotificationBackupList setObject:response.message forKey:response.message.identifier];
@@ -205,84 +206,95 @@ static NSMutableDictionary *pushNotificationBackupList;
         }
         //NSLog(@"!!!Notification: %@", response.message.payload);
     }];
-    [XPush askForLocationPermissions];
 }
 
 
 - (void)requestPushPermissions:(CDVInvokedUrlCommand *)command {
-    NSInteger types;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.f) {
-        types = UIUserNotificationTypeBadge | UIUserNotificationTypeAlert | UIUserNotificationTypeSound;
-    } else {
-        types = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeBadge;
-    }
-    
-    [XPush registerForRemoteNotificationTypes:types];
+    [self.commandDelegate runInBackground:^{
+        [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
+    }];
 }
 
 - (void)requestLocationsPermissions:(CDVInvokedUrlCommand *)command {
-    [XPush askForLocationPermissions];
+    [self.commandDelegate runInBackground:^{
+        [XPush askForLocationPermissions];
+    }];
 }
 
 - (void)unregisterForRemoteNotifications:(CDVInvokedUrlCommand *)command {
-    [XPush unregisterForRemoteNotifications];
+    [self.commandDelegate runInBackground:^{
+        [XPush unregisterForRemoteNotifications];
+    }];
 }
 
 - (void) hitTag:(CDVInvokedUrlCommand *)command {
-    if ([command.arguments count] == 2) {
-        NSString *tag = [command.arguments objectAtIndex:0];
-        NSString *value = [command.arguments objectAtIndex:1];
-        [XPush hitTag:tag withValue: value];
-    } else {
-        NSString *tag = [command.arguments objectAtIndex:0];
-        [XPush hitTag:tag];
-    }
+    [self.commandDelegate runInBackground:^{
+        if ([command.arguments count] == 2) {
+            NSString *tag = [command.arguments objectAtIndex:0];
+            NSString *value = [command.arguments objectAtIndex:1];
+            [XPush hitTag:tag withValue: value];
+        } else {
+            NSString *tag = [command.arguments objectAtIndex:0];
+            [XPush hitTag:tag];
+        }
+    }];
 }
 
 - (void)hitTagWithValue:(CDVInvokedUrlCommand *)command {
-    
-    NSDictionary *options = [command.arguments objectAtIndex:0];
-    NSString *tag = [options objectForKey:@"tag"];
-    NSString *value = [options objectForKey:@"value"];
-    
-    [XPush hitTag:tag withValue: value];
+    [self.commandDelegate runInBackground:^{
+        NSDictionary *options = [command.arguments objectAtIndex:0];
+        NSString *tag = [options objectForKey:@"tag"];
+        NSString *value = [options objectForKey:@"value"];
+        
+        [XPush hitTag:tag withValue: value];
+    }];
 }
 
 - (void) hitEvent:(CDVInvokedUrlCommand *)command {
-    NSString *event = [command.arguments objectAtIndex:0];
-    [XPush hitEvent:event];
+    [self.commandDelegate runInBackground:^{
+        NSString *event = [command.arguments objectAtIndex:0];
+        [XPush hitEvent:event];
+    }];
 }
 
 - (void)hitEventWithValue:(CDVInvokedUrlCommand *)command {
-    NSDictionary *options = [command.arguments objectAtIndex:0];
-    NSString *title = [options objectForKey:@"title"];
-    if (title != nil){
-        NSObject *value = [options objectForKey:@"value"];
-        
-        if([value isKindOfClass:[NSString class]])
-        {
-            NSString *value = [options objectForKey:@"value"];
-            [XPush hitEvent:title withValue: value];
+    [self.commandDelegate runInBackground:^{
+        NSDictionary *options = [command.arguments objectAtIndex:0];
+        NSString *title = [options objectForKey:@"title"];
+        if (title != nil){
+            NSObject *value = [options objectForKey:@"value"];
+            
+            if([value isKindOfClass:[NSString class]])
+            {
+                NSString *value = [options objectForKey:@"value"];
+                [XPush hitEvent:title withValue: value];
+            }
+            if([value isKindOfClass:[NSDictionary class]])
+            {
+                NSDictionary* value = [options objectForKey:@"value"];
+                [XPush hitEvent:title withValues: value];
+            }
         }
-        if([value isKindOfClass:[NSDictionary class]])
-        {
-            NSDictionary* value = [options objectForKey:@"value"];
-            [XPush hitEvent:title withValues: value];
-        }
-    }
+    }];
 }
 
 - (void) hitImpression:(CDVInvokedUrlCommand *)command {
-    NSString *impression = [command.arguments objectAtIndex:0];
-    [XPush hitImpression:impression];
+    [self.commandDelegate runInBackground:^{
+        NSString *impression = [command.arguments objectAtIndex:0];
+        [XPush hitImpression:impression];
+    }];
 }
 
 - (void) sendTags:(CDVInvokedUrlCommand *)command {
-    [XPush sendTags];
+    [self.commandDelegate runInBackground:^{
+        [XPush sendTags];
+    }];
 }
 
 - (void) sendImpressions:(CDVInvokedUrlCommand *)command {
-    [XPush sendImpressions];
+    [self.commandDelegate runInBackground:^{
+        [XPush sendImpressions];
+    }];
 }
 
 - (void) setExternalId:(CDVInvokedUrlCommand *)command {
@@ -291,8 +303,10 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 - (void) setSubscription:(CDVInvokedUrlCommand *)command {
-    BOOL subscription = [[command.arguments objectAtIndex:0] boolValue];
-    [XPush setSubscription:subscription];
+    [self.commandDelegate runInBackground:^{
+        BOOL subscription = [[command.arguments objectAtIndex:0] boolValue];
+        [XPush setSubscription:subscription];
+    }];
 }
 
 - (void) openInbox:(CDVInvokedUrlCommand *)command {
@@ -300,7 +314,9 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 - (void) getInboxBadge:(CDVInvokedUrlCommand *)command {
-    [self callInboxBadgeCallback];
+    [self.commandDelegate runInBackground:^{
+        [self callInboxBadgeCallback];
+    }];
 }
 
 - (void) deviceInfo:(CDVInvokedUrlCommand *)command {
@@ -309,20 +325,22 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 - (void)clickMessage:(CDVInvokedUrlCommand *)command {
-    NSString *idNotification = [command.arguments objectAtIndex:0];
-    NSString *actionNotification = [command.arguments objectAtIndex:1];
-    XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
-    if (x!=nil){
-        if(![actionNotification isEqual:[NSNull null]]){
-            [XPush clickMessage:x actionIdentifier:actionNotification];
-        } else{
-            [XPush clickMessage:x];
+    [self.commandDelegate runInBackground:^{
+        NSString *idNotification = [command.arguments objectAtIndex:0];
+        NSString *actionNotification = [command.arguments objectAtIndex:1];
+        XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
+        if (x!=nil){
+            if(![actionNotification isEqual:[NSNull null]]){
+                [XPush clickMessage:x actionIdentifier:actionNotification];
+            } else{
+                [XPush clickMessage:x];
+            }
+        }else
+        {
+            NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
+            return;
         }
-    }else
-    {
-        NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
-        return;
-    }
+    }];
 }
 
 - (void)reportMessageClicked:(CDVInvokedUrlCommand *)command {

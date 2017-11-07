@@ -112,7 +112,7 @@
     if(Storage.store.isRegistered == true){
         [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     } else{
-        Storage.store.tempUserStuff = userInfo;
+        Storage.store.tempUserInfo = userInfo;
         Storage.store.identifier = nil;
     }
 }
@@ -122,7 +122,7 @@
     if(Storage.store.isRegistered == true){
         [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     } else{
-        Storage.store.tempUserStuff = userInfo;
+        Storage.store.tempUserInfo = userInfo;
         Storage.store.identifier = nil;
     }
 }
@@ -142,7 +142,7 @@
     if(Storage.store.isRegistered){
         [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
     } else{
-        Storage.store.tempUserStuff = userInfo;
+        Storage.store.tempUserInfo = userInfo;
         Storage.store.identifier = identifier;
     }
 }
@@ -152,7 +152,7 @@
     if(Storage.store.isRegistered){
         [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
     } else{
-        Storage.store.tempUserStuff = userInfo;
+        Storage.store.tempUserInfo = userInfo;
         Storage.store.identifier = identifier;
     }
 }
