@@ -240,38 +240,20 @@ static NSMutableDictionary *pushNotificationBackupList;
     }];
 }
 
-- (void)hitTagWithValue:(CDVInvokedUrlCommand *)command {
+- (void)hitEvent:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        NSDictionary *options = [command.arguments objectAtIndex:0];
-        NSString *tag = [options objectForKey:@"tag"];
-        NSString *value = [options objectForKey:@"value"];
-        
-        [XPush hitTag:tag withValue: value];
-    }];
-}
-
-- (void) hitEvent:(CDVInvokedUrlCommand *)command {
-    [self.commandDelegate runInBackground:^{
-        NSString *event = [command.arguments objectAtIndex:0];
-        [XPush hitEvent:event];
-    }];
-}
-
-- (void)hitEventWithValue:(CDVInvokedUrlCommand *)command {
-    [self.commandDelegate runInBackground:^{
-        NSDictionary *options = [command.arguments objectAtIndex:0];
-        NSString *title = [options objectForKey:@"title"];
+        NSString *title = [command.arguments objectAtIndex:0];
         if (title != nil){
-            NSObject *value = [options objectForKey:@"value"];
+            NSObject *value = [command.arguments objectAtIndex:1];
             
             if([value isKindOfClass:[NSString class]])
             {
-                NSString *value = [options objectForKey:@"value"];
+                NSString *value = [command.arguments objectAtIndex:1];
                 [XPush hitEvent:title withValue: value];
             }
             if([value isKindOfClass:[NSDictionary class]])
             {
-                NSDictionary* value = [options objectForKey:@"value"];
+                NSDictionary* value = [command.arguments objectAtIndex:1];
                 [XPush hitEvent:title withValues: value];
             }
         }
@@ -303,10 +285,8 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 - (void) setSubscription:(CDVInvokedUrlCommand *)command {
-    [self.commandDelegate runInBackground:^{
-        BOOL subscription = [[command.arguments objectAtIndex:0] boolValue];
-        [XPush setSubscription:subscription];
-    }];
+    BOOL subscription = [[command.arguments objectAtIndex:0] boolValue];
+    [XPush setSubscription:subscription];
 }
 
 - (void) openInbox:(CDVInvokedUrlCommand *)command {
@@ -447,7 +427,7 @@ static NSMutableDictionary *pushNotificationBackupList;
     [self.commandDelegate sendPluginResult:commandResult callbackId:callback];
 }
 
-
+// ToDo: remove both functions below if not required
 - (void) application:(UIApplication *)application
 handleActionWithIdentifier:(NSString *)identifier
 forRemoteNotification:(NSDictionary *)userInfo
