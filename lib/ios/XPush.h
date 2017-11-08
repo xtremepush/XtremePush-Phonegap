@@ -240,7 +240,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  */
 + (NSInteger)getInboxBadge;
 
-+ (void) registerInboxChangeCallback:(void(^)(NSInteger)) callback;
+
 
 /** INAPP BEHAVIOR */
 
@@ -353,23 +353,14 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 + (void)markPushAsRead:(NSString *)actionId;
 
 
-/**
- *  User setting
- */
-+ (void) setUser:(NSString*) userId;
-+ (void) setTempUser:(NSString*) userId;
 
+/** SERVER CONFIGURATION **/
 
 + (void)setServerURL:(NSString *)url;
 + (void)setServerExpectedCertificate:(NSString *)certDataString;
 + (void)setServerExpectedCertificates:(NSArray *)certDataStringArray;
 + (void)setServerExpectedCertificateFromFile:(NSString *)filePath;
 + (void)setServerExpectedCertificateFromFiles:(NSArray *)filePathArray;
-
-+ (void)setServerExpectedCertificate:(NSString *)certDataString preferedIndex:(NSNumber*)index;
-+ (void)setServerExpectedCertificates:(NSArray *)certDataStringArray preferedIndex:(NSNumber*)index;
-+ (void)setServerExpectedCertificateFromFile:(NSString *)filePath preferedIndex:(NSNumber*)index;
-+ (void)setServerExpectedCertificateFromFiles:(NSArray *)filePathArray preferedIndex:(NSNumber*)index;
 
 @end
 

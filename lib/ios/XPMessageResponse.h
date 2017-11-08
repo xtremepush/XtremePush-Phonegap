@@ -16,6 +16,4 @@
 @property (nonatomic, nonnull, readonly) XPMessage* message;
 @property (nonatomic, nonnull, readonly) XPAction* action;
 
-- (NSDictionary *) dictionaryRepresentation;
-
 @end
