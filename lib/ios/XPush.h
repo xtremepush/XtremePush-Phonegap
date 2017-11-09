@@ -176,6 +176,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  */
 + (void)setShouldWipeBadgeNumber:(BOOL)shouldWipeBadgeNumber;
 
+/**
+ * Should or not application be processing notifications from the launch options
+ */
++ (void)setShouldProcessNotificationsFromLaunchOptions:(BOOL)shouldProcess;
+
 
 
 /** MESSAGE HANDLING */

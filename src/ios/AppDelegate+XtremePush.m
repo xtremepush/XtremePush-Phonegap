@@ -109,39 +109,45 @@
 - (void)xtremepushReplaced:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
     fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     [self xtremepushReplaced:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-    if(Storage.store.isRegistered == true){
+    if (Storage.store.isRegistered == true) {
         [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-    } else{
-        Storage.store.tempUserInfo = userInfo;
-        Storage.store.identifier = nil;
+    } else {
+        //Otherwise this will be handled from the launch options
     }
 }
 
 - (void)xtremepushAdded:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
  fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    if(Storage.store.isRegistered == true){
+    if (Storage.store.isRegistered == true) {
         [XPush applicationDidReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-    } else{
-        Storage.store.tempUserInfo = userInfo;
-        Storage.store.identifier = nil;
+    } else {
+        //Otherwise this will be handled from the launch options
     }
 }
 
 - (void)xtremepushReplaced:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     [self xtremepushReplaced:application didReceiveLocalNotification:notification];
-    [XPush applicationDidReceiveLocalNotification:notification];
+    if (Storage.store.isRegistered == true) {
+        [XPush applicationDidReceiveLocalNotification:notification];
+    } else {
+        //Otherwise this will be handled from the launch options
+    }
 }
 
 - (void)xtremepushAdded:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    [XPush applicationDidReceiveLocalNotification:notification];
+    if (Storage.store.isRegistered == true) {
+        [XPush applicationDidReceiveLocalNotification:notification];
+    } else {
+        //Otherwise this will be handled from the launch options
+    }
 }
 
 - (void) xtremepushReplaced:(UIApplication *) application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
           completionHandler:(void (^)())completionHandler{
     [self xtremepushReplaced:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-    if(Storage.store.isRegistered){
+    if (Storage.store.isRegistered) {
         [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-    } else{
+    } else {
         Storage.store.tempUserInfo = userInfo;
         Storage.store.identifier = identifier;
     }
@@ -149,9 +155,9 @@
 
 - (void) xtremepushAdded:(UIApplication *) application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo
        completionHandler:(void (^)())completionHandler{
-    if(Storage.store.isRegistered){
+    if (Storage.store.isRegistered) {
         [XPush application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-    } else{
+    } else {
         Storage.store.tempUserInfo = userInfo;
         Storage.store.identifier = identifier;
     }
@@ -159,11 +165,21 @@
 
 - (void) xtremepushReplaced:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
     [self xtremepushReplaced:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+    if (Storage.store.isRegistered) {
+        [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+    } else {
+        Storage.store.tempUserInfo = notification.userInfo;
+        Storage.store.identifier = identifier;
+    }
 }
 
 - (void) xtremepushAdded:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler{
-    [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+    if (Storage.store.isRegistered) {
+        [XPush application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+    } else {
+        Storage.store.tempUserInfo = notification.userInfo;
+        Storage.store.identifier = identifier;
+    }
 }
 @end
 

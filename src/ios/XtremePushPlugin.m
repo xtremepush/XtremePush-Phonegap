@@ -90,17 +90,15 @@ static NSMutableDictionary *pushNotificationBackupList;
         [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
     pushNotificationBackupList = [[NSMutableDictionary alloc] init];
     [self registerXpushConfiguration];
+    [XPush setShouldProcessNotificationsFromLaunchOptions:YES];
     
     [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
     
     Storage.store.isRegistered = true;
-    NSLog(@"tempUserStuff = %@", Storage.store.tempUserInfo);
-    NSLog(@"identifier = %@", Storage.store.identifier);
+    //NSLog(@"tempUserInfo = %@", Storage.store.tempUserInfo);
+    //NSLog(@"identifier = %@", Storage.store.identifier);
     if (Storage.store.tempUserInfo != nil) {
-        // ToDo implement fix for interactive notifications, if required
-        if (Storage.store.identifier == nil) {
-            [XPush applicationColdLaunchRemoteNotification: Storage.store.tempUserInfo];
-        } else {
+        if (Storage.store.identifier != nil) {
             [XPush application:[UIApplication sharedApplication] handleActionWithIdentifier:Storage.store.identifier forRemoteNotification:Storage.store.tempUserInfo  completionHandler:nil];
         }
     }
@@ -111,9 +109,9 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void)registerXpushConfiguration {
     
     [XPush registerForegroundNotificationOptions:^XPNotificationType(XPMessage *message) {
-        // Show notification if the specific notification has showForegroundNotification = true
-        if (message.payload[@"showForegroundNotification"] != nil) {
-            id showForegroundNotification = message.payload[@"showForegroundNotification"];
+        // Show notification if the specific notification has foreground = true
+        if (message.payload[@"foreground"] != nil) {
+            id showForegroundNotification = message.payload[@"foreground"];
             if ([showForegroundNotification boolValue]) {
                 return XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge;
             }
@@ -246,13 +244,11 @@ static NSMutableDictionary *pushNotificationBackupList;
         if (title != nil){
             NSObject *value = [command.arguments objectAtIndex:1];
             
-            if([value isKindOfClass:[NSString class]])
-            {
+            if ([value isKindOfClass:[NSString class]]) {
                 NSString *value = [command.arguments objectAtIndex:1];
                 [XPush hitEvent:title withValue: value];
             }
-            if([value isKindOfClass:[NSDictionary class]])
-            {
+            if ([value isKindOfClass:[NSDictionary class]]) {
                 NSDictionary* value = [command.arguments objectAtIndex:1];
                 [XPush hitEvent:title withValues: value];
             }
@@ -289,6 +285,7 @@ static NSMutableDictionary *pushNotificationBackupList;
     [XPush setSubscription:subscription];
 }
 
+
 - (void) openInbox:(CDVInvokedUrlCommand *)command {
     [XPush openInbox];
 }
@@ -309,14 +306,13 @@ static NSMutableDictionary *pushNotificationBackupList;
         NSString *idNotification = [command.arguments objectAtIndex:0];
         NSString *actionNotification = [command.arguments objectAtIndex:1];
         XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
-        if (x!=nil){
-            if(![actionNotification isEqual:[NSNull null]]){
+        if (x != nil) {
+            if (![actionNotification isEqual:[NSNull null]]) {
                 [XPush clickMessage:x actionIdentifier:actionNotification];
-            } else{
+            } else {
                 [XPush clickMessage:x];
             }
-        }else
-        {
+        } else {
             NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
             return;
         }
@@ -327,14 +323,13 @@ static NSMutableDictionary *pushNotificationBackupList;
     NSString *idNotification = [command.arguments objectAtIndex:0];
     NSString *actionNotification = [command.arguments objectAtIndex:1];
     XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
-    if (x!=nil){
-        if(![actionNotification isEqual:[NSNull null]]){
+    if (x != nil) {
+        if (![actionNotification isEqual:[NSNull null]]) {
             [XPush reportMessageClicked:x actionIdentifier:actionNotification];
-        } else{
+        } else {
             [XPush reportMessageClicked:x];
         }
-    }else
-    {
+    } else {
         NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);
         return;
     }
@@ -343,10 +338,9 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void)reportMessageDismissed:(CDVInvokedUrlCommand *)command {
     NSString *idNotification = [command.arguments objectAtIndex:0];
     XPMessage *x = [pushNotificationBackupList objectForKey:idNotification];
-    if (x!=nil){
+    if (x != nil) {
         [XPush reportMessageDismissed:x];
-    }else
-    {
+    }else {
         NSLog(@"Invalid push notification with id = %@", idNotification);
         return;
     }
@@ -427,7 +421,7 @@ static NSMutableDictionary *pushNotificationBackupList;
     [self.commandDelegate sendPluginResult:commandResult callbackId:callback];
 }
 
-// ToDo: remove both functions below if not required
+
 - (void) application:(UIApplication *)application
 handleActionWithIdentifier:(NSString *)identifier
 forRemoteNotification:(NSDictionary *)userInfo
@@ -451,4 +445,3 @@ handleActionWithIdentifier:identifier
 }
 
 @end
-
