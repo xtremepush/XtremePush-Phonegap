@@ -6,6 +6,7 @@
 - (void) register:(CDVInvokedUrlCommand*)command;
 - (void) requestLocationsPermissions:(CDVInvokedUrlCommand*)command;
 - (void) requestPushPermissions:(CDVInvokedUrlCommand*)command;
+- (void) unregisterForRemoteNotifications:(CDVInvokedUrlCommand*)command;
 
 - (void) hitEvent:(CDVInvokedUrlCommand*)command;
 - (void) hitTag:(CDVInvokedUrlCommand*)command;
@@ -18,5 +19,9 @@
 - (void) openInbox:(CDVInvokedUrlCommand*)command;
 - (void) getInboxBadge:(CDVInvokedUrlCommand*)command;
 - (void) deviceInfo:(CDVInvokedUrlCommand*)command;
+
+- (void) clickMessage:(CDVInvokedUrlCommand*)command;
+- (void) reportMessageClicked:(CDVInvokedUrlCommand*)command;
+- (void) reportMessageDismissed:(CDVInvokedUrlCommand*)command;
 
 @end

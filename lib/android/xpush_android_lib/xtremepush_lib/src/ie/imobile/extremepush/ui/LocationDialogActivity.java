@@ -17,8 +17,8 @@ import android.provider.Settings;
 
 public final class LocationDialogActivity extends Activity {
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.onCreate(savedInstanceState);
 
@@ -46,5 +46,5 @@ public final class LocationDialogActivity extends Activity {
                 .create();
 
         dialog.show();
-	}
+    }
 }

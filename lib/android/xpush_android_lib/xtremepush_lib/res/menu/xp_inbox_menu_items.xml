@@ -3,6 +3,5 @@
     <item
         android:id="@+id/xp_inbox_menu_items"
         android:actionLayout="@layout/xp_inbox_button"
-        android:title="@string/inbox_open"
-        />
+        android:title="@string/inbox_open" />
 </menu>
