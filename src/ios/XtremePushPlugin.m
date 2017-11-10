@@ -241,16 +241,25 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void)hitEvent:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         NSString *title = [command.arguments objectAtIndex:0];
-        if (title != nil){
-            NSObject *value = [command.arguments objectAtIndex:1];
-            
-            if ([value isKindOfClass:[NSString class]]) {
-                NSString *value = [command.arguments objectAtIndex:1];
-                [XPush hitEvent:title withValue: value];
-            }
-            if ([value isKindOfClass:[NSDictionary class]]) {
-                NSDictionary* value = [command.arguments objectAtIndex:1];
-                [XPush hitEvent:title withValues: value];
+        if (title != nil) {
+            if ([command.arguments count] == 2) {
+                NSObject *value = [command.arguments objectAtIndex:1];
+                if (value != nil) {
+                    if ([value isKindOfClass:[NSString class]]) {
+                        NSString *value = [command.arguments objectAtIndex:1];
+                        [XPush hitEvent:title withValue: value];
+                    }
+                    if ([value isKindOfClass:[NSDictionary class]]) {
+                        //ToDo Fix native support for event with values then uncomment
+                        //NSDictionary *value = [command.arguments objectAtIndex:1];
+                        //[XPush hitEvent:title withValues: value];
+                        [XPush hitEvent:title];
+                    }
+                } else {
+                    [XPush hitEvent:title];
+                }
+            } else {
+                [XPush hitEvent:title];
             }
         }
     }];
