@@ -7,7 +7,7 @@
         android:id="@+id/inbox_webview"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:windowIsTranslucent="true"
-        android:windowBackground="@android:color/transparent" />
+        android:windowBackground="@android:color/transparent"
+        android:windowIsTranslucent="true" />
 
 </RelativeLayout>

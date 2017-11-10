@@ -3,6 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="5dp">
+
     <ImageButton
         android:id="@+id/xp_inbox_button"
         android:layout_width="wrap_content"
@@ -12,15 +13,16 @@
         android:contentDescription="@string/inbox_open"
         android:padding="10dp"
         android:src="@drawable/ic_inbox_white_24dp" />
+
     <TextView
         android:id="@+id/xp_inbox_badge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/xp_inbox_button"
         android:layout_alignRight="@id/xp_inbox_button"
+        android:layout_alignTop="@id/xp_inbox_button"
+        android:background="@drawable/badge_circle"
+        android:gravity="center"
         android:textColor="#FFF"
         android:textSize="12sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:background="@drawable/badge_circle"/>
+        android:textStyle="bold" />
 </RelativeLayout>
