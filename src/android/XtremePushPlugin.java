@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import com.squareup.otto.Subscribe;
 import java.lang.ref.WeakReference;
@@ -745,27 +746,24 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if(pushList.size() >= PUSH_LIMIT)
             pushList.remove(pushList.entrySet().iterator().next());
         pushList.put(messagePayload.id, messagePayload);
-        
-        // if (responsePayload.get("type").equals("present") && !(SharedPrefUtils.getShowForegroundNotifications(getApplicationActivity()))){
-        //     if (messagePayload.data.containsKey("showForegroundNotifications"))
-        //         mPushConnector.showNotification(messagePayload);
-        // }
 
-        Boolean foregroundBool = null;
-        if (messagePayload.data.containsKey("foreground")) {
-            String foreground = messagePayload.data.get("foreground");
-            if (TextUtils.equals(foreground, "true"))
-                foregroundBool = true;
-            else if (TextUtils.equals(foreground, "false"))
-                foregroundBool = false;
-        }
-        if (foregroundBool != null) {
-            if (foregroundBool) {
-                mPushConnector.showNotification(messagePayload);
+        if (responsePayload.get("type").equals("present")) {
+            Boolean foregroundBool = null;
+            if (messagePayload.data.containsKey("foreground")) {
+                String foreground = messagePayload.data.get("foreground");
+                if (TextUtils.equals(foreground, "true"))
+                    foregroundBool = true;
+                else if (TextUtils.equals(foreground, "false"))
+                    foregroundBool = false;
             }
-        } else {
-            if (setShowForegroundNotifications) {
-                mPushConnector.showNotification(messagePayload);
+            if (foregroundBool != null) {
+                if (foregroundBool) {
+                    mPushConnector.showNotification(messagePayload);
+                }
+            } else {
+                if (setShowForegroundNotifications) {
+                    mPushConnector.showNotification(messagePayload);
+                }
             }
         }
         
