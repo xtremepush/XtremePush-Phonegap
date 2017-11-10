@@ -86,6 +86,10 @@ XtremePush.prototype.hitEvent = function(title, value){
    }
 };
 
+XtremePush.prototype.hitEventWithValue = function(id){
+   return exec(null, null, 'XtremePush', 'hitEventWithValue', [id]);
+};
+
 /**
  * Calling send tags function
  */             
@@ -150,6 +154,42 @@ XtremePush.prototype.requestLocationsPermissions = function(){
  */ 
 XtremePush.prototype.requestPushPermissions = function(){
    return exec(null, null, 'XtremePush', 'requestPushPermissions', []);
+};
+
+/**
+*  Calling function to show notification
+*/
+XtremePush.prototype.showNotification = function(id){
+   return exec(null, null, 'XtremePush', 'showNotification', [id]);
+};
+
+/**
+ * Calling function to open click in message
+ */             
+XtremePush.prototype.clickMessage = function(id, action){
+   return exec(null, null, 'XtremePush', 'clickMessage', [id, action]);
+};
+
+/**
+ * Calling function to report message clicked
+ */
+XtremePush.prototype.reportMessageClicked = function(id, action){
+   return exec(null, null, 'XtremePush', 'reportMessageClicked', [id, action]);
+};
+
+/**
+ * Calling function to report message dismissed
+ */
+XtremePush.prototype.reportMessageDismissed = function(id){
+   return exec(null, null, 'XtremePush', 'reportMessageDismissed', [id]);
+};
+
+XtremePush.prototype.onConfigChanged = function(){
+   return exec(null, null, 'XtremePush', 'onConfigChanged', []);
+};
+
+XtremePush.prototype.unregisterForRemoteNotifications = function(){
+   return exec(null, null, 'XtremePush', 'unregisterForRemoteNotifications', []);
 };
 
 module.exports = new XtremePush();
