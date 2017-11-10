@@ -185,8 +185,11 @@ XtremePush.prototype.reportMessageDismissed = function(id){
 };
 
 XtremePush.prototype.onConfigChanged = function(){
-   console.log('here in onConfigChanged');
    return exec(null, null, 'XtremePush', 'onConfigChanged', []);
+};
+
+XtremePush.prototype.unregisterForRemoteNotifications = function(){
+   return exec(null, null, 'XtremePush', 'unregisterForRemoteNotifications', []);
 };
 
 module.exports = new XtremePush();

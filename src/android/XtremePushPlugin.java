@@ -74,6 +74,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     private PushConnector pushConnector;
     private static boolean isRegistered = false;
     private static boolean isInitialized = false;
+    private static boolean setShowForegroundNotifications = true;
     
     private static boolean inForeground = false;
     private static boolean notNewIntent = false;
@@ -191,6 +192,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
         
         b.setMessageResponseListener(this);
+        b.setShowForegroundNotifications(false);
         b.setDeeplinkListener(this);
         b.setInboxBadgeUpdateListener(this);
         
@@ -246,8 +248,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         
         
         if(!jo.isNull("foregroundNotificationsEnabled")){
-            boolean setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
-            b.setShowForegroundNotifications(setShowForegroundNotifications);
+            setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
         }
         
         if(joAndroid != null) {
@@ -745,9 +746,27 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             pushList.remove(pushList.entrySet().iterator().next());
         pushList.put(messagePayload.id, messagePayload);
         
-        if(responsePayload.get("type").equals("present") && !(SharedPrefUtils.getShowForegroundNotifications(getApplicationActivity()))){
-            if(messagePayload.data.containsKey("showForegroundNotifications"))
+        // if (responsePayload.get("type").equals("present") && !(SharedPrefUtils.getShowForegroundNotifications(getApplicationActivity()))){
+        //     if (messagePayload.data.containsKey("showForegroundNotifications"))
+        //         mPushConnector.showNotification(messagePayload);
+        // }
+
+        Boolean foregroundBool = null;
+        if (messagePayload.data.containsKey("foreground")) {
+            String foreground = messagePayload.data.get("foreground");
+            if (TextUtils.equals(foreground, "true"))
+                foregroundBool = true;
+            else if (TextUtils.equals(foreground, "false"))
+                foregroundBool = false;
+        }
+        if (foregroundBool != null) {
+            if (foregroundBool) {
                 mPushConnector.showNotification(messagePayload);
+            }
+        } else {
+            if (setShowForegroundNotifications) {
+                mPushConnector.showNotification(messagePayload);
+            }
         }
         
         if (message_response_callback_function != null && _webView != null){

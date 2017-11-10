@@ -6,6 +6,7 @@
 - (void) register:(CDVInvokedUrlCommand*)command;
 - (void) requestLocationsPermissions:(CDVInvokedUrlCommand*)command;
 - (void) requestPushPermissions:(CDVInvokedUrlCommand*)command;
+- (void) unregisterForRemoteNotifications:(CDVInvokedUrlCommand*)command;
 
 - (void) hitEvent:(CDVInvokedUrlCommand*)command;
 - (void) hitTag:(CDVInvokedUrlCommand*)command;
