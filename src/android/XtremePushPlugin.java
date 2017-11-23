@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import com.squareup.otto.Subscribe;
 import java.lang.ref.WeakReference;
 import ie.imobile.extremepush.*;
 import ie.imobile.extremepush.api.model.Message;

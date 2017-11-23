@@ -21,70 +21,74 @@
 	<engines>
 		<engine name="cordova" version=">=4.0.0" />
 	</engines>
+    
 
-	<platform name="android">
-
-		<config-file target="res/xml/config.xml" parent="/*">
-			<feature name="XtremePush" >
-				<param name="android-package" value="com.xtreme.plugins.XtremePushPlugin"/>
-				<param name="onload" value="true" />
-			</feature>
-		</config-file>
-
-		<config-file target="AndroidManifest.xml" parent="/manifest">
-			<!-- EDIT: Required for both Geo and Beacon scanning -->
-			<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-			<!-- EDIT END -->
-
-			<!-- EDIT: Required for Beacon scanning -->
-			<uses-permission android:name="android.permission.BLUETOOTH" />
-			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-			<uses-feature
-				android:name="android.hardware.bluetooth_le"
-				android:required="false" />
-			<!-- EDIT END -->
-
-			<uses-permission android:name="android.permission.GET_ACCOUNTS" />
-			<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-			<permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-			<uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
-			<uses-permission android:name="android.permission.INTERNET" />
-			<uses-permission android:name="android.permission.WAKE_LOCK" />
-			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-		</config-file>
-
-		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="XtremePush">
+                <param name="android-package" value="com.xtreme.plugins.XtremePushPlugin" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <!-- your configuration elements, references, source files, etc... -->
+        <source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
+        <framework src="src/android/XPush.gradle" custom="true" type="gradleReference" />
+        <resource-file src="lib/android/xpush_android_lib/XtremePush_lib.aar" target="lib/android/xpush_android_lib/XtremePush_lib.aar" />
+        
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <!-- EDIT: Required for both Geo and Beacon scanning -->
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <!-- EDIT END -->
+            
+            <!-- EDIT: Required for Beacon scanning -->
+            <uses-permission android:name="android.permission.BLUETOOTH" />
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+            <uses-feature
+            android:name="android.hardware.bluetooth_le"
+            android:required="false" />
+            <!-- EDIT END -->
+            
+            <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+            <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+            <permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+            <uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+        </config-file>
+        
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
             
             <!-- EDIT: Required for Geo scanning -->
             <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
             <service android:name="ie.imobile.extremepush.location.GeoLocationService" />
             <activity
-	            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
-	            android:label="Locations are not available"
-	            android:theme="@android:style/Theme.Dialog"
-	            android:exported="false" />
+            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
+            android:label="Locations are not available"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
             <!-- EDIT END -->
             
             <!-- EDIT: Required for Beacon scanning -->
             <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
             <receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >
-				<intent-filter>
-					<action android:name="android.intent.action.BOOT_COMPLETED" />
-					<action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-					<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-				</intent-filter>
-			</receiver>
-			<service
-				android:name="org.altbeacon.beacon.service.BeaconService"
-				android:enabled="true"
-				android:exported="false"
-				android:isolatedProcess="false"
-				android:label="beacon" />
-			<service
-				android:name="org.altbeacon.beacon.BeaconIntentProcessor"
-				android:enabled="true"
-				android:exported="false" />
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                    <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                    <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                </intent-filter>
+            </receiver>
+            <service
+            android:name="org.altbeacon.beacon.service.BeaconService"
+            android:enabled="true"
+            android:exported="false"
+            android:isolatedProcess="false"
+            android:label="beacon" />
+            <service
+            android:name="org.altbeacon.beacon.BeaconIntentProcessor"
+            android:enabled="true"
+            android:exported="false" />
             <!-- EDIT END -->
 
 			<!-- EDIT: Required for Attributions and Ad ID collection -->
@@ -97,17 +101,17 @@
 			<!-- EDIT END -->
             
             <activity
-	            android:name="ie.imobile.extremepush.ui.InboxActivity"
-	            android:label="@string/title_activity_inbox"
-	            android:theme="@style/Theme.Transparent"
-	            android:configChanges="orientation|screenSize" />
+            android:name="ie.imobile.extremepush.ui.InboxActivity"
+            android:label="@string/title_activity_inbox"
+            android:theme="@style/Theme.Transparent"
+            android:configChanges="orientation|screenSize" />
             <activity
-	            android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
-	            android:exported="false"
-	            android:taskAffinity="ie.imobile.extremepush.ui.temptask" />
+            android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
+            android:exported="false"
+            android:taskAffinity="ie.imobile.extremepush.ui.temptask" />
             <activity
-	            android:name="ie.imobile.extremepush.ui.WebViewActivity"
-	            android:exported="false" />
+            android:name="ie.imobile.extremepush.ui.WebViewActivity"
+            android:exported="false" />
             <receiver android:name="ie.imobile.extremepush.receivers.CoreBroadcastReceiver" >
                 <intent-filter>
                     <action android:name="ie.imobile.extremepush.BEACON_SERVICE_STARTED" />
@@ -137,27 +141,11 @@
                 </intent-filter>
             </service>
             <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />
-		</config-file>
+        </config-file>
 
-		<source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
-
-		<framework src="lib/android/xpush_android_lib/xtremepush_lib" custom="true" />
-		<framework src="com.google.android.gms:play-services-gcm:+" />
-
-		<!-- EDIT: Required for Geo scanning -->
-		<framework src="com.google.android.gms:play-services-location:+" />
-		<!-- EDIT END -->
-		
-		<!-- EDIT: Required for Beacon scanning -->
-		<source-file src="lib/android/android-beacon-library-2.9.2.jar" target-dir="libs/" />
-		<!-- EDIT END -->
-
-		<!-- EDIT: Required for Attributions and Ad ID collection -->
-		<framework src="com.google.android.gms:play-services-ads:+" />
-		<!-- EDIT END -->
-
-	</platform>
-
+     </platform>
+    
+    
 	<platform name="ios">
 		<config-file target="config.xml" parent="/*">
 			<feature name="XtremePush">
