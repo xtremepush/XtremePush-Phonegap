@@ -61,34 +61,34 @@
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             
             <!-- EDIT: Required for Geo scanning -->
-            <!-- <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
+            <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
             <service android:name="ie.imobile.extremepush.location.GeoLocationService" />
             <activity
-	            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
-	            android:label="Locations are not available"
-	            android:theme="@android:style/Theme.Dialog"
-	            android:exported="false" /> -->
+            android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
+            android:label="Locations are not available"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
             <!-- EDIT END -->
             
             <!-- EDIT: Required for Beacon scanning -->
-            <!-- <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
+            <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
             <receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver" >
-				<intent-filter>
-					<action android:name="android.intent.action.BOOT_COMPLETED" />
-					<action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-					<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-				</intent-filter>
-			</receiver>
-			<service
-				android:name="org.altbeacon.beacon.service.BeaconService"
-				android:enabled="true"
-				android:exported="false"
-				android:isolatedProcess="false"
-				android:label="beacon" />
-			<service
-				android:name="org.altbeacon.beacon.BeaconIntentProcessor"
-				android:enabled="true"
-				android:exported="false" /> -->
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                    <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                    <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                </intent-filter>
+            </receiver>
+            <service
+            android:name="org.altbeacon.beacon.service.BeaconService"
+            android:enabled="true"
+            android:exported="false"
+            android:isolatedProcess="false"
+            android:label="beacon" />
+            <service
+            android:name="org.altbeacon.beacon.BeaconIntentProcessor"
+            android:enabled="true"
+            android:exported="false" />
             <!-- EDIT END -->
             
             <!-- EDIT: Required for Attributions and Ad ID collection -->
@@ -155,10 +155,10 @@
 		</config-file>
 
 		<!-- EDIT: Required when location functionality is used -->
-		<!-- <preference name="NSLocationAlwaysUsageDescription" default="We use location services to send you relevant information, when and where you need it" />
+		<preference name="NSLocationAlwaysUsageDescription" default="We use location services to send you relevant information, when and where you need it" />
 		<config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
 			<string>$NSLocationAlwaysUsageDescription</string>
-		</config-file> -->
+		</config-file>
 		<!-- EDIT END -->
 
 		<framework src="Security.framework" />
