@@ -1,7 +1,7 @@
  android {
       defaultConfig {
           minSdkVersion 14
-          targetSdkVersion 25
+          targetSdkVersion 24
       }
      packagingOptions {
           exclude 'META-INF/NOTICE'
