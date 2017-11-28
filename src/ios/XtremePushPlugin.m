@@ -46,7 +46,7 @@ static NSMutableDictionary *pushNotificationBackupList;
     if (inboxBadgeCallback != nil) self.inboxBadgeCallback = inboxBadgeCallback;
     
     id inboxEnabled = [options objectForKey:@"inboxEnabled"];
-    if (inboxEnabled != nil) [XPush setInboxEnabled:[inappMessagingEnabled boolValue]];
+    if (inboxEnabled != nil) [XPush setInboxEnabled:[inboxEnabled boolValue]];
     
     id receiveCallback = [options objectForKey:@"messageResponseCallback"];
     if (receiveCallback != nil) self._receiveCallback = receiveCallback;
