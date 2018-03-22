@@ -47,6 +47,7 @@ function XtremePush() { }
  *        gcmProjectNumber - String (optional) If push is used in your application, set the GCM/FCM project number here
  *        geoEnabled - Boolean (optional) Can be used to turn on Xtremepush geo-location functionality
  *        locationsPermissionsRequest - Boolean (optional) Can be used to prevent automatically showing the location permission request dialog
+ *        setInboxFullscreen - Boolean (optional) Can be used to stop the inbox opening up the status bar and navigation bar when opened (Api 19+)
  */
 XtremePush.prototype.register = function(options) {
    return exec(null, null, 'XtremePush', 'register', [options]);
