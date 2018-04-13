@@ -1,5 +1,5 @@
 #import <Cordova/CDVPlugin.h>
-#import "XPush.h"
+#import <XPush/XPush.h>
 
 @interface XtremePushPlugin : CDVPlugin {}
 

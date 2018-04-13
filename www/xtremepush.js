@@ -90,6 +90,15 @@ XtremePush.prototype.hitEventWithValue = function(id){
    return exec(null, null, 'XtremePush', 'hitEventWithValue', [id]);
 };
 
+
+XtremePush.prototype.setUser = function(id){
+   return exec(null, null, 'XtremePush', 'setUser', [id]);
+};
+
+XtremePush.prototype.setTempUser = function(id){
+   return exec(null, null, 'XtremePush', 'setTempUser', [id]);
+};
+
 /**
  * Calling send tags function
  */             
