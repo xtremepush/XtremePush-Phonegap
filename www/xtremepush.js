@@ -67,6 +67,22 @@ XtremePush.prototype.hitTag = function(tag, value) {
 };
 
 /**
+ * Setting user ID for the app user
+ * @param  {String}   id      ID to send to Xtremepush
+ */ 
+XtremePush.prototype.setUser = function(id){
+   return exec(null, null, 'XtremePush', 'setUser', [id]);
+};
+
+/**
+ * Setting temp user ID for the app user
+ * @param  {String}   id      ID to send to Xtremepush
+ */ 
+XtremePush.prototype.setTempUser = function(id){
+   return exec(null, null, 'XtremePush', 'setTempUser', [id]);
+};
+
+/**
  * Calling hit impression function
  * @param  {String}   impression value which will be sent
  */             

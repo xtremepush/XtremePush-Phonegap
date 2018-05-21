@@ -238,6 +238,20 @@ static NSMutableDictionary *pushNotificationBackupList;
     }];
 }
 
+- (void) setUser:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *user = [command.arguments objectAtIndex:0];
+        [XPush setUser:user];
+    }];
+}
+
+- (void) setTempUser:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *tempUser = [command.arguments objectAtIndex:0];
+        [XPush setTempUser:tempUser];
+    }];
+}
+
 - (void)hitEvent:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         NSString *title = [command.arguments objectAtIndex:0];

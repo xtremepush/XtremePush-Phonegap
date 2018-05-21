@@ -9,6 +9,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
+import android.content.SharedPreferences;
+
 import java.lang.ref.WeakReference;
 import ie.imobile.extremepush.*;
 import ie.imobile.extremepush.api.model.Message;
@@ -47,6 +50,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public static final String HITTAG = "hitTag";
     public static final String HITIMPRESSION = "hitImpression";
     public static final String HITEVENT = "hitEvent";
+    public static final String SETUSER = "setUser";
+    public static final String SETTEMPUSER = "setTempUser";
     public static final String SENDTAGS = "sendTags";
     public static final String SENDIMPRESSIONS = "sendImpressions";
     public static final String SETEXTERNALID = "setExternalId";
@@ -122,6 +127,10 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             hitImpression(data);
         } else if (HITEVENT.equals(action)) {
             hitEvent(data);
+        } else if (SETUSER.equals(action)) {
+            setUser(data);
+        } else if (SETTEMPUSER.equals(action)) {
+            setTempUser(data);
         } else if (SENDTAGS.equals(action)) {
             sendTags();
         } else if (SHOWNOTIFICATION.equals(action)){
@@ -164,6 +173,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        if (pushConnector == null) {
         
         this._webView = this.webView;
+        
         JSONObject jo = data.getJSONObject(0);
         
         //            if (jo.isNull("pushOpenCallback")){
@@ -196,6 +206,11 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         b.setDeeplinkListener(this);
         b.setInboxBadgeUpdateListener(this);
         
+        if (!jo.isNull("serverUrl")){
+            String serverUrl = jo.getString("serverUrl");
+            b.setServerUrl(serverUrl);
+        }
+
         if (!jo.isNull("serverUrl")){
             String serverUrl = jo.getString("serverUrl");
             b.setServerUrl(serverUrl);
@@ -275,8 +290,13 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             }
             
             if (!joAndroid.isNull("setInboxFullscreen")){
-                Boolean inbFullscreen = joAndroid.getBoolean("setInboxFullscreen");
-                b.setInboxFullscreen(inbFullscreen);
+                Boolean setInboxFullscreen = joAndroid.getBoolean("setInboxFullscreen");
+                b.setInboxFullscreen(setInboxFullscreen);
+            }
+
+            if (!joAndroid.isNull("notificationChannelName")){
+                String channelName = joAndroid.getString("notificationChannelName");
+                b.setNotificationChannelName(channelName);
             }
         }
         b.create(getApplicationActivity().getApplication());
@@ -293,6 +313,17 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        }
         
         callbackContext.success("Successfully registered!");
+        
+        if(PushConnector.appContextHolder != null){
+            String mJs = returnJs(PushConnector.appContextHolder.get());
+            Log.d("HelloMike", "------------------mJs is : "+mJs);
+            if(!(mJs == null || mJs.equals(""))){
+                _webView.sendJavascript(mJs);
+            } else
+                Log.d("HelloMike", "Here in reg if 2");
+            saveJs(PushConnector.appContextHolder.get(), "");
+        } else
+            Log.d("HelloMike", "Here in reg if 1");
     }
     
     private void hitTag(JSONArray data) throws JSONException {
@@ -334,6 +365,34 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         }
         
         mPushConnector.hitEvent(getApplicationContext(), title, message);
+    }
+
+    private void setUser(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please call register function first");
+            return;
+        }
+        
+        if (data.isNull(0)){
+            LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please provide user ID");
+            return;
+        }
+        
+        mPushConnector.setUser(data.getString(0));
+    }
+
+    private void setTempUser(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "setTempUser: Please call register function first");
+            return;
+        }
+        
+        if (data.isNull(0)){
+            LogEventsUtils.sendLogTextMessage(TAG, "setTempUser: Please provide temp user ID");
+            return;
+        }
+        
+        mPushConnector.setTempUser(data.getString(0));
     }
     
     private void hitImpression(JSONArray data) throws JSONException {
@@ -635,6 +694,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
+        _webView = webView;
         inForeground = true;
     }
     
@@ -733,6 +793,9 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        isRegistered = false;
+
         //        if(isInitialized && isRegistered && (pushConnector != null)){
         //            pushConnector.onDestroy(getApplicationActivity());
         //        }
@@ -746,11 +809,12 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public void messageResponseReceived(Message messagePayload,
                                         HashMap<String, String> responsePayload,
                                         WeakReference<Context> uiReference) {
-        Log.d(TAG, "here in message response received");
         if(pushList.size() >= PUSH_LIMIT)
             pushList.remove(pushList.entrySet().iterator().next());
         pushList.put(messagePayload.id, messagePayload);
 
+        _webView = this.webView;
+        
         if (responsePayload.get("type").equals("present")) {
             Boolean foregroundBool = null;
             if (messagePayload.data.containsKey("foreground")) {
@@ -777,16 +841,40 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 JSONObject messageJson = new JSONObject(messagePayload.toJson());
                 jo.put("message", new JSONObject(messagePayload.toJson()));
                 jo.put("response", new JSONObject(responsePayload));
+            
+                String jos = jo.toString();
+                String _d = "javascript:" + message_response_callback_function + "(" + jos + ")";
+                LogEventsUtils.sendLogTextMessage(TAG, "messageResponseReceived: " + _d);
+                if(isRegistered == true) {
+                    _webView.sendJavascript(_d);
+                } else {
+                    saveJs(PushConnector.appContextHolder.get(), _d);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
+            } catch (NullPointerException e){
+                
             }
-            String jos = jo.toString();
-            String _d = "javascript:" + message_response_callback_function + "(" + jos + ")";
-            LogEventsUtils.sendLogTextMessage(TAG, "messageResponseReceived: " + _d);
-            _webView.sendJavascript(_d);
         } else {
             LogEventsUtils.sendLogTextMessage(TAG, "messageResponseReceived: callback or webview is null");
         }
+    }
+    
+    private void saveJs(Context context, String xpCallbackJs){
+        if(context != null){
+            SharedPreferences prefs = context.getSharedPreferences("xpJs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("XP_CALLBACK_JS", xpCallbackJs);
+            editor.apply();
+        }
+    }
+    
+    private String returnJs(Context context){
+        if (context != null) {
+            SharedPreferences prefs = context.getSharedPreferences("xpJs", Context.MODE_PRIVATE);
+            return prefs.getString("XP_CALLBACK_JS", "");
+        }
+        return("");
     }
     
     public void replaceJsonKeys(JSONObject jo){

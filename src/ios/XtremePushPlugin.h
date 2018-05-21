@@ -1,5 +1,5 @@
 #import <Cordova/CDVPlugin.h>
-#import "XPush.h"
+#import <XPush/XPush.h>
 
 @interface XtremePushPlugin : CDVPlugin {}
 
@@ -10,6 +10,8 @@
 
 - (void) hitEvent:(CDVInvokedUrlCommand*)command;
 - (void) hitTag:(CDVInvokedUrlCommand*)command;
+- (void) setUser:(CDVInvokedUrlCommand*)command;
+- (void) setTempUser:(CDVInvokedUrlCommand*)command;
 - (void) hitImpression:(CDVInvokedUrlCommand*)command;
 - (void) sendTags:(CDVInvokedUrlCommand*)command;
 - (void) sendImpressions:(CDVInvokedUrlCommand*)command;
