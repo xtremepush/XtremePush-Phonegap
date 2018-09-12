@@ -33,7 +33,7 @@
         <!-- your configuration elements, references, source files, etc... -->
         <source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
         <framework src="src/android/XPush.gradle" custom="true" type="gradleReference" />
-        <resource-file src="lib/android/xpush_android_lib/XtremePush_lib.aar" target="lib/android/xpush_android_lib/XtremePush_lib.aar" />
+        <resource-file src="lib/android/xpush_android_lib/XtremePush_lib.aar" target="/lib/android/xpush_android_lib/XtremePush_lib.aar" />
         
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <!-- EDIT: Required for both Geo and Beacon scanning -->

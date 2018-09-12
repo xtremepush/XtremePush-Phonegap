@@ -291,6 +291,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             }
         }
         b.create(getApplicationActivity().getApplication());
+        
         //            callback_function = (String) jo.getString("pushOpenCallback");
         badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
         message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
@@ -299,8 +300,12 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         isRegistered = true;
         initializePushConnector();
         
-        if(mPushConnector.tempResponseHolder != null)
+        if(mPushConnector.tempResponseHolder != null) {
             mPushConnector.tempResponseHolder.callPushOpened();
+            Log.d("HelloMike", "tempreponseHolder not null");
+        } else {
+            Log.d("HelloMike", "tempreponseHolder was null");
+        }
         //        }
         
         callbackContext.success("Successfully registered!");

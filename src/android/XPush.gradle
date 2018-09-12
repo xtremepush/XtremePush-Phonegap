@@ -1,7 +1,7 @@
 
 repositories{
    flatDir {
-    dirs 'lib/android/xpush_android_lib/'
+    dirs 'src/main/lib/android/xpush_android_lib/'
    }
 }
   dependencies {
