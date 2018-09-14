@@ -92,12 +92,12 @@
             <!-- EDIT END -->
 
 			<!-- EDIT: Required for Attributions and Ad ID collection -->
-			<receiver android:name="ie.imobile.extremepush.receivers.ReferrerReceiver"> 
+			<!-- <receiver android:name="ie.imobile.extremepush.receivers.ReferrerReceiver"> 
 				<intent-filter>
 					<action android:name="com.android.vending.INSTALL_REFERRER" />
 					<category android:name="$PACKAGE_NAME" /> 
 				</intent-filter>
-			</receiver>
+			</receiver> -->
 			<!-- EDIT END -->
             
             <activity
@@ -172,7 +172,7 @@
         <framework src="lib/ios/XPush.framework" custom = "true" />
 
 		<!-- EDIT: Required for Attributions and IDFA collection -->
-		<framework src="AdSupport.framework" />
+		<!-- <framework src="AdSupport.framework" /> -->
 		<!-- EDIT END -->
 
 		<source-file src="src/ios/AppDelegate+XtremePush.m" />
