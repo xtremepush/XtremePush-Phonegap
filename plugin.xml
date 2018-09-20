@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="3.0.0"
+	version="3.0.1"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -61,7 +61,7 @@
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             
             <!-- EDIT: Required for Geo scanning -->
-            <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/>
+            <!-- <service android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"/> -->
             <service android:name="ie.imobile.extremepush.location.GeoLocationService" />
             <activity
             android:name="ie.imobile.extremepush.ui.LocationDialogActivity"
@@ -141,6 +141,21 @@
                 </intent-filter>
             </service>
             <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />
+
+            <service
+            android:name="ie.imobile.extremepush.beacons.XPBeaconJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+            <receiver
+                android:name="ie.imobile.extremepush.beacons.BeaconLocationReceiver"
+                android:exported="true" />
+            <receiver
+                android:name="ie.imobile.extremepush.location.GeoLocationBroadcastReceiver"
+                android:exported="true" />
+            <receiver
+                android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"
+                android:exported="true" />
+
         </config-file>
 
      </platform>
