@@ -301,10 +301,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         initializePushConnector();
         
         if(mPushConnector.tempResponseHolder != null) {
-            mPushConnector.tempResponseHolder.callPushOpened();
-            Log.d("HelloMike", "tempreponseHolder not null");
-        } else {
-            Log.d("HelloMike", "tempreponseHolder was null");
+            mPushConnector.tempResponseHolder.callPushOpened();   
         }
         //        }
         
