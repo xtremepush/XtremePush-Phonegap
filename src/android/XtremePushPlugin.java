@@ -664,8 +664,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     }
     
     private void initializePushConnector(){
-        mPushConnector.mLifecycleListener.onActivityCreated(getApplicationActivity(), null);
-        mPushConnector.mLifecycleListener.onActivityStarted(getApplicationActivity());
+        // mPushConnector.mLifecycleListener.onActivityCreated(getApplicationActivity(), null);
+        // mPushConnector.mLifecycleListener.onActivityStarted(getApplicationActivity());
         mPushConnector.mLifecycleListener.onActivityResumed(getApplicationActivity());
         isInitialized = true;
     }
@@ -699,9 +699,9 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
         //        inForeground = true;
-        if (isInitialized && isRegistered && (pushConnector != null)) {
-            initializePushConnector();
-        }
+        // if (isInitialized && isRegistered && (pushConnector != null)) {
+        //     initializePushConnector();
+        // }
         //        if (getApplicationActivity().getIntent().hasExtra(GCMListenerService.EXTRAS_PUSH_MESSAGE)) {
         //            Bundle extras = getApplicationActivity().getIntent().getExtras();
         //            Message pushMessage = extras.getParcelable(GCMListenerService.EXTRAS_PUSH_MESSAGE);
