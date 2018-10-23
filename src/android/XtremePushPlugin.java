@@ -285,6 +285,11 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 b.setIcon(icon);
             }
 
+            if (!joAndroid.isNull("setInboxFullscreen")){
+                Boolean setInboxFullscreen = joAndroid.getBoolean("setInboxFullscreen");
+                b.setInboxFullscreen(setInboxFullscreen);
+            }
+
             if (!joAndroid.isNull("notificationChannelName")){
                 String channelName = joAndroid.getString("notificationChannelName");
                 b.setNotificationChannelName(channelName);
