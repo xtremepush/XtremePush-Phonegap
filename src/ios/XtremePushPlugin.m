@@ -382,13 +382,7 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void) callInboxBadgeCallback {
     if (self.inboxBadgeCallback) {
         NSString * jsCallBack = [NSString stringWithFormat:@"%@(%d);", self.inboxBadgeCallback, [XPush getInboxBadge]];
-        if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
-            // Cordova-iOS pre-4
-            [self.webView performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsCallBack waitUntilDone:NO];
-        } else {
-            // Cordova-iOS 4+
-            [self.webView performSelectorOnMainThread:@selector(evaluateJavaScript:completionHandler:) withObject:jsCallBack waitUntilDone:NO];
-        }
+        [self.commandDelegate evalJs:jsCallBack];
     }
 }
 
