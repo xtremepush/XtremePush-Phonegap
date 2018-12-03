@@ -15,6 +15,8 @@
 - (void) sendImpressions:(CDVInvokedUrlCommand*)command;
 
 - (void) setExternalId:(CDVInvokedUrlCommand*)command;
+- (void) setUser:(CDVInvokedUrlCommand*)command;
+- (void) setTempUser:(CDVInvokedUrlCommand*)command;
 - (void) setSubscription:(CDVInvokedUrlCommand*)command;
 - (void) openInbox:(CDVInvokedUrlCommand*)command;
 - (void) getInboxBadge:(CDVInvokedUrlCommand*)command;
