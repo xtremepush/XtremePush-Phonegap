@@ -289,6 +289,16 @@ static NSMutableDictionary *pushNotificationBackupList;
     [XPush setExternalId:externalId];
 }
 
+- (void) setUser:(CDVInvokedUrlCommand *)command {
+    NSString *userId = [command.arguments objectAtIndex:0];
+    [XPush setUser:userId];
+}
+
+- (void) setTempUser:(CDVInvokedUrlCommand *)command {
+    NSString *userId = [command.arguments objectAtIndex:0];
+    [XPush setTempUser:userId];
+}
+
 - (void) setSubscription:(CDVInvokedUrlCommand *)command {
     BOOL subscription = [[command.arguments objectAtIndex:0] boolValue];
     [XPush setSubscription:subscription];
