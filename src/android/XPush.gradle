@@ -25,6 +25,8 @@ repositories{
      //if ads
      //compile 'com.google.android.gms:play-services-ads:17.1.2'
   }
+apply plugin: 'com.google.gms.google-services'
+
  android {
     packagingOptions {
       exclude 'META-INF/NOTICE'

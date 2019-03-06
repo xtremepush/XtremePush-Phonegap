@@ -498,7 +498,11 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         callbackContext.success(devInfo);
     }
 
-    
+    private void requestLocationsPermissions() {
+        mPushConnector.requestLocationsPermissions(getApplicationActivity());
+    }
+
+
     /*
      * Start intent listening receiving push notifications
      */
