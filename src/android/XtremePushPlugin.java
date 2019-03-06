@@ -18,7 +18,7 @@ import ie.imobile.extremepush.MessageResponseListener;
 import ie.imobile.extremepush.network.ConnectionManager;
 import ie.imobile.extremepush.util.LogEventsUtils;
 import ie.imobile.extremepush.util.SharedPrefUtils;
-import ie.imobile.extremepush.google.GCMListenerService;
+import ie.imobile.extremepush.google.XPFirebaseMessagingService;
 import static ie.imobile.extremepush.PushConnector.mPushConnector;
 import org.apache.cordova.*;
 import org.json.JSONArray;
@@ -497,11 +497,12 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         
         callbackContext.success(devInfo);
     }
-    
+
     private void requestLocationsPermissions() {
         mPushConnector.requestLocationsPermissions(getApplicationActivity());
     }
-    
+
+
     /*
      * Start intent listening receiving push notifications
      */
@@ -517,7 +518,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 if (extras != null)
                 {
                     if (inForeground) {
-                        Message pushMessage = extras.getParcelable(GCMListenerService.EXTRAS_PUSH_MESSAGE);
+                        Message pushMessage = extras.getParcelable(XPFirebaseMessagingService.EXTRAS_PUSH_MESSAGE);
                         if(pushMessage != null){
                             if(!(pushMessage.id.equals(lastForegroundID))){
                                 lastForegroundID = pushMessage.id;
