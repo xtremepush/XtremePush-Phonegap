@@ -1,4 +1,17 @@
 
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:+'
+        classpath 'com.google.gms:google-services:4.2.0'
+    }
+}
+
 repositories{
    flatDir {
     dirs 'lib/android/xpush_android_lib/', 'src/main/lib/android/xpush_android_lib/'
@@ -7,6 +20,7 @@ repositories{
             url "https://maven.google.com"
         }
 }
+
   dependencies {
 
      implementation(name:'XtremePush_lib', ext:'aar')
@@ -25,7 +39,12 @@ repositories{
      //if ads
      compile 'com.google.android.gms:play-services-ads:17.1.2'
   }
-apply plugin: 'com.google.gms.google-services'
+
+ext.postBuildExtras = {
+    if (project.extensions.findByName('googleServices') == null) {
+        apply plugin: com.google.gms.googleservices.GoogleServicesPlugin
+    }
+}
 
  android {
     packagingOptions {
