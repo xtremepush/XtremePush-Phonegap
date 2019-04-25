@@ -308,6 +308,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if(mPushConnector.tempResponseHolder != null) {
             mPushConnector.tempResponseHolder.callPushOpened();   
         }
+        
         //        }
         
         callbackContext.success("Successfully registered!");
@@ -793,7 +794,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public void messageResponseReceived(Message messagePayload,
                                         HashMap<String, String> responsePayload,
                                         WeakReference<Context> uiReference) {
-        Log.d(TAG, "here in message response received");
         if(pushList.size() >= PUSH_LIMIT)
             pushList.remove(pushList.entrySet().iterator().next());
         pushList.put(messagePayload.id, messagePayload);
