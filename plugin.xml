@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.1.1"
+	version="4.2.0"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -153,12 +153,6 @@
 			</feature>
 		</config-file>
 
-		<!-- EDIT: Required when location functionality is used -->
-		<preference name="NSLocationAlwaysUsageDescription" default="We use location services to send you relevant information, when and where you need it" />
-		<config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-			<string>$NSLocationAlwaysUsageDescription</string>
-		</config-file>
-		<!-- EDIT END -->
 
 		<framework src="Security.framework" />
 		<framework src="CFNetwork.framework" />
