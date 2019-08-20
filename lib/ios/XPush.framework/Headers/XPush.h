@@ -8,8 +8,8 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import "XPPublicConstants.h"
-#import "XPMessageResponseNotification.h"
 #import "XPMessageResponse.h"
+#import "XPInboxItem.h"
 
 @interface XPush : NSObject
 
@@ -19,7 +19,6 @@
  * Make sure to configure SDK options before calling it
  */
 + (void)applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
-
 
 
 /** SDK CONFIGURATION **/
@@ -64,9 +63,14 @@
 /** LOCATIONS CONFIGURATION **/
 
 /**
- * Turn on to enable geofence and ibeacon monitoring in the app
+ * Turn on to enable geofence monitoring in the app
  */
 + (void)setLocationEnabled:(BOOL)locationEnabled;
+
+/**
+ * Turn on to enable ibeacon monitoring in the app
+ */
++ (void)setBeaconsEnabled:(BOOL)beaconsEnabled;
 
 /**
  * Turn off to prevent SDK to request location persmissions automatically
@@ -142,7 +146,7 @@
  */
 + (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler;
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler API_AVAILABLE(ios(10.0));
 
 /**
  * Call this method in your custom UNNotificationCenterDelegate's
@@ -150,16 +154,34 @@
  */
 + (void)userNotificationCenter:(UNUserNotificationCenter *)center
 didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(XPSimpleCompletionBlock)completionHandler;
+         withCompletionHandler:(XPSimpleCompletionBlock)completionHandler API_AVAILABLE(ios(10.0));
 
-
+/**
+ * Call this method in your custom UNNotificationCenterDelegate's
+ * [userNotificationCenter:openSettingsForNotification:]
+ */
++ (void)userNotificationCenter:(UNUserNotificationCenter *)center
+   openSettingsForNotification:(UNNotification *)notification API_AVAILABLE(ios(12.0));
 
 /** PUSH MESSAGING */
 
 /**
- * Register current application and this lib to receive notifications
+ * Register current application and this lib to receive notifications.
+ * Starting from iOS 12, XPush automatically provides you with new Apple's
+ * provisional authorization experience.
+ * If you used to prompt user with notification permission dialog at Application start,
+ * you don't need to do anything to take advantage of provisional authorization.
+ * If you have tailored user experience with notification promp showing at particular moment,
+ * you might want to use method with `provisionalAuthorization` param to turn off provisional authorization.
  */
 + (void)registerForRemoteNotificationTypes:(XPNotificationType)types;
+
+/**
+ * Register current application and this lib to receive notifications
+ * @param provisional - pass NO if you'd like to keep prompting user for notifications
+ */
++ (void)registerForRemoteNotificationTypes:(XPNotificationType)types
+                  provisionalAuthorization:(BOOL)provisional;
 
 /**
  * Unregister current application and this lib to receive notifications
@@ -202,6 +224,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 + (void)registerDeeplinkHandler: (XPDeeplinkCallback)callback;
 
 /**
+ * Register standard deeplinks handler
+ * Called when user hits "Manage notification" in notification center.
+ * You are given option to show user your custom Notification settings UI
+ */
++ (void)registerNotificationSettingsHandler: (XPNotificationSettingCallback)callback;
+
+/**
  * Progamatically process message click event after showing custom dialog
  */
 + (void)clickMessage:(XPMessage *)message;
@@ -239,6 +268,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  * Open inbox
  */
 + (void)openInbox;
+
+/**
+ * Force presents inbox regardless of currently presented ViewController
+ * We discourage you from using this method. It could lead to unexpected presentation issues with your already presented viewController
+ * We recommend using openInbox and make sure that there isn't any viewControllers presented at the moment
+ */
++ (void)forceOpenInbox;
 
 /**
  * Get current inbox badge
@@ -279,7 +315,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  */
 + (void)hitImpression:(NSString *)impression;
 
-
+/**
+ * Force presents inapp message regardless of currently presented ViewController
+ * We discourage you from using this method. It could lead to unexpected presentation issues with your already presented viewController
+ * We recommend making sure that there isn't any viewControllers presented at the moment
+ */
++ (void) forcePresentInappMessage: (BOOL) shouldForcePresent;
 
 /** DEVICE INFORMATION **/
 
@@ -292,6 +333,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  * Switch device's push subscription on/off
  */
 + (void)setSubscription:(BOOL)subscription;
+
+/**
+ * Returns current subscription status
+ */
++ (BOOL)getSubscription;
 
 /**
  *	Returns version of the lib.
@@ -334,11 +380,19 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 /**
  *  Set a limit for a maximum number of stored tags, impressions and sessions
  */
-+ (void)setTagsStoreLimit:(NSUInteger *)limit;
-+ (void)setImpressionsStoreLimit:(NSUInteger *)limit;
-+ (void)setSessionsStoreLimit:(NSUInteger *)limit;
++ (void)setTagsStoreLimit:(NSUInteger )limit;
++ (void)setImpressionsStoreLimit:(NSUInteger )limit;
++ (void)setSessionsStoreLimit:(NSUInteger)limit;
 
+/**
+ *    Used to get a list of inbox messages for current device
+ */
++ (void)inboxListWithOffset:(NSUInteger)offset limit:(NSUInteger)limit callback:(XPInboxListCallback)callback;
 
+/**
+ *    Used to remove a message from inbox by it's id
+ */
++ (void)removeInboxMessage:(XPInboxItem*)message callback:(XPInboxBadgeCallback)callback;
 
 /** DEPRECATED PUSH MESSAGES ACCESS METHODS */
 
@@ -376,24 +430,36 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 + (void)setServerExpectedCertificateFromFile:(NSString *)filePath preferedIndex:(NSNumber*)index;
 + (void)setServerExpectedCertificateFromFiles:(NSArray *)filePathArray preferedIndex:(NSNumber*)index;
 
+/**
+ *  Notification service extension
+ */
+
+NS_ASSUME_NONNULL_BEGIN;
+
++ (NSString* _Nullable) didReceiveNotificationRequest:(UNNotificationRequest * )request
+                                   withContentHandler:(void (^)(UNNotificationContent *))contentHandler;
++ (void) serviceExtensionTimeWillExpireWith:(NSString* _Nullable ) token;
+
+/**
+ *  Notification preferences
+ */
+
++ (void)updateUserWith:(NSDictionary*) preferences completionHandler:(XPChannelPreferencesCallback) callback;
+
++ (void)updatePushSubscription :(BOOL) subscriptionStatus completionHandler:(XPChannelPreferencesCallback) callback;
++ (void)updateEmailSubscription:(BOOL) subscriptionStatus completionHandler:(XPChannelPreferencesCallback) callback;
++ (void)updateSmsSubscription  :(BOOL) subscriptionStatus completionHandler:(XPChannelPreferencesCallback) callback;
+
++ (void)updatePushSubscriptionPreferences :(NSDictionary*) preferences completionHandler:(XPChannelPreferencesCallback) callback;
++ (void)updateEmailSubscriptionPreferences:(NSDictionary*) preferences completionHandler:(XPChannelPreferencesCallback) callback;
++ (void)updateSmsSubscriptionPreferences  :(NSDictionary*) preferences completionHandler:(XPChannelPreferencesCallback) callback;
+
++ (void)importUser:(NSDictionary*) preferences
+ completionHandler:(XPChannelPreferencesCallback) callback;
+
+NS_ASSUME_NONNULL_END;
+
 @end
-
-
-/** DEPRECATED PUSH MESSAGE MODEL **/
-
-@interface XPPushModel : NSObject
-@property (nonatomic, readonly) NSDate      *createDate;
-@property (nonatomic, readonly) NSString    *pushId;
-@property (nonatomic, readonly) NSString    *locationId;
-@property (nonatomic, readonly) NSString    *alert;
-@property (nonatomic, readonly) NSInteger   badge;
-@property (nonatomic, readonly) NSString    *messageId;
-@property (nonatomic, readonly) NSString    *url;
-@property (nonatomic, readonly) BOOL        shouldOpenInApp;
-@property (nonatomic, readonly) BOOL        isRead;
-@property (nonatomic, readonly) NSDictionary *customPayload;
-@end
-
 
 /** INBOX BUTTON **/
 
