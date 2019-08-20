@@ -138,6 +138,9 @@
                     <category android:name="$PACKAGE_NAME" />
                 </intent-filter>
             </receiver>
+            <meta-data
+                    android:name="com.google.android.gms.ads.AD_MANAGER_APP"
+                    android:value="true"/>
             <!-- EDIT END -->
 
             <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
@@ -147,8 +150,6 @@
             <receiver
                     android:name="ie.imobile.extremepush.beacons.BeaconLocationReceiver"
                     android:exported="true" />
-
-
 
         </config-file>
 
@@ -163,12 +164,12 @@
 			</feature>
 		</config-file>
 
-		<!-- EDIT: Required when location functionality is used -->
-		<preference name="NSLocationAlwaysUsageDescription" default="We use location services to send you relevant information, when and where you need it" />
-		<config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-			<string>$NSLocationAlwaysUsageDescription</string>
-		</config-file>
-		<!-- EDIT END -->
+		<!--&lt;!&ndash; EDIT: Required when location functionality is used &ndash;&gt;-->
+		<!--<preference name="NSLocationAlwaysUsageDescription" default="We use location services to send you relevant information, when and where you need it" />-->
+		<!--<config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">-->
+			<!--<string>$NSLocationAlwaysUsageDescription</string>-->
+		<!--</config-file>-->
+		<!--&lt;!&ndash; EDIT END &ndash;&gt;-->
 
 		<framework src="Security.framework" />
 		<framework src="CFNetwork.framework" />
