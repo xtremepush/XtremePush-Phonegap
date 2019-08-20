@@ -75,7 +75,10 @@ static NSMutableDictionary *pushNotificationBackupList;
         
         id locationsEnabled = [iosOptions objectForKey:@"locationsEnabled"];
         if (locationsEnabled != nil) [XPush setLocationEnabled:[locationsEnabled boolValue]];
-        
+
+        id beaconsEnabled = [iosOptions objectForKey:@"beaconsEnabled"];
+        if (beaconsEnabled != nil) [XPush setBeaconsEnabled:[beaconsEnabled boolValue]];
+
         id locationsPermissionsRequest = [iosOptions objectForKey:@"locationsPermissionsRequest"];
         if (locationsPermissionsRequest != nil) requestLocationPermissions = [locationsPermissionsRequest boolValue];
         
