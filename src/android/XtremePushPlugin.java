@@ -201,6 +201,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         b.setShowForegroundNotifications(false);
         b.setDeeplinkListener(this);
         b.setInboxBadgeUpdateListener(this);
+
+        try {
+            if(PushConnector.mPushConnector != null) {
+                PushConnector.mPushConnector.setMessageResponseListener(this);
+                PushConnector.mPushConnector.setInboxBadgeUpdateListener(this);
+                PushConnector.mPushConnector.setDeeplinkListener(this);
+            }
+        } catch (Exception e) {}
         
         if (!jo.isNull("serverUrl")){
             String serverUrl = jo.getString("serverUrl");
@@ -308,8 +316,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if(mPushConnector.tempResponseHolder != null) {
             mPushConnector.tempResponseHolder.callPushOpened();   
         }
-        
-        //        }
         
         callbackContext.success("Successfully registered!");
     }
