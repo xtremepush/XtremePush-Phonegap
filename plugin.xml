@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.2.2"
+	version="4.2.4"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -64,7 +64,7 @@
             <activity
                     android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
                     android:exported="false"
-                    android:taskAffinity="ie.imobile.extremepush.ui.temptask" />
+                    android:taskAffinity="" />
             <activity
                     android:name="ie.imobile.extremepush.ui.WebViewActivity"
                     android:exported="false" />
