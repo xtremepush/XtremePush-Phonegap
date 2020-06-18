@@ -132,19 +132,21 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     [XPush registerMessageResponseHandler: ^(XPMessageResponse * _Nonnull response) {
         // Remove the surplus of old notifications in the backup
-        if ([pushNotificationBackupList count] > 30) {
-            NSArray *keys = [pushNotificationBackupList allKeys];
-            NSInteger xmin = MAXFLOAT;
-            for (NSNumber *num in keys) {
-                NSInteger x = num.integerValue;
-                if (x < xmin) xmin = x;
+        if (response.message.identifier != nil){
+            if ([pushNotificationBackupList count] > 30) {
+                NSArray *keys = [pushNotificationBackupList allKeys];
+                NSInteger xmin = MAXFLOAT;
+                for (NSNumber *num in keys) {
+                    NSInteger x = num.integerValue;
+                    if (x < xmin) xmin = x;
+                }
+                [pushNotificationBackupList removeObjectForKey:[NSString stringWithFormat: @"%ld", xmin]];
             }
-            [pushNotificationBackupList removeObjectForKey:[NSString stringWithFormat: @"%ld", xmin]];
-        }
-        //Insert in the list last notification arrived that is not in the list yet
-        if ([pushNotificationBackupList objectForKey:response.message.identifier]==nil)
-        {
-            [pushNotificationBackupList setObject:response.message forKey:response.message.identifier];
+            //Insert in the list last notification arrived that is not in the list yet
+            if ([pushNotificationBackupList objectForKey:response.message.identifier]==nil)
+            {
+                [pushNotificationBackupList setObject:response.message forKey:response.message.identifier];
+            }
         }
         //Create NSMutableDictionary with message and response
         NSMutableDictionary *mapToReturn = [NSMutableDictionary new];
