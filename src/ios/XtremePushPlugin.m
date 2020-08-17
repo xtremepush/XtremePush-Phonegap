@@ -247,9 +247,11 @@ static NSMutableDictionary *pushNotificationBackupList;
     }];
 }
 
-- (void) registerWithToken :(CDVInvokedUrlCommand *)command {
+ (void) registerWithToken :(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        [XPush applicationDidRegisterForRemoteNotificationsWithDeviceTokenString:[command.arguments objectAtIndex:0]];
+        NSString* tokenString = [command.arguments objectAtIndex:0][@"value"];
+        NSString* tokenToPass = tokenString.lowercaseString;
+        [XPush applicationDidRegisterForRemoteNotificationsWithDeviceTokenString:tokenToPass];
     }];
 }
 
