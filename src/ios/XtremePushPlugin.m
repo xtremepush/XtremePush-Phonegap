@@ -89,7 +89,7 @@ static NSMutableDictionary *pushNotificationBackupList;
         if (pushPermissionsRequest != nil) requestNotificationPermissions = [pushPermissionsRequest boolValue];
 
         id sandboxModeEnabled = [iosOptions objectForKey:@"sandboxMode"];
-        if (sandboxModeEnabled != nil) [XPush setSandboxModeEnabled:[sandboxModeEnabled boolValue];
+        if (sandboxModeEnabled != nil) [XPush setSandboxModeEnabled:[sandboxModeEnabled boolValue]];
 
     }
     [XPush setAsksForLocationPermissions:requestLocationPermissions];
