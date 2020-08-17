@@ -87,6 +87,10 @@ static NSMutableDictionary *pushNotificationBackupList;
         
         id pushPermissionsRequest = [iosOptions objectForKey:@"pushPermissionsRequest"];
         if (pushPermissionsRequest != nil) requestNotificationPermissions = [pushPermissionsRequest boolValue];
+
+        id sandboxModeEnabled = [iosOptions objectForKey:@"sandboxMode"];
+        if (sandboxModeEnabled != nil) [XPush setSandboxModeEnabled:[sandboxModeEnabled boolValue];
+
     }
     [XPush setAsksForLocationPermissions:requestLocationPermissions];
     if (requestNotificationPermissions)
@@ -240,6 +244,12 @@ static NSMutableDictionary *pushNotificationBackupList;
             NSString *tag = [command.arguments objectAtIndex:0];
             [XPush hitTag:tag];
         }
+    }];
+}
+
+- (void) registerWithToken :(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        [XPush applicationDidRegisterForRemoteNotificationsWithDeviceToken:[command.arguments objectAtIndex:0]];
     }];
 }
 

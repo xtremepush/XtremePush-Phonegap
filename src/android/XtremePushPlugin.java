@@ -381,6 +381,10 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         mPushConnector.setUser(data.getString(0));
     }
 
+    private void registerWithToken(JSONArray data) throws JSONException {
+
+    }
+
     private void setTempUser(JSONArray data) throws JSONException {
         if (!isRegistered){
             LogEventsUtils.sendLogTextMessage(TAG, "setTempUser: Please call register function first");
