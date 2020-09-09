@@ -6,6 +6,12 @@
 @implementation AppDelegate (notifications)
 
 + (void)load {
+    
+    BOOL disabled = [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"XPushSwizzlingDisabled"] boolValue];
+    if (disabled) {
+        return;
+    }
+    
     [self swizzleMethodWithClass: [self class]
                 originalSelector: @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)
              andReplacedSelector: @selector(xtremepushReplaced:didRegisterForRemoteNotificationsWithDeviceToken:)
