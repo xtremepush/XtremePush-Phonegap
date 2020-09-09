@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.2.6"
+	version="4.2.7"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -163,7 +163,6 @@
 				<param name="onload" value="true" />
 			</feature>
 		</config-file>
-
 
 		<framework src="Security.framework" />
 		<framework src="CFNetwork.framework" />
