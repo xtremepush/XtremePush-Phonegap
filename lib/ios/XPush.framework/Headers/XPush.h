@@ -58,7 +58,10 @@
  */
 + (void)setInAppMessageEnabled:(BOOL)enabled;
 
-
+/**
+* Turn on to make XPush not register for push notification and request permissions from user
+*/
++ (void)enableManualPushRegistration: (BOOL) enabled;
 
 /** LOCATIONS CONFIGURATION **/
 
@@ -87,7 +90,20 @@
  */
 + (void)setLocationUpdateRadius:(CGFloat) radius;
 
+/**
+* Enables delivery recipts for push notification
+* should be called in you push extension file before any additional XPush calls
+* prefereably in init method of Notification service
+* Disabled by default
+*/
++ (void) setDeliveryReceiptsEnabled:(BOOL) isEnabled;
 
+/*
+ * @param endpoint -- URL where Xtremepush is going to POST delivery receipts.
+ * Payload will contain message_id and campaign_id
+ */
++ (void) setDeliveryReceiptsEnabled:(BOOL) isEnabled
+            customReportingEndpoint:(NSString*) endpoint;
 
 /** DELEGATE BRIDGES **/
 
@@ -102,6 +118,8 @@
  * [application:didFailToRegisterForRemoteNotificationsWithError:]
  */
 + (void)applicationDidFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+
++ (void)applicationDidRegisterForRemoteNotificationsWithDeviceTokenString:(NSString *)deviceTokenString;
 
 /**
  * Call this method in your AppDelegate's 
@@ -352,7 +370,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  *  externalID - key for external id.
  */
 + (NSDictionary *)deviceInfo;
-
 
 
 /** INAPP BEHAVIOR RELEASING CONFIGURATION **/
