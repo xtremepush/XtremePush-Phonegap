@@ -87,10 +87,19 @@ static NSMutableDictionary *pushNotificationBackupList;
         
         id pushPermissionsRequest = [iosOptions objectForKey:@"pushPermissionsRequest"];
         if (pushPermissionsRequest != nil) requestNotificationPermissions = [pushPermissionsRequest boolValue];
+        
+        bool enabledManualPush = [iosOptions[@"enableManualPushRegistration"] boolValue];
+        if (enabledManualPush) {
+            [XPush enableManualPushRegistration:YES];
+        }
+        
     }
     [XPush setAsksForLocationPermissions:requestLocationPermissions];
-    if (requestNotificationPermissions)
+    
+    if (requestNotificationPermissions) {
         [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
+    }
+        
     pushNotificationBackupList = [[NSMutableDictionary alloc] init];
     [self registerXpushConfiguration];
     [XPush setShouldProcessNotificationsFromLaunchOptions:YES];
