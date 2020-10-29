@@ -116,6 +116,8 @@ static NSMutableDictionary *pushNotificationBackupList;
     }
     Storage.store.tempUserInfo = nil;
     Storage.store.identifier = nil;
+    
+    [self successWithMessage:@"Successfully registered!" withCallbackId:command.callbackId];
 }
 
 - (void)registerXpushConfiguration {
