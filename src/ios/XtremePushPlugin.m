@@ -103,6 +103,7 @@ static NSMutableDictionary *pushNotificationBackupList;
     pushNotificationBackupList = [[NSMutableDictionary alloc] init];
     [self registerXpushConfiguration];
     [XPush setShouldProcessNotificationsFromLaunchOptions:YES];
+    [XPush setCordovaLaunchMode:YES];
     
     [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
     
