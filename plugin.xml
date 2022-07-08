@@ -77,7 +77,8 @@
             <service
                     android:name="ie.imobile.extremepush.util.ImageHandlerJobService"
                     android:permission="android.permission.BIND_JOB_SERVICE" />
-            <receiver android:name="ie.imobile.extremepush.receivers.XP_App_Update_Receiver" >
+            <receiver android:name="ie.imobile.extremepush.receivers.XP_App_Update_Receiver"
+                      android:exported= "false">>
                 <intent-filter >
                     <action   android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                     <category android:name="." />
@@ -85,7 +86,8 @@
             </receiver>
 
             <!-- REQUIRED for Push, Geo-location & iBeacon -->
-            <receiver android:name="ie.imobile.extremepush.receivers.CoreBroadcastReceiver">
+            <receiver android:name="ie.imobile.extremepush.receivers.CoreBroadcastReceiver"
+                      android:exported= "false">>
                 <intent-filter>
                     <action android:name="ie.imobile.extremepush.BEACON_SERVICE_STARTED" />
                     <action android:name="ie.imobile.extremepush.COMMAND" />
@@ -101,7 +103,8 @@
 
             <!-- REQUIRED for Push -->
             <service
-                    android:name="ie.imobile.extremepush.google.XPFirebaseMessagingService">
+                    android:name="ie.imobile.extremepush.google.XPFirebaseMessagingService"
+                    android:exported= "false">>
                 <intent-filter>
                     <action android:name="com.google.firebase.MESSAGING_EVENT"/>
                 </intent-filter>
@@ -112,10 +115,10 @@
             <service android:name="ie.imobile.extremepush.location.GeoLocationService" />
             <receiver
                     android:name="ie.imobile.extremepush.location.GeoLocationBroadcastReceiver"
-                    android:exported="true" />
+                    android:exported="false" />
             <receiver
                     android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver"
-                    android:exported="true" />
+                    android:exported="false" />
 
 
             <!-- REQUIRED for iBeacon -->
@@ -130,7 +133,8 @@
                     android:enabled="true"
                     android:exported="false" />
             <!-- EDIT END -->
-            <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService" />
+            <service android:name="ie.imobile.extremepush.beacons.BeaconLocationService"
+                     android:exported= "false"/>
             <service
                     android:name="ie.imobile.extremepush.beacons.XPBeaconJobService"
                     android:permission="android.permission.BIND_JOB_SERVICE" />
