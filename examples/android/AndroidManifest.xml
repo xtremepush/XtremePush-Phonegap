@@ -26,26 +26,6 @@
 
 
 
-        <receiver
-                android:name="ie.imobile.extremepush.GCMReceiver"
-                android:permission="com.google.android.c2dm.permission.SEND" >
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <category android:name="xtreme.com.push" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name="ie.imobile.extremepush.GCMIntentService" />
-        <receiver android:name="ie.imobile.extremepush.location.ProxymityAlertReceiver" />
-        <activity
-                android:name="ie.imobile.extremepush.ui.WebViewActivity"
-                android:exported="false" />
-
-        <activity
-                android:name="ie.imobile.extremepush.ui.XPushLogActivity"
-                android:exported="false" />
-
     </application>
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
 </manifest>

@@ -363,7 +363,7 @@ static NSMutableDictionary *pushNotificationBackupList;
         if (![actionNotification isEqual:[NSNull null]]) {
             [XPush reportMessageClicked:x actionIdentifier:actionNotification];
         } else {
-            [XPush reportMessageClicked:x];
+            [XPush reportMessageClicked:x context:nil];
         }
     } else {
         NSLog(@"clickMessage - Invalid push notification with id = %@", idNotification);

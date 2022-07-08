@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.2.9"
+	version="4.3.1"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -34,7 +34,7 @@
         <source-file src="src/android/XtremePushPlugin.java" target-dir="src/com/xtreme/plugins/" />
         <framework src="src/android/XPush.gradle" custom="true" type="gradleReference" />
         <resource-file src="lib/android/xpush_android_lib/XtremePush_lib.aar" target="lib/android/xpush_android_lib/XtremePush_lib.aar"  />
-        
+
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <!-- REQUIRED for xtremepush -->
             <uses-permission android:name="android.permission.INTERNET" />
@@ -53,7 +53,7 @@
                     android:name="android.hardware.bluetooth_le"
                     android:required="false" />
         </config-file>
-        
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
 
             <activity
@@ -73,7 +73,7 @@
                     android:exported="false"
                     android:label="Locations are not available"
                     android:theme="@android:style/Theme.Dialog" />
-            <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />
+<!--            <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />-->
             <service
                     android:name="ie.imobile.extremepush.util.ImageHandlerJobService"
                     android:permission="android.permission.BIND_JOB_SERVICE" />
