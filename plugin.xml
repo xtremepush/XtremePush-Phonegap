@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.2.9"
+	version="4.3.1"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -73,7 +73,7 @@
                     android:exported="false"
                     android:label="Locations are not available"
                     android:theme="@android:style/Theme.Dialog" />
-            <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />
+<!--            <service android:name="ie.imobile.extremepush.NotificationOnClickHandlerService" />-->
             <service
                     android:name="ie.imobile.extremepush.util.ImageHandlerJobService"
                     android:permission="android.permission.BIND_JOB_SERVICE" />

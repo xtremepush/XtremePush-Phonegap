@@ -76,6 +76,12 @@
 + (void)setBeaconsEnabled:(BOOL)beaconsEnabled;
 
 /**
+ * Call this early if you want XP to avoid registering Push Categories
+ * usefull if you prefer to manage those manually
+ */
++ (void) disablePushCategories;
+
+/**
  * Turn off to prevent SDK to request location persmissions automatically
  */
 + (void)setAsksForLocationPermissions:(BOOL)asksForLocationPermissions;
@@ -261,6 +267,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 + (void)registerNotificationSettingsHandler: (XPNotificationSettingCallback)callback;
 
 /**
+ * Register handler for native messages
+ */
++ (void)registerNativeMessageHandler: (XPNativeMessageCallback)callback;
+
+/**
  * Progamatically process message click event after showing custom dialog
  */
 + (void)clickMessage:(XPMessage *)message;
@@ -272,8 +283,17 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 /**
  * Report message being clicked after showing custom dialog
+ *  * @param - context. Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ * pass nil for absent context
  */
-+ (void)reportMessageClicked:(XPMessage *)message;
++ (void)reportMessageClicked:(XPMessage *)message context:(NSDictionary*)context;
+
+/**
+ * Report message being delivered after showing custom dialog
+ * @param - context. Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ * pass nil for absent context
+ */
++ (void)reportMessageDelivered:(XPMessage *)message context:(NSDictionary*)context;
 
 /**
  * Report message being clicked with certain action identifier after showing custom dialog
