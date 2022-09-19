@@ -31,6 +31,7 @@ repositories{
 
      //firebase
      implementation 'com.google.firebase:firebase-messaging:22.0.0'
+     implementation 'com.google.firebase:firebase-auth:21.0.1'
 
      //if location
      implementation 'com.google.android.gms:play-services-location:18.0.0'
