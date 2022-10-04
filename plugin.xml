@@ -104,7 +104,7 @@
             <!-- REQUIRED for Push -->
             <service
                     android:name="ie.imobile.extremepush.google.XPFirebaseMessagingService"
-                    android:exported= "false">>
+                    android:exported= "false">
                 <intent-filter>
                     <action android:name="com.google.firebase.MESSAGING_EVENT"/>
                 </intent-filter>
