@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.3.2"
+	version="4.3.3"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -78,7 +78,7 @@
                     android:name="ie.imobile.extremepush.util.ImageHandlerJobService"
                     android:permission="android.permission.BIND_JOB_SERVICE" />
             <receiver android:name="ie.imobile.extremepush.receivers.XP_App_Update_Receiver"
-                      android:exported= "false">>
+                      android:exported= "false">
                 <intent-filter >
                     <action   android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                     <category android:name="." />
@@ -87,7 +87,7 @@
 
             <!-- REQUIRED for Push, Geo-location & iBeacon -->
             <receiver android:name="ie.imobile.extremepush.receivers.CoreBroadcastReceiver"
-                      android:exported= "false">>
+                      android:exported= "false">
                 <intent-filter>
                     <action android:name="ie.imobile.extremepush.BEACON_SERVICE_STARTED" />
                     <action android:name="ie.imobile.extremepush.COMMAND" />
