@@ -267,7 +267,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         
         
         if(!jo.isNull("foregroundNotificationsEnabled")){
-            setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
+            b.setShowForegroundNotifications(jo.getBoolean("foregroundNotificationsEnabled"));
+//            setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
         }
         
         if(joAndroid != null) {
