@@ -177,7 +177,7 @@
 		<framework src="CoreLocation.framework" />
 		<framework src="CoreBluetooth.framework" />
 		<framework src="libz.dylib" />
-        <framework src="lib/ios/XPush.framework" custom = "true" />
+        <framework src="lib/ios/XPush.xcframework" custom = "true" />
 
 		<!-- EDIT: Required for Attributions and IDFA collection -->
 		<framework src="AdSupport.framework" />
