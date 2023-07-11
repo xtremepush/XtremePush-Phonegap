@@ -303,13 +303,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 String channelName = joAndroid.getString("notificationChannelName");
                 b.setNotificationChannelName(channelName);
             }
-
-            if (!joAndroid.isNull("enableLocationDialog")){
-                Boolean locationDialog = joAndroid.getBoolean("enableLocationDialog");
-                b.setEnableLocationDialog(locationDialog);
-            }
-
         }
+        b.setServerExpectedPublicKey(null);
         b.create(getApplicationActivity().getApplication());
         
         //            callback_function = (String) jo.getString("pushOpenCallback");
