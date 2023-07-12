@@ -21,9 +21,10 @@
 	<engines>
 		<engine name="cordova" version=">=4.0.0" />
 	</engines>
-    
 
     <platform name="android">
+        <hook type="after_plugin_install" src="hooks/after_plugin_install.js" />
+        <hook type="before_plugin_uninstall" src="hooks/before_plugin_uninstall.js" />
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="XtremePush">
                 <param name="android-package" value="com.xtreme.plugins.XtremePushPlugin" />

@@ -39,9 +39,9 @@ repositories{
      //compile 'com.google.android.gms:play-services-ads:17.1.2'
   }
 
-//ext.postBuildExtras = {
-//    apply plugin: 'com.huawei.agconnect'
-//}
+ext.postBuildExtras = {
+    apply plugin: 'com.huawei.agconnect'
+}
 
  android {
     packagingOptions {
