@@ -214,11 +214,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             String serverUrl = jo.getString("serverUrl");
             b.setServerUrl(serverUrl);
         }
-
-        if (!jo.isNull("serverUrl")){
-            String serverUrl = jo.getString("serverUrl");
-            b.setServerUrl(serverUrl);
-        }
         
         if (!jo.isNull("attributionsEnabled")){
             Boolean attributions = jo.getBoolean("attributionsEnabled");
@@ -303,8 +298,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 String channelName = joAndroid.getString("notificationChannelName");
                 b.setNotificationChannelName(channelName);
             }
+
+            if (!joAndroid.isNull("expectedPubKeyNull")){
+                b.setServerExpectedPublicKey(null);
+            }
+
+
         }
-        b.setServerExpectedPublicKey(null);
+
         b.create(getApplicationActivity().getApplication());
         
         //            callback_function = (String) jo.getString("pushOpenCallback");
