@@ -55,6 +55,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public static final String SETSUBSCRIPTION = "setSubscription";
     public static final String DEVICEINFO = "deviceInfo";
     public static final String REQUESTLOCATIONSPERMISSIONS = "requestLocationsPermissions";
+    public static final String REQUESTPUSHPERMISSIONS = "requestPushPermissions";
     public static final String OPENINBOX = "openInbox";
     public static final String GETINBOXBADGE = "getInboxBadge";
     public static final String SHOWNOTIFICATION = "showNotification";
@@ -84,6 +85,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     private static String lastNotificationID = "";
     private static String lastForegroundID = "";
     private static String lastBackgroundID = "";
+    private static boolean requestNotificationPermissions = true;
     
     private static Map<String, Message> pushList = new LinkedHashMap<String, Message>();
     private final static int PUSH_LIMIT = 30;
@@ -142,6 +144,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             getDeviceInfo(callbackContext);
         } else if (REQUESTLOCATIONSPERMISSIONS.equals(action)) {
             requestLocationsPermissions();
+        } else if (REQUESTPUSHPERMISSIONS.equals(action)) {
+            requestPushPermissions();
         } else if (OPENINBOX.equals(action)) {
             openInbox();
         } else if (GETINBOXBADGE.equals(action)) {
@@ -309,7 +313,13 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 b.setEnableLocationDialog(locationDialog);
             }
 
+            if (!joAndroid.isNull("pushPermissionsRequest")){
+                requestNotificationPermissions = joAndroid.getBoolean("pushPermissionsRequest");
+
+            }
+
         }
+        b.requestNotificationPermission(requestNotificationPermissions);
         b.create(getApplicationActivity().getApplication());
         
         //            callback_function = (String) jo.getString("pushOpenCallback");
@@ -469,6 +479,15 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         cordova.setActivityResultCallback(this);
         if (mPushConnector != null)
             mPushConnector.openInbox(getApplicationActivity());
+    }
+
+    private void requestPushPermissions(){
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "openInbox: Please call register function first");
+            return;
+        }
+        if (mPushConnector != null)
+            mPushConnector.requestNotificationPermissions(getApplicationActivity());
     }
     
     private void getInboxBadge()
