@@ -201,4 +201,8 @@ XtremePush.prototype.unregisterForRemoteNotifications = function(){
    return exec(null, null, 'XtremePush', 'unregisterForRemoteNotifications', []);
 };
 
+XtremePush.prototype.authenticate = function(id){
+   return exec(null, null, 'XtremePush', 'authenticate', [id]);
+};
+
 module.exports = new XtremePush();
