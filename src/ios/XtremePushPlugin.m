@@ -66,6 +66,12 @@ static NSMutableDictionary *pushNotificationBackupList;
     id foregroundNotificationsEnabled = [options objectForKey:@"foregroundNotificationsEnabled"];
     if (foregroundNotificationsEnabled != nil) foregroundNotificationsEnabledValue = [foregroundNotificationsEnabled boolValue];
 
+    id deliveryReceiptsEnabled = [options objectForKey:@"deliveryReceiptsEnabled"];
+    if (deliveryReceiptsEnabled != nil) [XPush setDeliveryReceiptsEnabled:deliveryReceiptsEnabled];
+
+    id encryptedMessagesEnabled = [options objectForKey:@"encryptedMessagesEnabled"];
+    if (encryptedMessagesEnabled) [XPush enableEncryptedPush];
+
     NSDictionary *iosOptions = [options objectForKey:@"ios"];
     
     if (iosOptions != nil)
@@ -268,8 +274,8 @@ static NSMutableDictionary *pushNotificationBackupList;
                     }
                     if ([value isKindOfClass:[NSDictionary class]]) {
                         //ToDo Fix native support for event with values then uncomment
-                        //NSDictionary *value = [command.arguments objectAtIndex:1];
-                        //[XPush hitEvent:title withValues: value];
+//                         NSDictionary *value = [command.arguments objectAtIndex:1];
+//                         [XPush hitEvent:title withValues: value];
                         [XPush hitEvent:title];
                     }
                 } else {
@@ -309,6 +315,11 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void) setUser:(CDVInvokedUrlCommand *)command {
     NSString *userId = [command.arguments objectAtIndex:0];
     [XPush setUser:userId];
+}
+
+- (void)authenticate:(CDVInvokedUrlCommand *)command {
+    NSString *token = [command.arguments objectAtIndex:0];
+    [XPush authenticate:token];
 }
 
 - (void) setTempUser:(CDVInvokedUrlCommand *)command {

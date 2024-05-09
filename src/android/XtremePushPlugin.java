@@ -218,11 +218,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             String serverUrl = jo.getString("serverUrl");
             b.setServerUrl(serverUrl);
         }
-
-        if (!jo.isNull("serverUrl")){
-            String serverUrl = jo.getString("serverUrl");
-            b.setServerUrl(serverUrl);
-        }
         
         if (!jo.isNull("attributionsEnabled")){
             Boolean attributions = jo.getBoolean("attributionsEnabled");
@@ -273,6 +268,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if(!jo.isNull("foregroundNotificationsEnabled")){
             b.setShowForegroundNotifications(jo.getBoolean("foregroundNotificationsEnabled"));
 //            setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
+        }
+
+        if(!jo.isNull("deliveryReceiptsEnabled")){
+            b.setDeliveryReceiptsEnabled(jo.getBoolean("deliveryReceiptsEnabled"));
+        }
+
+        if(!jo.isNull("encryptedMessagesEnabled")){
+            b.setEncryptedMessagesEnabled(jo.getBoolean("encryptedMessagesEnabled"));
         }
         
         if(joAndroid != null) {
@@ -376,6 +379,20 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         }
         if (mPushConnector != null)
             mPushConnector.hitEvent(getApplicationContext(), title, message);
+    }
+
+    private void authenticate(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please call register function first");
+            return;
+        }
+
+        if (data.isNull(0)){
+            LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please provide user ID");
+            return;
+        }
+        if (mPushConnector != null)
+            mPushConnector.authenticate(getApplicationContext(), data.getString(0));
     }
 
     private void setUser(JSONArray data) throws JSONException {
