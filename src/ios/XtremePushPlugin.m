@@ -110,6 +110,11 @@ static NSMutableDictionary *pushNotificationBackupList;
     [self registerXpushConfiguration];
     [XPush setShouldProcessNotificationsFromLaunchOptions:YES];
     [XPush setCordovaLaunchMode:YES];
+
+
+    #if DEBUG
+        [XPush setSandboxModeEnabled:YES];
+    #endif
     
     [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
     
