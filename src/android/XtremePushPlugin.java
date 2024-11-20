@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import androidx.core.content.ContextCompat;
 
 /**
  * Created by Dmytro Malieiev on 6/8/14.
@@ -586,8 +587,12 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 }
             }
         };
-        
-        this.getApplicationContext().registerReceiver(mReceiver, intentFilter);
+
+        ContextCompat.registerReceiver(
+                this.getApplicationContext(),
+                mReceiver,
+                intentFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
     }
     
     /*
