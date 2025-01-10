@@ -204,6 +204,11 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 gcmProjectNumber = joAndroid.getString("gcmProjectNumber");
             }
         }
+        if (!jo.isNull("useEncryptedSharedPreferences")){
+            Boolean useESP = jo.getBoolean("useEncryptedSharedPreferences");
+            PushConnector.useEncryptedSharedPref(getApplicationActivity(), useESP);
+        }
+
         PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
 
         b.setMessageResponseListener(this);
@@ -326,6 +331,10 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
 
             }
 
+            if (!joAndroid.isNull("expectedPublicKey")){
+                String publicKey = joAndroid.getString("expectedPublicKey");
+                b.setServerExpectedPublicKey(publicKey);
+            }
         }
         b.requestNotificationPermission(requestNotificationPermissions);
         b.create(getApplicationActivity().getApplication());
