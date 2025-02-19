@@ -33,7 +33,7 @@ repositories{
      implementation 'com.google.firebase:firebase-auth:21.0.1'
 
      //if location
-     implementation 'com.google.android.gms:play-services-location:21.3.0'
+     implementation 'com.google.android.gms:play-services-location:21.0.1'
      implementation 'org.altbeacon:android-beacon-library:2.19.2'
 
      implementation 'androidx.security:security-crypto:1.0.0'
