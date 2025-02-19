@@ -109,7 +109,7 @@
  * Payload will contain message_id and campaign_id
  */
 + (void) setDeliveryReceiptsEnabled:(BOOL) isEnabled
-            customReportingEndpoint:(NSString*) endpoint;
+            customReportingEndpoint:(NSString*_Nullable) endpoint;
 
 /*
  * XPush will use encryption for push notifiction
@@ -121,7 +121,12 @@
  * @param appGroup -- name of the App Group you defined for your bundle identifier
  * Required for using delivery receipts or encrypted push notifications
  */
-+ (void) enableAppGroups: (NSString*) appGroup;
++ (void) enableAppGroups: (NSString*_Nonnull) appGroup;
+
+/*
+ * Required for authenticating user with a token
+ */
++ (void)authenticate:(NSString*_Nonnull)token;
 
 /** DELEGATE BRIDGES **/
 
@@ -180,17 +185,17 @@
  * Call this method in your custom UNNotificationCenterDelegate's
  * [userNotificationCenter:willPresentNotification:withCompletionHandler:]
  */
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center
-       willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler API_AVAILABLE(ios(10.0));
++ (void)userNotificationCenter:(UNUserNotificationCenter *_Nonnull)center
+       willPresentNotification:(UNNotification *_Nonnull)notification
+         withCompletionHandler:(void (^_Nonnull)(UNNotificationPresentationOptions))completionHandler API_AVAILABLE(ios(10.0));
 
 /**
  * Call this method in your custom UNNotificationCenterDelegate's
  * [userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:]
  */
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center
-didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(XPSimpleCompletionBlock)completionHandler API_AVAILABLE(ios(10.0));
++ (void)userNotificationCenter:(UNUserNotificationCenter *_Nonnull)center
+didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
+         withCompletionHandler:(XPSimpleCompletionBlock _Nullable )completionHandler API_AVAILABLE(ios(10.0));
 
 /**
  * Call this method in your custom UNNotificationCenterDelegate's
@@ -293,14 +298,21 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 /**
  * Report message being clicked after showing custom dialog
- *  * @param - context. Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ *  * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
  * pass nil for absent context
  */
 + (void)reportMessageClicked:(XPMessage *)message context:(NSDictionary*)context;
 
 /**
+ * Report message being opened
+ *  * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ * pass nil for absent context
+ */
++ (void)reportMessageOpened:(XPMessage *)message context:(NSDictionary *)context;
+
+/**
  * Report message being delivered after showing custom dialog
- * @param - context. Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
  * pass nil for absent context
  */
 + (void)reportMessageDelivered:(XPMessage *)message context:(NSDictionary*)context;
@@ -309,6 +321,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  * Report message being clicked with certain action identifier after showing custom dialog
  */
 + (void)reportMessageClicked:(XPMessage *)message actionIdentifier:(NSString*)actionIdentifier;
+
+/**
+ * Report message being opened with certain action identifier
+ */
++ (void)reportMessageOpened:(XPMessage *)message actionIdentifier:(NSString*)actionIdentifier;
 
 /**
  * Report message being closed after showing custom dialog

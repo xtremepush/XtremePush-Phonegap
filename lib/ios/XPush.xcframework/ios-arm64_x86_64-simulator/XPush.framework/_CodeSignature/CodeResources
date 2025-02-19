@@ -30,15 +30,19 @@
 		</data>
 		<key>Headers/XPush.h</key>
 		<data>
-		GaSCoW4W+JSkIIPqX4X65tHEXIs=
+		xEjqMEAudSzr+C/+3TYA5fL09HI=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		ScJmS27Kn0Jd0HneIYidAxy3nms=
+		5sTIOYmpezz/9M/PcZ8K+xVBfjY=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
-		+09McJ/AZoWfq7AaRZseMbKPlm0=
+		7SLXNz3W7Pd7tRlHEpN/cCATfEk=
+		</data>
+		<key>PrivacyInfo.xcprivacy</key>
+		<data>
+		B4tA9GQA5LexGgnjrriMruUXmQ0=
 		</data>
 		<key>icon_safari.png</key>
 		<data>
@@ -97,14 +101,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Dm5K8AKwZdC27daqcgaCaLrXfd8lItp1nQD7cM9ASxQ=
+			JmU5KrYW1ykRNeTW3aqSqDh1jyb+4ws21j3/4RaTvHg=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Dta3Vn7r7bC9wF/pn+5Rt1FVSMy03n1yv9iJSVxpnD8=
+			IuAivjMyhjlLqpdRUIZgnFac1fNNE8My7rTyv0Z3Oco=
+			</data>
+		</dict>
+		<key>PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LTcpF8zDNokHDX066l1I5vR73kC5sz5YitCokSVa8SU=
 			</data>
 		</dict>
 		<key>icon_safari.png</key>
