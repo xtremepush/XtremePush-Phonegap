@@ -30,7 +30,8 @@ repositories{
 
      //firebase
      implementation 'com.google.firebase:firebase-messaging:24.0.3'
-     implementation 'com.google.firebase:firebase-auth:21.0.1'
+      // upgrading firebase auth to latest version
+      implementation 'com.google.firebase:firebase-auth:23.2.0'
 
      //if location
 //     implementation 'com.google.android.gms:play-services-location:21.3.0'
