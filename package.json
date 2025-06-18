@@ -1,6 +1,6 @@
 {
   "name": "com.xtreme.plugins.XtremePush",
-  "version": "4.5.11",
+  "version": "4.5.12",
   "description": "Plugin allows integration with Xtreme Push provider.",
   "cordova": {
     "id": "com.xtreme.plugins.XtremePush",
