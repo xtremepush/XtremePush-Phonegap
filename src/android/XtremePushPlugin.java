@@ -892,7 +892,6 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 }
             }
         }
-
         if (message_response_callback_function != null && _webView != null){
             JSONObject jo = new JSONObject();
             try {
