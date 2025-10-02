@@ -24,6 +24,9 @@ import org.apache.cordova.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.ArrayList;
+import ie.imobile.extremepush.InboxListListener;
+import ie.imobile.extremepush.api.model.InboxMessageListItem;
 
 import android.view.OrientationEventListener;
 import android.hardware.SensorManager;
@@ -42,7 +45,7 @@ import androidx.core.content.ContextCompat;
 /**
  * Created by Dmytro Malieiev on 6/8/14.
  */
-public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener {
+public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener, InboxListListener {
 
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
@@ -66,6 +69,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public static final String REPORTMESSAGECLICKED = "reportMessageClicked";
     public static final String REPORTMESSAGEDISMISSED = "reportMessageDismissed";
     public static final String ONCONFIGCHANGED = "onConfigChanged";
+    public static final String GETINBOXLIST = "getInboxList";
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -74,6 +78,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     private static String callback_function;
     private static String badge_callback_function;
     private static String deeplink_callback_function;
+    private static String inbox_list_callback_function;
     private static String message_response_callback_function;
     private static CallbackContext _callbackContext;
     private static Bundle cachedExtras;
@@ -129,7 +134,9 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             hitImpression(data);
         } else if (HITEVENT.equals(action)) {
             hitEvent(data);
-        } else if (SETUSER.equals(action)) {
+        } else if (GETINBOXLIST.equals(action)) {
+            getInboxList(data);
+        }else if (SETUSER.equals(action)) {
             setUser(data);
         } else if (SETTEMPUSER.equals(action)) {
             setTempUser(data);
@@ -212,6 +219,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
 
         b.setMessageResponseListener(this);
+        b.setInboxListListener(this);
         b.setShowForegroundNotifications(false);
         b.setDeeplinkListener(this);
         b.setInboxBadgeUpdateListener(this);
@@ -221,6 +229,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 PushConnector.mPushConnector.setMessageResponseListener(this);
                 PushConnector.mPushConnector.setInboxBadgeUpdateListener(this);
                 PushConnector.mPushConnector.setDeeplinkListener(this);
+                PushConnector.mPushConnector.setInboxListListener(this);
             }
         } catch (Exception e) {}
 
@@ -343,6 +352,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
         message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
         deeplink_callback_function = (String) jo.optString("deeplinkCallback", null);
+        inbox_list_callback_function = (String) jo.optString("inboxListCallback", null);
         initNotificationMessageReceivers();
         isRegistered = true;
         initializePushConnector();
@@ -393,6 +403,21 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         }
         if (mPushConnector != null)
             mPushConnector.hitEvent(getApplicationContext(), title, message);
+    }
+
+    private void getInboxList(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "getInboxList: Please call register function first");
+            return;
+        }
+        if (data.isNull(0) || data.isNull(1)){
+            LogEventsUtils.sendLogTextMessage(TAG, "getInboxList: Please provide offset and limit");
+            return;
+        }
+        int offset = data.getInt(0);
+        int limit = data.getInt(1);
+        if (mPushConnector != null)
+            mPushConnector.inboxListWithOffset(getApplicationContext(), offset, limit);
     }
 
     private void authenticate(JSONArray data) throws JSONException {
@@ -863,6 +888,38 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        inForeground = false;
         //        callback_function = null;
         //        webView = null;
+    }
+
+    @Override
+    public void inboxListReceived
+            (ArrayList<InboxMessageListItem> inboxList, WeakReference<Context> uiReference) {
+        try {
+            JSONObject jo = new JSONObject();
+            JSONArray ja = new JSONArray();
+            for (int i = 0; i < inboxList.size(); i++) {
+                JSONObject outer = new JSONObject(inboxList.get(i).toString());
+                JSONObject jom = new JSONObject(inboxList.get(i).message.toString());
+                outer.put("message", jom);
+                ja.put(outer);
+            }
+            jo.put("messages",ja);
+            String jos = jo.toString();
+
+            if (inbox_list_callback_function != null && _webView != null){
+                String _d = "javascript:" + inbox_list_callback_function + "(" + jos + ")";
+                LogEventsUtils.sendLogTextMessage(TAG, "inboxListReceived: " + _d);
+                _webView.sendJavascript(_d);
+            } else {
+                LogEventsUtils.sendLogTextMessage(TAG, "inboxListReceived: callback or webview is null");
+            }
+        } catch (Exception e) {
+            LogEventsUtils.sendLogTextMessage(TAG, "inboxList error: "+e.toString());
+        }
+    }
+
+    @Override
+    public void inboxListFailed() {
+
     }
 
     @Override

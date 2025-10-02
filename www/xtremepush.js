@@ -187,6 +187,13 @@ XtremePush.prototype.reportMessageClicked = function(id, action){
 };
 
 /**
+ * Calling function to get inbox list with offset
+ */
+XtremePush.prototype.getInboxList = function(offset, limit){
+   return exec(null, null, 'XtremePush', 'getInboxList', [offset, limit]);
+};
+
+/**
  * Calling function to report message dismissed
  */
 XtremePush.prototype.reportMessageDismissed = function(id){
