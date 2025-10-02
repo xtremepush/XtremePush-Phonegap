@@ -4,6 +4,7 @@
 @interface XtremePushPlugin()
 @property (nonatomic, strong) NSString *_receiveCallback;//callbackId
 @property (nonatomic, strong) NSString *_deeplinkCallback;
+@property (nonatomic, strong) NSString *_inboxListCallback;
 @property NSString *inboxBadgeCallback;
 @property NSDictionary *launchOptions;
 @end
@@ -53,6 +54,9 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     id deeplinkCallback = [options objectForKey:@"deeplinkCallback"];
     if (deeplinkCallback != nil) self._deeplinkCallback = deeplinkCallback;
+
+    id inboxListCallback = [options objectForKey:@"inboxListCallback"];
+    if (inboxListCallback != nil) self._inboxListCallback = inboxListCallback;
     
     id serverUrl = [options objectForKey:@"serverUrl"];
     if (serverUrl != nil) [XPush setServerURL:serverUrl];
@@ -235,6 +239,8 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 
+
+
 - (void)requestPushPermissions:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
@@ -291,6 +297,34 @@ static NSMutableDictionary *pushNotificationBackupList;
             }
         }
     }];
+}
+
+
+- (NSDictionary *)dictionaryFromInboxMessage:(XPInboxItem *)object {
+
+    NSMutableDictionary *itemDict = [NSMutableDictionary dictionary];
+    itemDict[NSStringFromSelector(@selector(identifier))] = @(object.identifier);
+    itemDict[NSStringFromSelector(@selector(isOpened))] = @(object.isOpened);
+    itemDict[NSStringFromSelector(@selector(isClicked))] = @(object.isClicked);
+    itemDict[NSStringFromSelector(@selector(isDelivered))] = @(object.isDelivered);
+    itemDict[NSStringFromSelector(@selector(createTimestamp))] = object.createTimestamp;
+    itemDict[NSStringFromSelector(@selector(expirationTimestamp))] = object.expirationTimestamp;
+    itemDict[NSStringFromSelector(@selector(isCard))] = @(object.isCard);
+    itemDict[NSStringFromSelector(@selector(isDelivered))] = @(object.isDelivered);
+
+    NSMutableDictionary *messageDict = [NSMutableDictionary dictionary];
+    messageDict[NSStringFromSelector(@selector(type))] = @(object.response.message.type);
+    messageDict[NSStringFromSelector(@selector(identifier))] = object.response.message.identifier;
+    messageDict[NSStringFromSelector(@selector(title))] = object.response.message.title;
+    messageDict[NSStringFromSelector(@selector(text))] = object.response.message.text;
+    messageDict[NSStringFromSelector(@selector(url))] = [object.response.action.url absoluteString];
+    messageDict[NSStringFromSelector(@selector(icon))] = object.response.message.icon;
+    messageDict[NSStringFromSelector(@selector(campaignIdentifier))] = object.response.message.campaignIdentifier;
+    messageDict[NSStringFromSelector(@selector(data))] = object.response.message.data;
+
+    itemDict[NSStringFromSelector(@selector(message))] = messageDict;
+
+    return [itemDict copy];
 }
 
 - (void) hitImpression:(CDVInvokedUrlCommand *)command {
@@ -415,6 +449,23 @@ static NSMutableDictionary *pushNotificationBackupList;
     }
 }
 
+- (void) callInboxCallback:(NSDictionary *)x {
+    if (self._inboxListCallback) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:x
+                                                           options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                             error:&error];
+        if (! jsonData) {
+            NSLog(@"Got an error: %@", error);
+        } else {
+            NSString *jsonStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self._inboxListCallback, jsonStr];
+            //NSLog(@"!!!jsCallBack: %@", jsCallBack);
+            [self.commandDelegate evalJs:jsCallBack];
+        }
+    }
+}
+
 - (void) callDeeplinkCallback:(NSString *)x {
     if (self._deeplinkCallback) {
         NSString * jsCallBack = [NSString stringWithFormat:@"%@('%@');", self._deeplinkCallback, x];
@@ -488,6 +539,43 @@ forLocalNotification:(UILocalNotification *)notification
 handleActionWithIdentifier:identifier
   forLocalNotification:notification
      completionHandler:completionHandler];
+}
+
+
+- (void) getInboxList: (CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSInteger offset = [[command.arguments objectAtIndex:0]integerValue];
+        NSInteger limit = [[command.arguments objectAtIndex:1] integerValue];
+        if (offset >= 0 && limit > 0) {
+            [XPush inboxListWithOffset:offset limit:limit callback:^(NSArray<XPInboxItem *> * _Nullable list, NSError * _Nullable error) {
+                if (list != nil) {
+                    NSMutableDictionary *listDict = @{}.mutableCopy;
+                    NSMutableArray *messageDicts = [NSMutableArray array];
+                    for (XPInboxItem *item in list) {
+                        NSDictionary *msgDict = [self dictionaryFromInboxMessage:item];
+                        [messageDicts addObject:msgDict];
+
+                    }
+                    listDict[@"messages"] = messageDicts;
+
+                    NSError *error = nil;
+                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:listDict
+                                                                       options:NSJSONWritingPrettyPrinted
+                                                                         error:&error];
+                    if (error) {
+                        NSLog(@"Error converting to JSON: %@", error.localizedDescription);
+                    }
+                    // JSON style string list of XPInboxItem's
+                    NSString *listStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                    [self callInboxCallback: listDict];
+
+                } else if (error != nil) {
+                    NSLog(@"Error converting to JSON: %@", error.localizedDescription);
+
+                }
+            }];
+        }
+    }];
 }
 
 @end
