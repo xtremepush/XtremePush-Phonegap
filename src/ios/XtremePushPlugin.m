@@ -321,6 +321,9 @@ static NSMutableDictionary *pushNotificationBackupList;
     messageDict[NSStringFromSelector(@selector(icon))] = object.response.message.icon;
     messageDict[NSStringFromSelector(@selector(campaignIdentifier))] = object.response.message.campaignIdentifier;
     messageDict[NSStringFromSelector(@selector(data))] = object.response.message.data;
+    messageDict[NSStringFromSelector(@selector(deeplink))] = object.response.action.deeplink;
+    messageDict[NSStringFromSelector(@selector(inapp))] = object.response.action.inapp;
+
 
     itemDict[NSStringFromSelector(@selector(message))] = messageDict;
 
