@@ -42,7 +42,7 @@ import androidx.core.content.ContextCompat;
 /**
  * Created by Dmytro Malieiev on 6/8/14.
  */
-public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener {
+public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener, LoyaltyTokenHandler {
 
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
@@ -66,6 +66,13 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public static final String REPORTMESSAGECLICKED = "reportMessageClicked";
     public static final String REPORTMESSAGEDISMISSED = "reportMessageDismissed";
     public static final String ONCONFIGCHANGED = "onConfigChanged";
+    public static final String SETLOYALTYENDPOINT = "setLoyaltyEndpoint";
+    public static final String OPENLOYALTY = "openLoyalty";
+    public static final String GETLOYALTYURL = "getLoyaltyUrl";
+    public static final String SETLOYALTYTOKENHANDLER = "setLoyaltyTokenHandler";
+    public static final String SETLOYALTYTOKEN = "setLoyaltyToken";
+    public static final String TRIGGER_LOYALTY_TOKEN_HANDLER = "_triggerLoyaltyTokenHandler";
+    public static final String TRIGGER_LOYALTY_DEEPLINK = "_triggerLoyaltyDeeplink";
 
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
@@ -75,6 +82,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     private static String badge_callback_function;
     private static String deeplink_callback_function;
     private static String message_response_callback_function;
+    private static String loyalty_token_callback_function;
     private static CallbackContext _callbackContext;
     private static Bundle cachedExtras;
     private PushConnector pushConnector;
@@ -165,6 +173,20 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             reportMessageDismissed(data);
         } else if (ONCONFIGCHANGED.equals(action)){
             onRotation();
+        } else if (SETLOYALTYENDPOINT.equals(action)) {
+            setLoyaltyEndpoint(data);
+        } else if (OPENLOYALTY.equals(action)) {
+            openLoyalty(data);
+        } else if (GETLOYALTYURL.equals(action)) {
+            getLoyaltyUrl(data, callbackContext);
+        } else if (SETLOYALTYTOKENHANDLER.equals(action)) {
+            setLoyaltyTokenHandler(data);
+        } else if (SETLOYALTYTOKEN.equals(action)) {
+            setLoyaltyToken(data);
+        } else if (TRIGGER_LOYALTY_TOKEN_HANDLER.equals(action)) {
+            triggerLoyaltyTokenHandler();
+        } else if (TRIGGER_LOYALTY_DEEPLINK.equals(action)) {
+            triggerLoyaltyDeeplink(data);
         }
 
         if ( cachedExtras != null) {
@@ -1001,6 +1023,130 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         }
         if (mPushConnector != null)
             mPushConnector.showNotification(pushList.get(messageId));
+    }
+
+    private void setLoyaltyEndpoint(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        String endpoint = data.getString(0);
+
+        if (mPushConnector != null) {
+            SharedPrefUtils.setLoyaltyEndpoint(endpoint, getApplicationContext());
+        }
+    }
+
+    private void openLoyalty(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            return;
+        }
+
+        String path = null;
+        JSONObject params = null;
+
+        if (!data.isNull(0)){
+            path = data.getString(0);
+        }
+        if (!data.isNull(1)){
+            params = data.getJSONObject(1);
+        }
+
+        if (mPushConnector != null) {
+            mPushConnector.openLoyalty(getApplicationActivity(), path, params);
+        }
+    }
+
+    private void getLoyaltyUrl(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "getLoyaltyUrl: Please call register function first");
+            callbackContext.error("Please call register function first");
+            return;
+        }
+
+        String path = null;
+        JSONObject params = null;
+
+        if (!data.isNull(0)){
+            path = data.getString(0);
+        }
+        if (!data.isNull(1)){
+            params = data.getJSONObject(1);
+        }
+
+        if (mPushConnector != null) {
+            String url = mPushConnector.getLoyaltyUrl(getApplicationContext(), path, params);
+            callbackContext.success(url);
+        } else {
+            callbackContext.error("PushConnector not initialized");
+        }
+    }
+
+    private void setLoyaltyTokenHandler(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        loyalty_token_callback_function = data.getString(0);
+
+        if (mPushConnector != null) {
+            mPushConnector.setLoyaltyTokenHandler(this);
+        }
+    }
+
+    private void setLoyaltyToken(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        final String token = data.getString(0);
+
+        if (mPushConnector != null) {
+            // CRITICAL: WebView operations must run on UI thread
+            // The native SDK's tokenUpdated() method calls webView.evaluateJavascript()
+            // which will fail if not on UI thread
+            final Activity activity = getApplicationActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // This calls the native SDK which will:
+                        // 1. Store the token
+                        // 2. If loyalty webview is open, call tokenUpdated(token) which posts message to webview
+                        mPushConnector.setLoyaltyToken(getApplicationContext(), token);
+                    }
+                });
+            } else {
+                LogEventsUtils.sendLogTextMessage(TAG, "setLoyaltyToken: Activity is null, cannot run on UI thread");
+            }
+        } else {
+            LogEventsUtils.sendLogTextMessage(TAG, "setLoyaltyToken: mPushConnector is null");
+        }
+    }
+
+    @Override
+    public void retrieveToken() {
+        if (loyalty_token_callback_function != null && _webView != null) {
+            String _d = "javascript:" + loyalty_token_callback_function + "()";
+            _webView.sendJavascript(_d);
+        }
+    }
+
+    // Internal method called by injected JavaScript interface in custom webviews
+    private void triggerLoyaltyTokenHandler() {
+        retrieveToken();
+    }
+
+    // Internal method called by injected JavaScript interface for deeplinks in custom webviews
+    private void triggerLoyaltyDeeplink(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        String deeplink = data.getString(0);
+
+        // Trigger the existing deeplink handler
+        deeplinkReceived(deeplink, new WeakReference<Context>(getApplicationContext()));
     }
 
 }

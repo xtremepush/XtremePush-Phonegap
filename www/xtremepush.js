@@ -205,4 +205,109 @@ XtremePush.prototype.authenticate = function(id){
    return exec(null, null, 'XtremePush', 'authenticate', [id]);
 };
 
+/**
+ * Setting the loyalty endpoint
+ * @param  {String}   endpoint   Loyalty endpoint URL
+ */
+XtremePush.prototype.setLoyaltyEndpoint = function(endpoint){
+   return exec(null, null, 'XtremePush', 'setLoyaltyEndpoint', [endpoint]);
+};
+
+/**
+ * Open loyalty widget
+ * @param  {String}   path      Optional path extension (e.g., "/rewards")
+ * @param  {Object}   params    Optional parameters object (color-mode, lang)
+ */
+XtremePush.prototype.openLoyalty = function(path, params){
+   var args = [];
+   if (path !== undefined && path !== null) {
+      args.push(path);
+      if (params !== undefined && params !== null) {
+         args.push(params);
+      }
+   }
+   return exec(null, null, 'XtremePush', 'openLoyalty', args);
+};
+
+/**
+ * Get loyalty URL for custom webview implementation
+ * @param  {String}     path      Optional path extension
+ * @param  {Object}     params    Optional parameters object
+ * @param  {Function}   callback  Callback function to receive the URL
+ */
+XtremePush.prototype.getLoyaltyUrl = function(path, params, successCallback, errorCallback){
+   var args = [];
+   if (path !== undefined && path !== null) {
+      args.push(path);
+      if (params !== undefined && params !== null) {
+         args.push(params);
+      } else if (successCallback !== undefined) {
+         args.push(null);
+      }
+   }
+   return exec(successCallback, errorCallback, 'XtremePush', 'getLoyaltyUrl', args);
+};
+
+/**
+ * Register callback for loyalty token expiration
+ * @param  {String}   callbackFunctionName   JavaScript function name to be executed when token expires
+ */
+XtremePush.prototype.setLoyaltyTokenHandler = function(callbackFunctionName){
+   return exec(null, null, 'XtremePush', 'setLoyaltyTokenHandler', [callbackFunctionName]);
+};
+
+/**
+ * Provide fresh loyalty token after token expiration
+ * @param  {String}   token   New JWT token for loyalty
+ */
+XtremePush.prototype.setLoyaltyToken = function(token){
+   return exec(null, null, 'XtremePush', 'setLoyaltyToken', [token]);
+};
+
+/**
+ * Get JavaScript interface code to inject into custom webview
+ * This provides the bridge between the loyalty web widget and Cordova handlers
+ * @return {String}   JavaScript code to inject via webview.executeScript()
+ */
+XtremePush.prototype.getLoyaltyWebViewInterface = function(){
+   return `
+(function() {
+    // Create XtremePush interface for loyalty widget
+    window.XtremePush = {
+        handleMessage: function(messageString) {
+            try {
+                var message = JSON.parse(messageString);
+
+                // Handle token expiration
+                if (message.type === 'error' &&
+                    message.payload &&
+                    message.payload.type === 'auth:token-expired') {
+                    console.log('[XtremePush] Token expired, triggering handler');
+                    cordova.exec(null, null, 'XtremePush', '_triggerLoyaltyTokenHandler', []);
+                }
+
+                // Handle deeplink redirect
+                if (message.type === 'redirect' && message.payload && message.payload.redirect) {
+                    console.log('[XtremePush] Deeplink detected:', message.payload.redirect);
+                    cordova.exec(null, null, 'XtremePush', '_triggerLoyaltyDeeplink', [message.payload.redirect]);
+                }
+            } catch (e) {
+                console.error('[XtremePush] Error handling message:', e);
+            }
+        },
+
+        messageFail: function(message) {
+            console.error('[XtremePush] Loyalty error:', message);
+        },
+
+        messageWarn: function(message) {
+            console.warn('[XtremePush] Loyalty warning:', message);
+        }
+    };
+
+    console.log('[XtremePush] Loyalty interface initialized');
+})();
+   `.trim();
+};
+
 module.exports = new XtremePush();

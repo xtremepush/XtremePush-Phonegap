@@ -62,6 +62,11 @@
                     android:label="@string/title_activity_inbox"
                     android:theme="@style/Theme.Transparent" />
             <activity
+                    android:name="ie.imobile.extremepush.ui.LoyaltyActivity"
+                    android:configChanges="orientation|screenSize"
+                    android:exported="false"
+                    android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            <activity
                     android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
                     android:exported="false"
                     android:taskAffinity="" />
