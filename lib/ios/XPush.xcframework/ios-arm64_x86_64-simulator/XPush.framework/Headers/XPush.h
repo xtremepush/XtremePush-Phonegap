@@ -8,7 +8,6 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import <XPush/XPPublicConstants.h>
-#import <XPush/XPPublicConstants.h>
 #import <XPush/XPInboxItem.h>
 
 @interface XPush : NSObject
@@ -230,6 +229,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
 + (void)unregisterForRemoteNotifications;
 
 /**
+ * Check if notification permission can be requested
+ * @param callback - completion handler that returns YES if permission can be requested, NO otherwise
+ */
++ (void)canRequestNotificationPermission:(void(^)(BOOL canRequest))callback;
+
+/**
  * Customise foreground notification behaviours
  */
 + (void)registerForegroundNotificationOptions:(XPForegroundNotificationOptions)options;
@@ -310,6 +315,9 @@ didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
  */
 + (void)reportMessageOpened:(XPMessage *)message context:(NSDictionary *)context;
 
++ (void)reportInboxMessageClicked:(NSString *_Nonnull)messageID actionIdentifier:(NSString*_Nonnull)actionIdentifier;
+
++ (void)reportInboxMessageOpened:(NSString *_Nonnull)messageID actionIdentifier:(NSString*_Nonnull)actionIdentifier;
 /**
  * Report message being delivered after showing custom dialog
  * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
@@ -354,9 +362,21 @@ didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
 + (void)forceOpenInbox;
 
 /**
- * Get current inbox badge
+ * Returns cached inbox badge value
  */
 + (NSInteger)getInboxBadge;
+
+/**
+ * Retrieves the latest inbox badge count and updates the cached value
+ */
++ (void)retrieveInboxBadge;
+
+/**
+ * Retrieves the latest inbox badge count, updates the cache, and returns the updated cached value.
+ */
+
++ (void)retrieveInboxBadgeWithCompletion:(nullable void(^)(NSInteger badge, NSError * _Nullable error))completion;
+
 
 + (void) registerInboxChangeCallback:(void(^)(NSInteger)) callback;
 
@@ -398,6 +418,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
  * We recommend making sure that there isn't any viewControllers presented at the moment
  */
 + (void) forcePresentInappMessage: (BOOL) shouldForcePresent;
+
+
++ (void)startInappPoll;
+
+
++ (void)stopInappPoll;
+
 
 /** DEVICE INFORMATION **/
 
@@ -534,6 +561,52 @@ NS_ASSUME_NONNULL_BEGIN;
 + (void)importUser:(NSDictionary*) preferences
  completionHandler:(XPChannelPreferencesCallback) callback;
 
+
+/**
+ *  sports feed
+ */
++ (void)followSportsFeed:(NSString *_Nonnull)sportFeedID withToken:(NSString *_Nonnull)token;
+
+
+/** LIVE ACTIVITIES */
+
+/**
+ *  Handle Live Activtivity pusht-to-start token
+ */
++ (void)handleLiveActivityToken:(NSString *)token
+                           type:(NSString *)type
+                     activityId:(NSString *)activityId;
+
+/**
+ *  Handle Live Activtivity update token
+ */
++ (void)handleLiveActivityUpdateToken:(NSString *)token
+                           activityId:(NSString *)activityId;
+
+/**
+ *  Ends live activity subscription
+ */
++ (void)endLiveActivitySubscription:(NSString *)activityID;
+
+
+/** LOYALTY */
+
++ (void)setLoyaltyToken:(NSString *)jwtToken;
+
++ (void)registerLoyaltyTokenHandler:(XPLoyaltyTokenHandler)handler;
+
++ (void)setLoyaltyEndpoint:(NSString *)endpoint;
+
++ (void)openLoyalty;
++ (void)openLoyaltyWithPath:(NSString * _Nullable)pathExtension
+                     params:(NSDictionary * _Nullable)params;
+
++ (void)getLoyaltyURLWithCompletion:(void (^)(NSURL * _Nullable url, NSError * _Nullable error))completion;
++ (void)getLoyaltyURLWithPath:(NSString * _Nullable)pathExtension
+                       params:(NSDictionary * _Nullable)params
+                   completion:(void (^)(NSURL * _Nullable url,
+                                       NSError * _Nullable error))completion;
+
 NS_ASSUME_NONNULL_END;
 
 @end
@@ -541,11 +614,11 @@ NS_ASSUME_NONNULL_END;
 /** INBOX BUTTON **/
 
 @interface XPInboxButton : UIButton
-- (UILabel *)badge;
+- (UILabel *_Nonnull)badge;
 - (void)setBadgeSize:(NSInteger)badgeSize;
 - (void)setBadgePosition:(CGPoint)badgeSize;
-- (void)setBadgeColor:(UIColor *)color;
-- (void)setBadgeTextColor:(UIColor *)color;
+- (void)setBadgeColor:(UIColor *_Nonnull)color;
+- (void)setBadgeTextColor:(UIColor *_Nonnull)color;
 @end
 
 

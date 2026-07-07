@@ -6,6 +6,8 @@
 @property (nonatomic, strong) NSString *_deeplinkCallback;
 @property (nonatomic, strong) NSString *_inboxListCallback;
 @property NSString *inboxBadgeCallback;
+@property NSString *loyaltyTokenCallback;
+@property (nonatomic, copy) XPLoyaltyTokenHandlerCompletion pendingLoyaltyCompletion;
 @property NSDictionary *launchOptions;
 @end
 
@@ -432,6 +434,111 @@ static NSMutableDictionary *pushNotificationBackupList;
     }else {
         NSLog(@"Invalid push notification with id = %@", idNotification);
         return;
+    }
+}
+
+- (void)setLoyaltyEndpoint:(CDVInvokedUrlCommand *)command {
+    NSString *endpoint = [command.arguments objectAtIndex:0];
+    if (endpoint != nil) {
+        [XPush setLoyaltyEndpoint:endpoint];
+    }
+}
+
+- (void)openLoyalty:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *path = nil;
+        NSDictionary *params = nil;
+
+        if ([command.arguments count] > 0 && ![[command.arguments objectAtIndex:0] isEqual:[NSNull null]]) {
+            path = [command.arguments objectAtIndex:0];
+        }
+        if ([command.arguments count] > 1 && ![[command.arguments objectAtIndex:1] isEqual:[NSNull null]]) {
+            params = [command.arguments objectAtIndex:1];
+        }
+
+        if (path != nil || params != nil) {
+            [XPush openLoyaltyWithPath:path params:params];
+        } else {
+            [XPush openLoyalty];
+        }
+    }];
+}
+
+- (void)getLoyaltyUrl:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *path = nil;
+        NSDictionary *params = nil;
+
+        if ([command.arguments count] > 0 && ![[command.arguments objectAtIndex:0] isEqual:[NSNull null]]) {
+            path = [command.arguments objectAtIndex:0];
+        }
+        if ([command.arguments count] > 1 && ![[command.arguments objectAtIndex:1] isEqual:[NSNull null]]) {
+            params = [command.arguments objectAtIndex:1];
+        }
+
+        [XPush getLoyaltyURLWithPath:path params:params completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+            if (error != nil) {
+                [self failWithMessage:@"Failed to get loyalty URL" withError:error withCallbackId:command.callbackId];
+            } else if (url != nil) {
+                [self successWithMessage:[url absoluteString] withCallbackId:command.callbackId];
+            } else {
+                [self failWithMessage:@"Loyalty URL is nil" withError:nil withCallbackId:command.callbackId];
+            }
+        }];
+    }];
+}
+
+- (void)setLoyaltyTokenHandler:(CDVInvokedUrlCommand *)command {
+    NSString *callbackName = [command.arguments objectAtIndex:0];
+    if (callbackName != nil) {
+        self.loyaltyTokenCallback = callbackName;
+
+        // Register handler with iOS SDK that bridges to our callback pattern
+        __weak typeof(self) weakSelf = self;
+        [XPush registerLoyaltyTokenHandler:^(XPLoyaltyTokenHandlerCompletion completion) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (strongSelf) {
+                // Store completion handler for when JS calls setLoyaltyToken
+                strongSelf.pendingLoyaltyCompletion = completion;
+
+                // Call JS callback to request new token
+                [strongSelf callLoyaltyTokenCallback];
+            }
+        }];
+    }
+}
+
+- (void)setLoyaltyToken:(CDVInvokedUrlCommand *)command {
+    NSString *token = [command.arguments objectAtIndex:0];
+
+    // First, call the stored completion handler with the token (for legacy token handler pattern)
+    if (self.pendingLoyaltyCompletion) {
+        self.pendingLoyaltyCompletion(token, nil);
+        self.pendingLoyaltyCompletion = nil;
+    }
+
+    // Now call the SDK's setLoyaltyToken method directly
+    // This will automatically post the token update message to any open loyalty webview
+    [XPush setLoyaltyToken:token];
+}
+
+- (void)callLoyaltyTokenCallback {
+    if (self.loyaltyTokenCallback) {
+        NSString *jsCallBack = [NSString stringWithFormat:@"%@();", self.loyaltyTokenCallback];
+        [self.commandDelegate evalJs:jsCallBack];
+    }
+}
+
+// Internal method called by injected JavaScript interface in custom webviews
+- (void)_triggerLoyaltyTokenHandler:(CDVInvokedUrlCommand *)command {
+    [self callLoyaltyTokenCallback];
+}
+
+// Internal method called by injected JavaScript interface for deeplinks in custom webviews
+- (void)_triggerLoyaltyDeeplink:(CDVInvokedUrlCommand *)command {
+    NSString *deeplink = [command.arguments objectAtIndex:0];
+    if (deeplink != nil) {
+        [self callDeeplinkCallback:deeplink];
     }
 }
 
