@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="4.7.0"
+	version="5.0.0"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -61,6 +61,11 @@
                     android:configChanges="orientation|screenSize"
                     android:label="@string/title_activity_inbox"
                     android:theme="@style/Theme.Transparent" />
+            <activity
+                    android:name="ie.imobile.extremepush.ui.LoyaltyActivity"
+                    android:configChanges="orientation|screenSize"
+                    android:exported="false"
+                    android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
             <activity
                     android:name="ie.imobile.extremepush.ui.OnclickPushActivity"
                     android:exported="false"

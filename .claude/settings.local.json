@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:docs.xtremepush.com)",
+      "Bash(cordova plugin:*)",
+      "Bash(chmod:*)",
+      "Bash(cordova prepare:*)",
+      "Bash(rm -rf node_modules package-lock.json)",
+      "Bash(npm install:*)",
+      "Bash(cordova platform:*)",
+      "Bash(cordova run:*)"
+    ]
+  }
+}
