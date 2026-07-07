@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/XPAction.h</key>
 		<data>
-		14zq7/zW6bcy13DW70+YUzy4OVE=
+		qQiRt+ZcH1WyYsPJISmI8B8xOs4=
 		</data>
 		<key>Headers/XPInboxItem.h</key>
 		<data>
@@ -26,15 +26,15 @@
 		</data>
 		<key>Headers/XPPublicConstants.h</key>
 		<data>
-		R1n7ZTsonEmLHZtbwsaNxGf8G8c=
+		LPdYadN+jPAhnnT/KL+Bxb3Qwk8=
 		</data>
 		<key>Headers/XPush.h</key>
 		<data>
-		xEjqMEAudSzr+C/+3TYA5fL09HI=
+		mwKjDVCxbX70qvlWEIbt0LNEvaU=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		5sTIOYmpezz/9M/PcZ8K+xVBfjY=
+		2D28Pj/QBXcc+W4qYuYFmxbuI58=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -59,7 +59,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			WnNzJBqiNXTQ0Ejh9oZISYQmP/ha+JQ8kzGiKk1NYgw=
+			7LfwuKHfA8TNqCp+4kFZuVWxZ4kJBRFJrTjV5Fsef+c=
 			</data>
 		</dict>
 		<key>Headers/XPInboxItem.h</key>
@@ -94,14 +94,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8HYU/zfB5ohFtDHW2Eowq1UJqDFJbidzR8ZxtuKCoJU=
+			2d34xI0I9ynKyA7yj6tF+Yx3P+4tr5ZflBWRqCfRmuE=
 			</data>
 		</dict>
 		<key>Headers/XPush.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			JmU5KrYW1ykRNeTW3aqSqDh1jyb+4ws21j3/4RaTvHg=
+			cUaKZVDQ7/oHIM44FcnL4s26+j3rqVsjeyz5q6dOwLs=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
