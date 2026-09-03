@@ -24,6 +24,9 @@ import org.apache.cordova.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.ArrayList;
+import ie.imobile.extremepush.InboxListListener;
+import ie.imobile.extremepush.api.model.InboxMessageListItem;
 
 import android.view.OrientationEventListener;
 import android.hardware.SensorManager;
@@ -36,12 +39,14 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import androidx.core.content.ContextCompat;
+
 
 /**
  * Created by Dmytro Malieiev on 6/8/14.
  */
-public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener {
-    
+public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateListener, MessageResponseListener, DeeplinkListener, InboxListListener, LoyaltyTokenHandler {
+
     public static final String TAG = "PushPlugin";
     public static final String REGISTER = "register";
     public static final String HITTAG = "hitTag";
@@ -49,12 +54,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public static final String HITEVENT = "hitEvent";
     public static final String SETUSER = "setUser";
     public static final String SETTEMPUSER = "setTempUser";
+    public static final String AUTHENTICATE = "authenticate";
     public static final String SENDTAGS = "sendTags";
     public static final String SENDIMPRESSIONS = "sendImpressions";
     public static final String SETEXTERNALID = "setExternalId";
     public static final String SETSUBSCRIPTION = "setSubscription";
     public static final String DEVICEINFO = "deviceInfo";
     public static final String REQUESTLOCATIONSPERMISSIONS = "requestLocationsPermissions";
+    public static final String REQUESTPUSHPERMISSIONS = "requestPushPermissions";
     public static final String OPENINBOX = "openInbox";
     public static final String GETINBOXBADGE = "getInboxBadge";
     public static final String SHOWNOTIFICATION = "showNotification";
@@ -62,60 +69,71 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
     public static final String REPORTMESSAGECLICKED = "reportMessageClicked";
     public static final String REPORTMESSAGEDISMISSED = "reportMessageDismissed";
     public static final String ONCONFIGCHANGED = "onConfigChanged";
-    
+    public static final String GETINBOXLIST = "getInboxList";
+    public static final String SETLOYALTYENDPOINT = "setLoyaltyEndpoint";
+    public static final String OPENLOYALTY = "openLoyalty";
+    public static final String GETLOYALTYURL = "getLoyaltyUrl";
+    public static final String SETLOYALTYTOKENHANDLER = "setLoyaltyTokenHandler";
+    public static final String SETLOYALTYTOKEN = "setLoyaltyToken";
+    public static final String TRIGGER_LOYALTY_TOKEN_HANDLER = "_triggerLoyaltyTokenHandler";
+    public static final String TRIGGER_LOYALTY_DEEPLINK = "_triggerLoyaltyDeeplink";
+
     private static String AppId = "Your application ID";
     private static String GoogleProjectID = "Your Google Project ID";
-    
+
     private static CordovaWebView _webView;
     private static String callback_function;
     private static String badge_callback_function;
     private static String deeplink_callback_function;
+    private static String inbox_list_callback_function;
     private static String message_response_callback_function;
+    private static String loyalty_token_callback_function;
     private static CallbackContext _callbackContext;
     private static Bundle cachedExtras;
     private PushConnector pushConnector;
     private static boolean isRegistered = false;
     private static boolean isInitialized = false;
     private static boolean setShowForegroundNotifications = true;
-    
+
     private static boolean inForeground = false;
     private static boolean notNewIntent = false;
     private static BroadcastReceiver mReceiver;
     private static String lastNotificationID = "";
     private static String lastForegroundID = "";
     private static String lastBackgroundID = "";
-    
+    private static boolean requestNotificationPermissions = true;
+
     private static Map<String, Message> pushList = new LinkedHashMap<String, Message>();
     private final static int PUSH_LIMIT = 30;
-    
+
     /*
      * Returns application context
      */
     private Context getApplicationContext(){
         return this.getApplicationActivity().getApplicationContext();
     }
-    
+
     /*
      * Returns application context
      */
     private Activity getApplicationActivity(){
         return this.cordova.getActivity();
     }
-    
+
     /*
      * Returns FragmentManager Context
      */
     private FragmentManager getApplicationFragmentManager(){
         return this.cordova.getActivity().getFragmentManager();
     }
-    
+
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException
     {
         boolean result = false;
-        
+
         LogEventsUtils.sendLogTextMessage(TAG, "execute: action = " + action);
-        
+
         if (REGISTER.equals(action)) {
             register(data, callbackContext);
         } else if (HITTAG.equals(action)) {
@@ -124,10 +142,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             hitImpression(data);
         } else if (HITEVENT.equals(action)) {
             hitEvent(data);
-        } else if (SETUSER.equals(action)) {
+        } else if (GETINBOXLIST.equals(action)) {
+            getInboxList(data);
+        }else if (SETUSER.equals(action)) {
             setUser(data);
         } else if (SETTEMPUSER.equals(action)) {
             setTempUser(data);
+        } else if (AUTHENTICATE.equals(action)) {
+            authenticate(data);
         } else if (SENDTAGS.equals(action)) {
             sendTags();
         } else if (SHOWNOTIFICATION.equals(action)){
@@ -142,6 +164,8 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             getDeviceInfo(callbackContext);
         } else if (REQUESTLOCATIONSPERMISSIONS.equals(action)) {
             requestLocationsPermissions();
+        } else if (REQUESTPUSHPERMISSIONS.equals(action)) {
+            requestPushPermissions();
         } else if (OPENINBOX.equals(action)) {
             openInbox();
         } else if (GETINBOXBADGE.equals(action)) {
@@ -156,8 +180,22 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             reportMessageDismissed(data);
         } else if (ONCONFIGCHANGED.equals(action)){
             onRotation();
+        } else if (SETLOYALTYENDPOINT.equals(action)) {
+            setLoyaltyEndpoint(data);
+        } else if (OPENLOYALTY.equals(action)) {
+            openLoyalty(data);
+        } else if (GETLOYALTYURL.equals(action)) {
+            getLoyaltyUrl(data, callbackContext);
+        } else if (SETLOYALTYTOKENHANDLER.equals(action)) {
+            setLoyaltyTokenHandler(data);
+        } else if (SETLOYALTYTOKEN.equals(action)) {
+            setLoyaltyToken(data);
+        } else if (TRIGGER_LOYALTY_TOKEN_HANDLER.equals(action)) {
+            triggerLoyaltyTokenHandler();
+        } else if (TRIGGER_LOYALTY_DEEPLINK.equals(action)) {
+            triggerLoyaltyDeeplink(data);
         }
-        
+
         if ( cachedExtras != null) {
             LogEventsUtils.sendLogTextMessage(TAG, "sending cached extras");
             sendExtras(cachedExtras);
@@ -165,19 +203,19 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         }
         return true;
     }
-    
+
     private void register(JSONArray data, CallbackContext callbackContext) throws JSONException {
         //        if (pushConnector == null) {
-        
+
         this._webView = this.webView;
         JSONObject jo = data.getJSONObject(0);
-        
+
         //            if (jo.isNull("pushOpenCallback")){
         //                Log.e(TAG, "register: Please provide callback function");
         //                callbackContext.error("Please provide callback function");
         //                return;
         //            }
-        
+
         String appKey;
         if (!jo.isNull("appKey")){
             appKey = jo.getString("appKey");
@@ -186,7 +224,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             callbackContext.error("Please provide a valid xtremepush app key");
             return;
         }
-        
+
         String gcmProjectNumber = null;
         JSONObject joAndroid = null;
         if (!jo.isNull("android")) {
@@ -195,9 +233,15 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 gcmProjectNumber = joAndroid.getString("gcmProjectNumber");
             }
         }
+        if (!jo.isNull("useEncryptedSharedPreferences")){
+            Boolean useESP = jo.getBoolean("useEncryptedSharedPreferences");
+            PushConnector.useEncryptedSharedPref(getApplicationActivity(), useESP);
+        }
+
         PushConnector.Builder b = new PushConnector.Builder(appKey, gcmProjectNumber);
-        
+
         b.setMessageResponseListener(this);
+        b.setInboxListListener(this);
         b.setShowForegroundNotifications(false);
         b.setDeeplinkListener(this);
         b.setInboxBadgeUpdateListener(this);
@@ -207,82 +251,91 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 PushConnector.mPushConnector.setMessageResponseListener(this);
                 PushConnector.mPushConnector.setInboxBadgeUpdateListener(this);
                 PushConnector.mPushConnector.setDeeplinkListener(this);
+                PushConnector.mPushConnector.setInboxListListener(this);
             }
         } catch (Exception e) {}
-        
+
         if (!jo.isNull("serverUrl")){
             String serverUrl = jo.getString("serverUrl");
             b.setServerUrl(serverUrl);
         }
-        
+
         if (!jo.isNull("attributionsEnabled")){
             Boolean attributions = jo.getBoolean("attributionsEnabled");
             b.setAttributionsEnabled(attributions);
         }
-        
+
         if (!jo.isNull("inappMessagingEnabled")){
             Boolean inapp = jo.getBoolean("inappMessagingEnabled");
             b.setEnableStartSession(inapp);
         }
-        
+
         if (!jo.isNull("inboxEnabled")){
             Boolean inbox = jo.getBoolean("inboxEnabled");
             b.setInboxEnabled(inbox);
         }
-        
+
         if (!jo.isNull("debugLogsEnabled")){
             Boolean debugLogsEnabled = jo.getBoolean("debugLogsEnabled");
             b.turnOnDebugLogs(debugLogsEnabled);
         }
-        
+
         if (!jo.isNull("tagsBatchingEnabled")){
             Boolean tagsBatchingEnabled = jo.getBoolean("tagsBatchingEnabled");
             b.setTagsBatchingEnabled(tagsBatchingEnabled);
         }
-        
+
         if (!jo.isNull("impressionsBatchingEnabled")){
             Boolean impressionsBatchingEnabled = jo.getBoolean("impressionsBatchingEnabled");
             b.setImpressionsBatchingEnabled(impressionsBatchingEnabled);
         }
-        
+
         if (!jo.isNull("tagsStoreLimit")){
             Integer tagsStoreLimit = jo.getInt("tagsStoreLimit");
             b.setTagsStoreLimit(tagsStoreLimit);
         }
-        
+
         if (!jo.isNull("impressionsStoreLimit")){
             Integer impressionsStoreLimit = jo.getInt("impressionsStoreLimit");
             b.setImpressionsStoreLimit(impressionsStoreLimit);
         }
-        
+
         if (!jo.isNull("sessionsStoreLimit")){
             Integer sessionsStoreLimit = jo.getInt("sessionsStoreLimit");
             b.setSessionsStoreLimit(sessionsStoreLimit);
         }
-        
-        
+
+
         if(!jo.isNull("foregroundNotificationsEnabled")){
             b.setShowForegroundNotifications(jo.getBoolean("foregroundNotificationsEnabled"));
 //            setShowForegroundNotifications = jo.getBoolean("foregroundNotificationsEnabled");
         }
-        
+
+        if(!jo.isNull("deliveryReceiptsEnabled")){
+            b.setDeliveryReceiptsEnabled(jo.getBoolean("deliveryReceiptsEnabled"));
+        }
+
+        if(!jo.isNull("encryptedMessagesEnabled")){
+            b.setEncryptedMessagesEnabled(jo.getBoolean("encryptedMessagesEnabled"));
+        }
+
         if(joAndroid != null) {
             // Android only options
             if (!joAndroid.isNull("geoEnabled")){
                 Boolean geoEnabled = joAndroid.getBoolean("geoEnabled");
                 b.setEnableGeo(geoEnabled);
             }
-            
+
             if (!joAndroid.isNull("locationsPermissionsRequest")){
                 Boolean locationsPermissionsRequest = joAndroid.getBoolean("locationsPermissionsRequest");
                 b.setRequestPermissions(locationsPermissionsRequest);
             }
-            
+
             if (!joAndroid.isNull("beaconsEnabled")){
                 Boolean beaconsEnabled = joAndroid.getBoolean("beaconsEnabled");
                 b.setEnableBeacons(beaconsEnabled);
             }
-            
+
             if (!joAndroid.isNull("setIcon")){
                 // Might need rewriting so that it takes image from www folder
                 String icon = joAndroid.getString("setIcon");
@@ -303,39 +356,65 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 b.setServerExpectedPublicKey(null);
             }
 
+            if (!joAndroid.isNull("pushPermissionsRequest")){
+                requestNotificationPermissions = joAndroid.getBoolean("pushPermissionsRequest");
 
+            }
+
+            if (!joAndroid.isNull("expectedPublicKey")){
+                String publicKey = joAndroid.getString("expectedPublicKey");
+                b.setServerExpectedPublicKey(publicKey);
+            }
         }
+        b.requestNotificationPermission(requestNotificationPermissions);
 
-        b.create(getApplicationActivity().getApplication());
-        
+        // Store builder and callback for background thread
+        final PushConnector.Builder builder = b;
+        final CallbackContext finalCallbackContext = callbackContext;
+
         //            callback_function = (String) jo.getString("pushOpenCallback");
         badge_callback_function = (String) jo.optString("inboxBadgeCallback", null);
         message_response_callback_function = (String) jo.optString("messageResponseCallback", null);
         deeplink_callback_function = (String) jo.optString("deeplinkCallback", null);
-        initNotificationMessageReceivers();
-        isRegistered = true;
-        initializePushConnector();
-        
-        if(mPushConnector.tempResponseHolder != null) {
-            mPushConnector.tempResponseHolder.callPushOpened();   
-        }
-        
-        callbackContext.success("Successfully registered!");
+        inbox_list_callback_function = (String) jo.optString("inboxListCallback", null);
+
+        // Initialize XtremePush on background thread to avoid Looper conflicts
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    builder.create(getApplicationActivity().getApplication());
+
+                    initNotificationMessageReceivers();
+                    isRegistered = true;
+                    initializePushConnector();
+
+                    if(mPushConnector.tempResponseHolder != null) {
+                        mPushConnector.tempResponseHolder.callPushOpened();
+                    }
+
+                    finalCallbackContext.success("Successfully registered!");
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to initialize XtremePush: " + e.getMessage());
+                    finalCallbackContext.error("Failed to initialize: " + e.getMessage());
+                }
+            }
+        });
     }
-    
+
     private void hitTag(JSONArray data) throws JSONException {
         if (!isRegistered){
             LogEventsUtils.sendLogTextMessage(TAG, "hitTag: Please call register function first");
             return;
         }
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "hitTag: Please provide tag title");
             return;
         }
-        
+
         String tag =  data.getString(0);
-        
+
         if (!data.isNull(1) && mPushConnector != null){
             mPushConnector.hitTag(tag, data.getString(1));
         }
@@ -343,18 +422,18 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             mPushConnector.hitTag(tag);
         }
     }
-    
+
     private void hitEvent(JSONArray data) throws JSONException {
         if (!isRegistered){
             LogEventsUtils.sendLogTextMessage(TAG, "hitEvent: Please call register function first");
             return;
         }
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "hitEvent: Please provide event title");
             return;
         }
-        
+
         String title = data.getString(0);
         String message = null;
         if (!data.isNull(1)) {
@@ -364,12 +443,41 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             mPushConnector.hitEvent(getApplicationContext(), title, message);
     }
 
+    private void getInboxList(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "getInboxList: Please call register function first");
+            return;
+        }
+        if (data.isNull(0) || data.isNull(1)){
+            LogEventsUtils.sendLogTextMessage(TAG, "getInboxList: Please provide offset and limit");
+            return;
+        }
+        int offset = data.getInt(0);
+        int limit = data.getInt(1);
+        if (mPushConnector != null)
+            mPushConnector.inboxListWithOffset(getApplicationContext(), offset, limit);
+    }
+
+    private void authenticate(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please call register function first");
+            return;
+        }
+
+        if (data.isNull(0)){
+            LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please provide user ID");
+            return;
+        }
+        if (mPushConnector != null)
+            mPushConnector.authenticate(getApplicationContext(), data.getString(0));
+    }
+
     private void setUser(JSONArray data) throws JSONException {
         if (!isRegistered){
             LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please call register function first");
             return;
         }
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "setUser: Please provide user ID");
             return;
@@ -383,7 +491,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             LogEventsUtils.sendLogTextMessage(TAG, "setTempUser: Please call register function first");
             return;
         }
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "setTempUser: Please provide temp user ID");
             return;
@@ -391,23 +499,23 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if (mPushConnector != null)
             mPushConnector.setTempUser(data.getString(0));
     }
-    
+
     private void hitImpression(JSONArray data) throws JSONException {
         if (!isRegistered){
             LogEventsUtils.sendLogTextMessage(TAG, "hitImpression: Please call register function first");
             return;
         }
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "hitImpression: Please provide impression title");
             return;
         }
-        
+
         String impression =  data.getString(0);
         if (mPushConnector != null)
             mPushConnector.hitImpression(impression);
     }
-    
+
     private void sendTags()
     {
         if (!isRegistered){
@@ -417,7 +525,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if (mPushConnector != null)
             mPushConnector.sendTags();
     }
-    
+
     private void sendImpressions()
     {
         if (!isRegistered){
@@ -427,35 +535,35 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if (mPushConnector != null)
             mPushConnector.sendImpressions();
     }
-    
+
     private void setExternalId(JSONArray data) throws JSONException {
         if (!isRegistered) {
             LogEventsUtils.sendLogTextMessage(TAG, "setExternalId: Please call register function first");
             return;
         }
-        
+
         if (data.isNull(0)) {
             LogEventsUtils.sendLogTextMessage(TAG, "setExternalId: Please provide ID");
             return;
         }
-        
+
         String id =  data.getString(0);
         if (mPushConnector != null)
             mPushConnector.setExternalId(id);
     }
-    
+
     private void setSubscription(JSONArray data) throws JSONException {
         if (data.isNull(0)) {
             LogEventsUtils.sendLogTextMessage(TAG, "setSubscription: Please provide true/false value");
             return;
         }
-        
+
         Boolean subBoolean = data.getBoolean(0);
         String subStatus = subBoolean ? "1" : "0";
         SharedPrefUtils.setSubscriptionStatus(subStatus, getApplicationContext());
         ConnectionManager.getInstance().updateDevice(getApplicationContext());
     }
-    
+
     private void openInbox()
     {
         if (!isRegistered){
@@ -466,7 +574,16 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if (mPushConnector != null)
             mPushConnector.openInbox(getApplicationActivity());
     }
-    
+
+    private void requestPushPermissions(){
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "openInbox: Please call register function first");
+            return;
+        }
+        if (mPushConnector != null)
+            mPushConnector.requestNotificationPermissions(getApplicationActivity());
+    }
+
     private void getInboxBadge()
     {
         if (!isRegistered){
@@ -476,7 +593,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         if (mPushConnector != null)
             inboxBadgeUpdated(mPushConnector.getInboxBadge(), null);
     }
-    
+
     @Override
     public void inboxBadgeUpdated(int badge, WeakReference<Context> uiReference) {
         if (badge_callback_function != null && _webView != null) {
@@ -487,7 +604,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             LogEventsUtils.sendLogTextMessage(TAG, "inboxBadgeUpdated: callback or webview is null");
         }
     }
-    
+
     @Override
     public void deeplinkReceived(String link, WeakReference<Context> uiReference) {
         if (deeplink_callback_function != null && _webView != null){
@@ -498,7 +615,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             LogEventsUtils.sendLogTextMessage(TAG, "deeplinkReceived: callback or webview is null");
         }
     }
-    
+
     private void getDeviceInfo(CallbackContext callbackContext) {
         if (!isRegistered) {
             LogEventsUtils.sendLogTextMessage(TAG, "getDeviceInfo: Please call register function first");
@@ -524,13 +641,13 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
      */
     private void initNotificationMessageReceivers(){
         IntentFilter intentFilter = new IntentFilter(
-                                                     "ie.imobile.extremepush.action_message");
-        
+                "ie.imobile.extremepush.action_message");
+
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Bundle extras = intent.getExtras();
-                
+
                 if (extras != null)
                 {
                     if (inForeground) {
@@ -546,10 +663,15 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 }
             }
         };
-        
-        this.getApplicationContext().registerReceiver(mReceiver, intentFilter);
+
+        ContextCompat.registerReceiver(
+                this.getApplicationContext(),
+                mReceiver,
+                intentFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
+
     }
-    
+
     /*
      * Sends the pushbundle extras to the client application.
      * If the client application isn't currently active, it is cached for later processing.
@@ -565,20 +687,20 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             }
         }
     }
-    
+
     /*
      * Sends a json object to the client as parameter to a method which is defined in gECB.
      */
     public static void sendJavascript(JSONObject _json) {
-        
+
         String _d = "javascript:" + callback_function + "(" + _json.toString() + ")";
         LogEventsUtils.sendLogTextMessage(TAG, "sendJavascript: " + _d);
-        
+
         if (callback_function != null && _webView != null) {
             _webView.sendJavascript(_d);
         }
     }
-    
+
     /*
      * serializes a bundle to JSON.
      */
@@ -594,7 +716,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             {
                 String key = it.next();
                 Object value = extras.get(key);
-                
+
                 // System data from Android
                 if (key.equals("from") || key.equals("collapse_key"))
                 {
@@ -615,10 +737,10 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                     {
                         json.put(key, value);
                     }
-                    
+
                     if ( value instanceof String ) {
                         // Try to figure out if the value is another JSON object
-                        
+
                         String strValue = (String)value;
                         if (strValue.startsWith("{")) {
                             try {
@@ -647,7 +769,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                             jsondata.put(key, value);
                         }
                     }
-                    
+
                     if (value instanceof Message)
                     {
                         if(((Message)value).id != null)
@@ -673,9 +795,9 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 }
             } // while
             json.put("data", jsondata);
-            
+
             LogEventsUtils.sendLogTextMessage(TAG, "extrasToJSON: " + json.toString());
-            
+
             return json;
         }
         catch( JSONException e)
@@ -684,14 +806,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         }
         return null;
     }
-    
+
     private void initializePushConnector(){
         // mPushConnector.mLifecycleListener.onActivityCreated(getApplicationActivity(), null);
         // mPushConnector.mLifecycleListener.onActivityStarted(getApplicationActivity());
         PushConnector.mLifecycleListener.onActivityResumed(getApplicationActivity());
         isInitialized = true;
     }
-    
+
     /*
      * Initialization of plugin
      */
@@ -700,7 +822,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         super.initialize(cordova, webView);
         inForeground = true;
     }
-    
+
     /*
      * When application goes to onPause state
      */
@@ -713,7 +835,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        inForeground = false;
         //        notNewIntent = true;
     }
-    
+
     /*
      * When application will go to onResume state
      */
@@ -744,7 +866,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //            }
         //        }
     }
-    
+
     /**
      * Called when the activity receives a new intent.
      */
@@ -757,12 +879,12 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        getApplicationActivity().setIntent(intent);
         //        notNewIntent = false;
     }
-    
+
     private void onRotation(){
         if(mPushConnector!= null)
             mPushConnector.onRotation(getApplicationActivity());
     }
-    
+
     /**
      * Called when an activity you launched exits, giving you the requestCode you started it with,
      * the resultCode it returned, and any additional data from it.
@@ -779,7 +901,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //            pushConnector.onActivityResult(requestCode, resultCode, intent);
         super.onActivityResult(requestCode, resultCode, intent);
     }
-    
+
     /*
      * When application goes to onStop state
      */
@@ -790,7 +912,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        }
         super.onStop();
     }
-    
+
     /*
      * when application goes to onDestroy state
      */
@@ -805,7 +927,39 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         //        callback_function = null;
         //        webView = null;
     }
-    
+
+    @Override
+    public void inboxListReceived
+            (ArrayList<InboxMessageListItem> inboxList, WeakReference<Context> uiReference) {
+        try {
+            JSONObject jo = new JSONObject();
+            JSONArray ja = new JSONArray();
+            for (int i = 0; i < inboxList.size(); i++) {
+                JSONObject outer = new JSONObject(inboxList.get(i).toString());
+                JSONObject jom = new JSONObject(inboxList.get(i).message.toString());
+                outer.put("message", jom);
+                ja.put(outer);
+            }
+            jo.put("messages",ja);
+            String jos = jo.toString();
+
+            if (inbox_list_callback_function != null && _webView != null){
+                String _d = "javascript:" + inbox_list_callback_function + "(" + jos + ")";
+                LogEventsUtils.sendLogTextMessage(TAG, "inboxListReceived: " + _d);
+                _webView.sendJavascript(_d);
+            } else {
+                LogEventsUtils.sendLogTextMessage(TAG, "inboxListReceived: callback or webview is null");
+            }
+        } catch (Exception e) {
+            LogEventsUtils.sendLogTextMessage(TAG, "inboxList error: "+e.toString());
+        }
+    }
+
+    @Override
+    public void inboxListFailed() {
+
+    }
+
     @Override
     public void messageResponseReceived(Message messagePayload,
                                         HashMap<String, String> responsePayload,
@@ -833,14 +987,13 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
                 }
             }
         }
-        
         if (message_response_callback_function != null && _webView != null){
             JSONObject jo = new JSONObject();
             try {
                 JSONObject messageJson = new JSONObject(messagePayload.toJson());
                 jo.put("message", new JSONObject(messagePayload.toJson()));
                 jo.put("response", new JSONObject(responsePayload));
-            
+
                 String jos = jo.toString();
                 String _d = "javascript:" + message_response_callback_function + "(" + jos + ")";
                 LogEventsUtils.sendLogTextMessage(TAG, "messageResponseReceived: " + _d);
@@ -854,7 +1007,7 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             LogEventsUtils.sendLogTextMessage(TAG, "messageResponseReceived: callback or webview is null");
         }
     }
-    
+
     public void replaceJsonKeys(JSONObject jo){
         try {
             if(jo.has("text")){
@@ -868,80 +1021,206 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        
+
     }
-    
-    
+
+
     public void reportMessageClicked(JSONArray data) throws JSONException {
-        
+
         String messageId;
         String action = null;
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "click message: Please provide messageId");
             return;
         }
-        
+
         messageId = data.getString(0);
-        
+
         if(!data.isNull(1)){
             action = data.getString(1);
         }
         if (mPushConnector != null)
             mPushConnector.reportMessageClicked(pushList.get(messageId), action);
     }
-    
+
     public void reportMessageDismissed(JSONArray data) throws JSONException {
-        
+
         String messageId;
         String action = null;
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "click message: Please provide messageId");
             return;
         }
-        
+
         messageId = data.getString(0);
         if (mPushConnector != null)
             mPushConnector.reportMessageDismissed(pushList.get(messageId), null);
     }
-    
+
     public void clickMessage(JSONArray data) throws JSONException {
-        
+
         String messageId;
         String action = null;
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "click message: Please provide messageId");
             return;
         }
-        
+
         messageId = data.getString(0);
-        
+
         if(!data.isNull(1)){
             action = data.getString(1);
         }
         if (mPushConnector != null)
             mPushConnector.clickMessage(pushList.get(messageId), action);
     }
-    
+
     public void showNotification(JSONArray data) throws JSONException {
-        
+
         String messageId;
         String action = null;
-        
+
         if (data.isNull(0)){
             LogEventsUtils.sendLogTextMessage(TAG, "click message: Please provide messageId");
             return;
         }
-        
+
         messageId = data.getString(0);
-        
+
         if(!data.isNull(1)){
             action = data.getString(1);
         }
         if (mPushConnector != null)
             mPushConnector.showNotification(pushList.get(messageId));
     }
-    
+
+    private void setLoyaltyEndpoint(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        String endpoint = data.getString(0);
+
+        if (mPushConnector != null) {
+            SharedPrefUtils.setLoyaltyEndpoint(endpoint, getApplicationContext());
+        }
+    }
+
+    private void openLoyalty(JSONArray data) throws JSONException {
+        if (!isRegistered){
+            return;
+        }
+
+        String path = null;
+        JSONObject params = null;
+
+        if (!data.isNull(0)){
+            path = data.getString(0);
+        }
+        if (!data.isNull(1)){
+            params = data.getJSONObject(1);
+        }
+
+        if (mPushConnector != null) {
+            // SDK only accepts Activity parameter
+            mPushConnector.openLoyalty(getApplicationActivity());
+        }
+    }
+
+    private void getLoyaltyUrl(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        if (!isRegistered){
+            LogEventsUtils.sendLogTextMessage(TAG, "getLoyaltyUrl: Please call register function first");
+            callbackContext.error("Please call register function first");
+            return;
+        }
+
+        String path = null;
+        JSONObject params = null;
+
+        if (!data.isNull(0)){
+            path = data.getString(0);
+        }
+        if (!data.isNull(1)){
+            params = data.getJSONObject(1);
+        }
+
+        if (mPushConnector != null) {
+            // SDK only accepts Context parameter
+            String url = mPushConnector.getLoyaltyUrl(getApplicationContext());
+            callbackContext.success(url);
+        } else {
+            callbackContext.error("PushConnector not initialized");
+        }
+    }
+
+    private void setLoyaltyTokenHandler(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        loyalty_token_callback_function = data.getString(0);
+
+        if (mPushConnector != null) {
+            mPushConnector.setLoyaltyTokenHandler(this);
+        }
+    }
+
+    private void setLoyaltyToken(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        final String token = data.getString(0);
+
+        if (mPushConnector != null) {
+            // CRITICAL: WebView operations must run on UI thread
+            // The native SDK's tokenUpdated() method calls webView.evaluateJavascript()
+            // which will fail if not on UI thread
+            final Activity activity = getApplicationActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // This calls the native SDK which will:
+                        // 1. Store the token
+                        // 2. If loyalty webview is open, call tokenUpdated(token) which posts message to webview
+                        mPushConnector.setLoyaltyToken(getApplicationContext(), token);
+                    }
+                });
+            } else {
+                LogEventsUtils.sendLogTextMessage(TAG, "setLoyaltyToken: Activity is null, cannot run on UI thread");
+            }
+        } else {
+            LogEventsUtils.sendLogTextMessage(TAG, "setLoyaltyToken: mPushConnector is null");
+        }
+    }
+
+    @Override
+    public void retrieveToken() {
+        if (loyalty_token_callback_function != null && _webView != null) {
+            String _d = "javascript:" + loyalty_token_callback_function + "()";
+            _webView.sendJavascript(_d);
+        }
+    }
+
+    // Internal method called by injected JavaScript interface in custom webviews
+    private void triggerLoyaltyTokenHandler() {
+        retrieveToken();
+    }
+
+    // Internal method called by injected JavaScript interface for deeplinks in custom webviews
+    private void triggerLoyaltyDeeplink(JSONArray data) throws JSONException {
+        if (data.isNull(0)){
+            return;
+        }
+
+        String deeplink = data.getString(0);
+
+        // Trigger the existing deeplink handler
+        deeplinkReceived(deeplink, new WeakReference<Context>(getApplicationContext()));
+    }
+
 }

@@ -4,7 +4,10 @@
 @interface XtremePushPlugin()
 @property (nonatomic, strong) NSString *_receiveCallback;//callbackId
 @property (nonatomic, strong) NSString *_deeplinkCallback;
+@property (nonatomic, strong) NSString *_inboxListCallback;
 @property NSString *inboxBadgeCallback;
+@property NSString *loyaltyTokenCallback;
+@property (nonatomic, copy) XPLoyaltyTokenHandlerCompletion pendingLoyaltyCompletion;
 @property NSDictionary *launchOptions;
 @end
 
@@ -53,6 +56,9 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     id deeplinkCallback = [options objectForKey:@"deeplinkCallback"];
     if (deeplinkCallback != nil) self._deeplinkCallback = deeplinkCallback;
+
+    id inboxListCallback = [options objectForKey:@"inboxListCallback"];
+    if (inboxListCallback != nil) self._inboxListCallback = inboxListCallback;
     
     id serverUrl = [options objectForKey:@"serverUrl"];
     if (serverUrl != nil) [XPush setServerURL:serverUrl];
@@ -65,6 +71,12 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     id foregroundNotificationsEnabled = [options objectForKey:@"foregroundNotificationsEnabled"];
     if (foregroundNotificationsEnabled != nil) foregroundNotificationsEnabledValue = [foregroundNotificationsEnabled boolValue];
+
+    id deliveryReceiptsEnabled = [options objectForKey:@"deliveryReceiptsEnabled"];
+    if (deliveryReceiptsEnabled != nil) [XPush setDeliveryReceiptsEnabled:deliveryReceiptsEnabled];
+
+    id encryptedMessagesEnabled = [options objectForKey:@"encryptedMessagesEnabled"];
+    if (encryptedMessagesEnabled) [XPush enableEncryptedPush];
 
     NSDictionary *iosOptions = [options objectForKey:@"ios"];
     
@@ -104,6 +116,11 @@ static NSMutableDictionary *pushNotificationBackupList;
     [self registerXpushConfiguration];
     [XPush setShouldProcessNotificationsFromLaunchOptions:YES];
     [XPush setCordovaLaunchMode:YES];
+
+
+    #if DEBUG
+        [XPush setSandboxModeEnabled:YES];
+    #endif
     
     [XPush applicationDidFinishLaunchingWithOptions:self.launchOptions];
     
@@ -224,6 +241,8 @@ static NSMutableDictionary *pushNotificationBackupList;
 }
 
 
+
+
 - (void)requestPushPermissions:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         [XPush registerForRemoteNotificationTypes:XPNotificationType_Alert | XPNotificationType_Sound | XPNotificationType_Badge];
@@ -268,8 +287,8 @@ static NSMutableDictionary *pushNotificationBackupList;
                     }
                     if ([value isKindOfClass:[NSDictionary class]]) {
                         //ToDo Fix native support for event with values then uncomment
-                        //NSDictionary *value = [command.arguments objectAtIndex:1];
-                        //[XPush hitEvent:title withValues: value];
+//                         NSDictionary *value = [command.arguments objectAtIndex:1];
+//                         [XPush hitEvent:title withValues: value];
                         [XPush hitEvent:title];
                     }
                 } else {
@@ -280,6 +299,37 @@ static NSMutableDictionary *pushNotificationBackupList;
             }
         }
     }];
+}
+
+
+- (NSDictionary *)dictionaryFromInboxMessage:(XPInboxItem *)object {
+
+    NSMutableDictionary *itemDict = [NSMutableDictionary dictionary];
+    itemDict[NSStringFromSelector(@selector(identifier))] = @(object.identifier);
+    itemDict[NSStringFromSelector(@selector(isOpened))] = @(object.isOpened);
+    itemDict[NSStringFromSelector(@selector(isClicked))] = @(object.isClicked);
+    itemDict[NSStringFromSelector(@selector(isDelivered))] = @(object.isDelivered);
+    itemDict[NSStringFromSelector(@selector(createTimestamp))] = object.createTimestamp;
+    itemDict[NSStringFromSelector(@selector(expirationTimestamp))] = object.expirationTimestamp;
+    itemDict[NSStringFromSelector(@selector(isCard))] = @(object.isCard);
+    itemDict[NSStringFromSelector(@selector(isDelivered))] = @(object.isDelivered);
+
+    NSMutableDictionary *messageDict = [NSMutableDictionary dictionary];
+    messageDict[NSStringFromSelector(@selector(type))] = @(object.response.message.type);
+    messageDict[NSStringFromSelector(@selector(identifier))] = object.response.message.identifier;
+    messageDict[NSStringFromSelector(@selector(title))] = object.response.message.title;
+    messageDict[NSStringFromSelector(@selector(text))] = object.response.message.text;
+    messageDict[NSStringFromSelector(@selector(url))] = [object.response.action.url absoluteString];
+    messageDict[NSStringFromSelector(@selector(icon))] = object.response.message.icon;
+    messageDict[NSStringFromSelector(@selector(campaignIdentifier))] = object.response.message.campaignIdentifier;
+    messageDict[NSStringFromSelector(@selector(data))] = object.response.message.data;
+    messageDict[NSStringFromSelector(@selector(deeplink))] = object.response.action.deeplink;
+    messageDict[NSStringFromSelector(@selector(inapp))] = object.response.action.inapp;
+
+
+    itemDict[NSStringFromSelector(@selector(message))] = messageDict;
+
+    return [itemDict copy];
 }
 
 - (void) hitImpression:(CDVInvokedUrlCommand *)command {
@@ -309,6 +359,11 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void) setUser:(CDVInvokedUrlCommand *)command {
     NSString *userId = [command.arguments objectAtIndex:0];
     [XPush setUser:userId];
+}
+
+- (void)authenticate:(CDVInvokedUrlCommand *)command {
+    NSString *token = [command.arguments objectAtIndex:0];
+    [XPush authenticate:token];
 }
 
 - (void) setTempUser:(CDVInvokedUrlCommand *)command {
@@ -382,6 +437,111 @@ static NSMutableDictionary *pushNotificationBackupList;
     }
 }
 
+- (void)setLoyaltyEndpoint:(CDVInvokedUrlCommand *)command {
+    NSString *endpoint = [command.arguments objectAtIndex:0];
+    if (endpoint != nil) {
+        [XPush setLoyaltyEndpoint:endpoint];
+    }
+}
+
+- (void)openLoyalty:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *path = nil;
+        NSDictionary *params = nil;
+
+        if ([command.arguments count] > 0 && ![[command.arguments objectAtIndex:0] isEqual:[NSNull null]]) {
+            path = [command.arguments objectAtIndex:0];
+        }
+        if ([command.arguments count] > 1 && ![[command.arguments objectAtIndex:1] isEqual:[NSNull null]]) {
+            params = [command.arguments objectAtIndex:1];
+        }
+
+        if (path != nil || params != nil) {
+            [XPush openLoyaltyWithPath:path params:params];
+        } else {
+            [XPush openLoyalty];
+        }
+    }];
+}
+
+- (void)getLoyaltyUrl:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *path = nil;
+        NSDictionary *params = nil;
+
+        if ([command.arguments count] > 0 && ![[command.arguments objectAtIndex:0] isEqual:[NSNull null]]) {
+            path = [command.arguments objectAtIndex:0];
+        }
+        if ([command.arguments count] > 1 && ![[command.arguments objectAtIndex:1] isEqual:[NSNull null]]) {
+            params = [command.arguments objectAtIndex:1];
+        }
+
+        [XPush getLoyaltyURLWithPath:path params:params completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
+            if (error != nil) {
+                [self failWithMessage:@"Failed to get loyalty URL" withError:error withCallbackId:command.callbackId];
+            } else if (url != nil) {
+                [self successWithMessage:[url absoluteString] withCallbackId:command.callbackId];
+            } else {
+                [self failWithMessage:@"Loyalty URL is nil" withError:nil withCallbackId:command.callbackId];
+            }
+        }];
+    }];
+}
+
+- (void)setLoyaltyTokenHandler:(CDVInvokedUrlCommand *)command {
+    NSString *callbackName = [command.arguments objectAtIndex:0];
+    if (callbackName != nil) {
+        self.loyaltyTokenCallback = callbackName;
+
+        // Register handler with iOS SDK that bridges to our callback pattern
+        __weak typeof(self) weakSelf = self;
+        [XPush registerLoyaltyTokenHandler:^(XPLoyaltyTokenHandlerCompletion completion) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (strongSelf) {
+                // Store completion handler for when JS calls setLoyaltyToken
+                strongSelf.pendingLoyaltyCompletion = completion;
+
+                // Call JS callback to request new token
+                [strongSelf callLoyaltyTokenCallback];
+            }
+        }];
+    }
+}
+
+- (void)setLoyaltyToken:(CDVInvokedUrlCommand *)command {
+    NSString *token = [command.arguments objectAtIndex:0];
+
+    // First, call the stored completion handler with the token (for legacy token handler pattern)
+    if (self.pendingLoyaltyCompletion) {
+        self.pendingLoyaltyCompletion(token, nil);
+        self.pendingLoyaltyCompletion = nil;
+    }
+
+    // Now call the SDK's setLoyaltyToken method directly
+    // This will automatically post the token update message to any open loyalty webview
+    [XPush setLoyaltyToken:token];
+}
+
+- (void)callLoyaltyTokenCallback {
+    if (self.loyaltyTokenCallback) {
+        NSString *jsCallBack = [NSString stringWithFormat:@"%@();", self.loyaltyTokenCallback];
+        [self.commandDelegate evalJs:jsCallBack];
+    }
+}
+
+// Internal method called by injected JavaScript interface in custom webviews
+- (void)_triggerLoyaltyTokenHandler:(CDVInvokedUrlCommand *)command {
+    [self callLoyaltyTokenCallback];
+}
+
+// Internal method called by injected JavaScript interface for deeplinks in custom webviews
+- (void)_triggerLoyaltyDeeplink:(CDVInvokedUrlCommand *)command {
+    NSString *deeplink = [command.arguments objectAtIndex:0];
+    if (deeplink != nil) {
+        [self callDeeplinkCallback:deeplink];
+    }
+}
+
 - (void) callPushOpenCallback:(NSDictionary *)userInfo {
     if (self._receiveCallback) {
         NSError *error;
@@ -393,6 +553,23 @@ static NSMutableDictionary *pushNotificationBackupList;
         } else {
             NSString *jsonStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self._receiveCallback, jsonStr];
+            //NSLog(@"!!!jsCallBack: %@", jsCallBack);
+            [self.commandDelegate evalJs:jsCallBack];
+        }
+    }
+}
+
+- (void) callInboxCallback:(NSDictionary *)x {
+    if (self._inboxListCallback) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:x
+                                                           options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                             error:&error];
+        if (! jsonData) {
+            NSLog(@"Got an error: %@", error);
+        } else {
+            NSString *jsonStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self._inboxListCallback, jsonStr];
             //NSLog(@"!!!jsCallBack: %@", jsCallBack);
             [self.commandDelegate evalJs:jsCallBack];
         }
@@ -472,6 +649,43 @@ forLocalNotification:(UILocalNotification *)notification
 handleActionWithIdentifier:identifier
   forLocalNotification:notification
      completionHandler:completionHandler];
+}
+
+
+- (void) getInboxList: (CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSInteger offset = [[command.arguments objectAtIndex:0]integerValue];
+        NSInteger limit = [[command.arguments objectAtIndex:1] integerValue];
+        if (offset >= 0 && limit > 0) {
+            [XPush inboxListWithOffset:offset limit:limit callback:^(NSArray<XPInboxItem *> * _Nullable list, NSError * _Nullable error) {
+                if (list != nil) {
+                    NSMutableDictionary *listDict = @{}.mutableCopy;
+                    NSMutableArray *messageDicts = [NSMutableArray array];
+                    for (XPInboxItem *item in list) {
+                        NSDictionary *msgDict = [self dictionaryFromInboxMessage:item];
+                        [messageDicts addObject:msgDict];
+
+                    }
+                    listDict[@"messages"] = messageDicts;
+
+                    NSError *error = nil;
+                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:listDict
+                                                                       options:NSJSONWritingPrettyPrinted
+                                                                         error:&error];
+                    if (error) {
+                        NSLog(@"Error converting to JSON: %@", error.localizedDescription);
+                    }
+                    // JSON style string list of XPInboxItem's
+                    NSString *listStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                    [self callInboxCallback: listDict];
+
+                } else if (error != nil) {
+                    NSLog(@"Error converting to JSON: %@", error.localizedDescription);
+
+                }
+            }];
+        }
+    }];
 }
 
 @end

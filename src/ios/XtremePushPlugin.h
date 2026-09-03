@@ -25,5 +25,7 @@
 - (void) clickMessage:(CDVInvokedUrlCommand*)command;
 - (void) reportMessageClicked:(CDVInvokedUrlCommand*)command;
 - (void) reportMessageDismissed:(CDVInvokedUrlCommand*)command;
+- (void) authenticate:(CDVInvokedUrlCommand *)command;
+- (void) getInboxList:(CDVInvokedUrlCommand *)command;
 
 @end

@@ -8,7 +8,6 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import <XPush/XPPublicConstants.h>
-#import <XPush/XPPublicConstants.h>
 #import <XPush/XPInboxItem.h>
 
 @interface XPush : NSObject
@@ -109,7 +108,7 @@
  * Payload will contain message_id and campaign_id
  */
 + (void) setDeliveryReceiptsEnabled:(BOOL) isEnabled
-            customReportingEndpoint:(NSString*) endpoint;
+            customReportingEndpoint:(NSString*_Nullable) endpoint;
 
 /*
  * XPush will use encryption for push notifiction
@@ -121,7 +120,12 @@
  * @param appGroup -- name of the App Group you defined for your bundle identifier
  * Required for using delivery receipts or encrypted push notifications
  */
-+ (void) enableAppGroups: (NSString*) appGroup;
++ (void) enableAppGroups: (NSString*_Nonnull) appGroup;
+
+/*
+ * Required for authenticating user with a token
+ */
++ (void)authenticate:(NSString*_Nonnull)token;
 
 /** DELEGATE BRIDGES **/
 
@@ -180,17 +184,17 @@
  * Call this method in your custom UNNotificationCenterDelegate's
  * [userNotificationCenter:willPresentNotification:withCompletionHandler:]
  */
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center
-       willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler API_AVAILABLE(ios(10.0));
++ (void)userNotificationCenter:(UNUserNotificationCenter *_Nonnull)center
+       willPresentNotification:(UNNotification *_Nonnull)notification
+         withCompletionHandler:(void (^_Nonnull)(UNNotificationPresentationOptions))completionHandler API_AVAILABLE(ios(10.0));
 
 /**
  * Call this method in your custom UNNotificationCenterDelegate's
  * [userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:]
  */
-+ (void)userNotificationCenter:(UNUserNotificationCenter *)center
-didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(XPSimpleCompletionBlock)completionHandler API_AVAILABLE(ios(10.0));
++ (void)userNotificationCenter:(UNUserNotificationCenter *_Nonnull)center
+didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
+         withCompletionHandler:(XPSimpleCompletionBlock _Nullable )completionHandler API_AVAILABLE(ios(10.0));
 
 /**
  * Call this method in your custom UNNotificationCenterDelegate's
@@ -223,6 +227,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  * Unregister current application and this lib to receive notifications
  */
 + (void)unregisterForRemoteNotifications;
+
+/**
+ * Check if notification permission can be requested
+ * @param callback - completion handler that returns YES if permission can be requested, NO otherwise
+ */
++ (void)canRequestNotificationPermission:(void(^)(BOOL canRequest))callback;
 
 /**
  * Customise foreground notification behaviours
@@ -293,14 +303,24 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 /**
  * Report message being clicked after showing custom dialog
- *  * @param - context. Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ *  * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
  * pass nil for absent context
  */
 + (void)reportMessageClicked:(XPMessage *)message context:(NSDictionary*)context;
 
 /**
+ * Report message being opened
+ *  * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ * pass nil for absent context
+ */
++ (void)reportMessageOpened:(XPMessage *)message context:(NSDictionary *)context;
+
++ (void)reportInboxMessageClicked:(NSString *_Nonnull)messageID actionIdentifier:(NSString*_Nonnull)actionIdentifier;
+
++ (void)reportInboxMessageOpened:(NSString *_Nonnull)messageID actionIdentifier:(NSString*_Nonnull)actionIdentifier;
+/**
  * Report message being delivered after showing custom dialog
- * @param - context. Key-Value pairs of Plist data that can be assigned along with thie message delivery
+ * @param context Key-Value pairs of Plist data that can be assigned along with thie message delivery
  * pass nil for absent context
  */
 + (void)reportMessageDelivered:(XPMessage *)message context:(NSDictionary*)context;
@@ -309,6 +329,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  * Report message being clicked with certain action identifier after showing custom dialog
  */
 + (void)reportMessageClicked:(XPMessage *)message actionIdentifier:(NSString*)actionIdentifier;
+
+/**
+ * Report message being opened with certain action identifier
+ */
++ (void)reportMessageOpened:(XPMessage *)message actionIdentifier:(NSString*)actionIdentifier;
 
 /**
  * Report message being closed after showing custom dialog
@@ -337,9 +362,21 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 + (void)forceOpenInbox;
 
 /**
- * Get current inbox badge
+ * Returns cached inbox badge value
  */
 + (NSInteger)getInboxBadge;
+
+/**
+ * Retrieves the latest inbox badge count and updates the cached value
+ */
++ (void)retrieveInboxBadge;
+
+/**
+ * Retrieves the latest inbox badge count, updates the cache, and returns the updated cached value.
+ */
+
++ (void)retrieveInboxBadgeWithCompletion:(nullable void(^)(NSInteger badge, NSError * _Nullable error))completion;
+
 
 + (void) registerInboxChangeCallback:(void(^)(NSInteger)) callback;
 
@@ -381,6 +418,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
  * We recommend making sure that there isn't any viewControllers presented at the moment
  */
 + (void) forcePresentInappMessage: (BOOL) shouldForcePresent;
+
+
++ (void)startInappPoll;
+
+
++ (void)stopInappPoll;
+
 
 /** DEVICE INFORMATION **/
 
@@ -517,6 +561,52 @@ NS_ASSUME_NONNULL_BEGIN;
 + (void)importUser:(NSDictionary*) preferences
  completionHandler:(XPChannelPreferencesCallback) callback;
 
+
+/**
+ *  sports feed
+ */
++ (void)followSportsFeed:(NSString *_Nonnull)sportFeedID withToken:(NSString *_Nonnull)token;
+
+
+/** LIVE ACTIVITIES */
+
+/**
+ *  Handle Live Activtivity pusht-to-start token
+ */
++ (void)handleLiveActivityToken:(NSString *)token
+                           type:(NSString *)type
+                     activityId:(NSString *)activityId;
+
+/**
+ *  Handle Live Activtivity update token
+ */
++ (void)handleLiveActivityUpdateToken:(NSString *)token
+                           activityId:(NSString *)activityId;
+
+/**
+ *  Ends live activity subscription
+ */
++ (void)endLiveActivitySubscription:(NSString *)activityID;
+
+
+/** LOYALTY */
+
++ (void)setLoyaltyToken:(NSString *)jwtToken;
+
++ (void)registerLoyaltyTokenHandler:(XPLoyaltyTokenHandler)handler;
+
++ (void)setLoyaltyEndpoint:(NSString *)endpoint;
+
++ (void)openLoyalty;
++ (void)openLoyaltyWithPath:(NSString * _Nullable)pathExtension
+                     params:(NSDictionary * _Nullable)params;
+
++ (void)getLoyaltyURLWithCompletion:(void (^)(NSURL * _Nullable url, NSError * _Nullable error))completion;
++ (void)getLoyaltyURLWithPath:(NSString * _Nullable)pathExtension
+                       params:(NSDictionary * _Nullable)params
+                   completion:(void (^)(NSURL * _Nullable url,
+                                       NSError * _Nullable error))completion;
+
 NS_ASSUME_NONNULL_END;
 
 @end
@@ -524,11 +614,11 @@ NS_ASSUME_NONNULL_END;
 /** INBOX BUTTON **/
 
 @interface XPInboxButton : UIButton
-- (UILabel *)badge;
+- (UILabel *_Nonnull)badge;
 - (void)setBadgeSize:(NSInteger)badgeSize;
 - (void)setBadgePosition:(CGPoint)badgeSize;
-- (void)setBadgeColor:(UIColor *)color;
-- (void)setBadgeTextColor:(UIColor *)color;
+- (void)setBadgeColor:(UIColor *_Nonnull)color;
+- (void)setBadgeTextColor:(UIColor *_Nonnull)color;
 @end
 
 

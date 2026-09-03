@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/XPAction.h</key>
 		<data>
-		14zq7/zW6bcy13DW70+YUzy4OVE=
+		qQiRt+ZcH1WyYsPJISmI8B8xOs4=
 		</data>
 		<key>Headers/XPInboxItem.h</key>
 		<data>
@@ -26,19 +26,23 @@
 		</data>
 		<key>Headers/XPPublicConstants.h</key>
 		<data>
-		R1n7ZTsonEmLHZtbwsaNxGf8G8c=
+		LPdYadN+jPAhnnT/KL+Bxb3Qwk8=
 		</data>
 		<key>Headers/XPush.h</key>
 		<data>
-		GaSCoW4W+JSkIIPqX4X65tHEXIs=
+		mwKjDVCxbX70qvlWEIbt0LNEvaU=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		ScJmS27Kn0Jd0HneIYidAxy3nms=
+		2D28Pj/QBXcc+W4qYuYFmxbuI58=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
-		+09McJ/AZoWfq7AaRZseMbKPlm0=
+		7SLXNz3W7Pd7tRlHEpN/cCATfEk=
+		</data>
+		<key>PrivacyInfo.xcprivacy</key>
+		<data>
+		B4tA9GQA5LexGgnjrriMruUXmQ0=
 		</data>
 		<key>icon_safari.png</key>
 		<data>
@@ -55,7 +59,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			WnNzJBqiNXTQ0Ejh9oZISYQmP/ha+JQ8kzGiKk1NYgw=
+			7LfwuKHfA8TNqCp+4kFZuVWxZ4kJBRFJrTjV5Fsef+c=
 			</data>
 		</dict>
 		<key>Headers/XPInboxItem.h</key>
@@ -90,21 +94,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8HYU/zfB5ohFtDHW2Eowq1UJqDFJbidzR8ZxtuKCoJU=
+			2d34xI0I9ynKyA7yj6tF+Yx3P+4tr5ZflBWRqCfRmuE=
 			</data>
 		</dict>
 		<key>Headers/XPush.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Dm5K8AKwZdC27daqcgaCaLrXfd8lItp1nQD7cM9ASxQ=
+			cUaKZVDQ7/oHIM44FcnL4s26+j3rqVsjeyz5q6dOwLs=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Dta3Vn7r7bC9wF/pn+5Rt1FVSMy03n1yv9iJSVxpnD8=
+			IuAivjMyhjlLqpdRUIZgnFac1fNNE8My7rTyv0Z3Oco=
+			</data>
+		</dict>
+		<key>PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LTcpF8zDNokHDX066l1I5vR73kC5sz5YitCokSVa8SU=
 			</data>
 		</dict>
 		<key>icon_safari.png</key>
