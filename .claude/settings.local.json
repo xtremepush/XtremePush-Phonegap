@@ -10,7 +10,12 @@
       "Bash(rm -rf node_modules package-lock.json)",
       "Bash(npm install:*)",
       "Bash(cordova platform:*)",
-      "Bash(cordova run:*)"
+      "Bash(cordova run:*)",
+      "WebFetch(domain:cordova.apache.org)",
+      "Bash(cordova:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:apache.github.io)",
+      "Bash(ls:*)"
     ]
   }
 }

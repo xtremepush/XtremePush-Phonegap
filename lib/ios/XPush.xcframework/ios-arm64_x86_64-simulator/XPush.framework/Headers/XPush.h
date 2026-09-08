@@ -517,6 +517,11 @@ didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
 + (void)setCordovaLaunchMode:(BOOL) enable;
 
 /**
+ *    Disable sending session start events.
+ */
++ (void)disableSessionStart:(BOOL)disableSessionStart;
+
+/**
  *  User setting
  */
 + (void) setUser:(NSString*) userId;
@@ -591,7 +596,6 @@ NS_ASSUME_NONNULL_BEGIN;
 
 /** LOYALTY */
 
-+ (void)setLoyaltyToken:(NSString *)jwtToken;
 
 + (void)registerLoyaltyTokenHandler:(XPLoyaltyTokenHandler)handler;
 
