@@ -26,6 +26,14 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void)didFinishLaunchingListener:(NSNotification *)notification {
     self.launchOptions = notification.userInfo;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callInboxBadgeCallback) name:XPushInboxBadgeChangeNotification object:nil];
+
+    // Add scene activation observer for iOS 13+ to ensure inbox badge callback works in SceneDelegate architecture
+    if (@available(iOS 13.0, *)) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+            selector:@selector(sceneDidActivate:)
+            name:UISceneDidActivateNotification
+            object:nil];
+    }
 }
 
 #pragma Public APIs
@@ -588,6 +596,12 @@ static NSMutableDictionary *pushNotificationBackupList;
         NSString * jsCallBack = [NSString stringWithFormat:@"%@(%d);", self.inboxBadgeCallback, [XPush getInboxBadge]];
         [self.commandDelegate evalJs:jsCallBack];
     }
+}
+
+- (void)sceneDidActivate:(NSNotification *)notification API_AVAILABLE(ios(13.0)) {
+    // Trigger inbox badge callback when scene activates
+    // This ensures the callback works in SceneDelegate architecture (Cordova iOS 8)
+    [self callInboxBadgeCallback];
 }
 
 - (void) parseDictionary:(NSDictionary *)inDictionary intoJSON:(NSMutableString *)jsonString {
