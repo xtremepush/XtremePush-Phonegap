@@ -49,7 +49,10 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     id impressionsBatchingEnabled = [options objectForKey:@"impressionsBatchingEnabled"];
     if (impressionsBatchingEnabled != nil) [XPush setImpressionsBatchingEnabled:[impressionsBatchingEnabled boolValue]];
-    
+
+    id startSess = [options objectForKey:@"enableStartSessions"];
+    if (startSess != nil) [XPush disableSessionStart:![startSess boolValue]];
+
     id inappMessagingEnabled = [options objectForKey:@"inappMessagingEnabled"];
     if (inappMessagingEnabled != nil) [XPush setInAppMessageEnabled:[inappMessagingEnabled boolValue]];
     
