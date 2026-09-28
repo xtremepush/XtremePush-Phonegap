@@ -49,7 +49,10 @@ static NSMutableDictionary *pushNotificationBackupList;
     
     id impressionsBatchingEnabled = [options objectForKey:@"impressionsBatchingEnabled"];
     if (impressionsBatchingEnabled != nil) [XPush setImpressionsBatchingEnabled:[impressionsBatchingEnabled boolValue]];
-    
+
+    id startSess = [options objectForKey:@"enableStartSessions"];
+    if (startSess != nil) [XPush disableSessionStart:![startSess boolValue]];
+
     id inappMessagingEnabled = [options objectForKey:@"inappMessagingEnabled"];
     if (inappMessagingEnabled != nil) [XPush setInAppMessageEnabled:[inappMessagingEnabled boolValue]];
     
@@ -519,15 +522,12 @@ static NSMutableDictionary *pushNotificationBackupList;
 - (void)setLoyaltyToken:(CDVInvokedUrlCommand *)command {
     NSString *token = [command.arguments objectAtIndex:0];
 
-    // First, call the stored completion handler with the token (for legacy token handler pattern)
+    // Call the stored completion handler with the token
+    // This passes the token to the SDK's loyalty token handler
     if (self.pendingLoyaltyCompletion) {
         self.pendingLoyaltyCompletion(token, nil);
         self.pendingLoyaltyCompletion = nil;
     }
-
-    // Now call the SDK's setLoyaltyToken method directly
-    // This will automatically post the token update message to any open loyalty webview
-    [XPush setLoyaltyToken:token];
 }
 
 - (void)callLoyaltyTokenCallback {

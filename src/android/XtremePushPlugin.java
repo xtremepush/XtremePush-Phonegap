@@ -265,9 +265,14 @@ public class XtremePushPlugin extends CordovaPlugin implements InboxBadgeUpdateL
             b.setAttributionsEnabled(attributions);
         }
 
+        if (!jo.isNull("enableStartSessions")){
+            Boolean startSess = jo.getBoolean("enableStartSessions");
+            b.setEnableStartSession(startSess);
+        }
+
         if (!jo.isNull("inappMessagingEnabled")){
             Boolean inapp = jo.getBoolean("inappMessagingEnabled");
-            b.setEnableStartSession(inapp);
+            b.setEnableInApp(inapp);
         }
 
         if (!jo.isNull("inboxEnabled")){
