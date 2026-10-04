@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="com.xtreme.plugins.XtremePush"
-	version="5.1.2"
+	version="5.1.3"
 	onLoad="true" >
 
 	<name>XtremePush</name>
@@ -41,6 +41,7 @@
             <!-- Keeps the processor from sleeping when a message is received. -->
             <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
             <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
             <!-- OPTIONAL xtremepush settings-->
             <!-- REQUIRED for Geo-location & iBeacon -->
@@ -145,7 +146,7 @@
                     android:permission="android.permission.BIND_JOB_SERVICE" />
             <receiver
                     android:name="ie.imobile.extremepush.beacons.BeaconLocationReceiver"
-                    android:exported="true" />
+                    android:exported="false" />
 
 
 
